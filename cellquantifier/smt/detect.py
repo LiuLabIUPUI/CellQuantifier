@@ -1,36 +1,65 @@
 import numpy as np
-import math
 import matplotlib.pyplot as plt
 import pandas as pd
 
 from matplotlib_scalebar.scalebar import ScaleBar
 from skimage.feature import blob_log
-from matplotlib_scalebar.scalebar import ScaleBar
 
-def detect_blobs(image, config):
+def detect_blobs(image,
+				 min_sigma = 1,
+				 max_sigma = 3,
+				 num_sigma = 5,
+				 threshold = .5,
+				 peak_threshold_rel = .1,
+				 patch_size = 3,
+				 scatter_detection=False):
 
 	"""
-	Detects blobs in time-course images using a predefined static threshold (same threshold for every image)
-	"""
+	Detect blobs in 2D images
 
-	peak_threshold_rel = config.PEAK_THRESH_REL
-	raw_blobs = blob_log(image, min_sigma = config.MIN_SIGMA,
-							max_sigma = config.MAX_SIGMA,
-							num_sigma = config.NUM_SIGMA,
-							threshold=config.THRESHOLD)
+	Parameters
+	----------
+	image : 2D ndarray
+		raw image data
+	Returns
+	-------
+	blobs_df : DataFrame object
 
-	#change blob radius to 3 sigma
-	raw_blobs[:, 2] = config.PATCH_SIZE*raw_blobs[:, 2]
+	Examples
+	--------
+	>>> from skimage import data
+	>>> from cq.smt import detect_blobs
+	>>> detect_blobs(data.coins(), threshold=.1)
 
-	d_to_com = [0 for blob in raw_blobs]
-	#filter raw_blobs at or outside the bounds of the image
-	blobs = pd.DataFrame({'x': raw_blobs[:, 0], 'y': raw_blobs[:, 1], 'r': raw_blobs[:, 2], 'd_to_com': d_to_com})
-	blobs = blobs[(blobs['x'] - blobs['r'] > 0) &
-				  (blobs['x'] + blobs['r'] + 1 < image.shape[0]) &
-				  (blobs['y'] - blobs['r'] > 0) &
-				  (blobs['y'] + blobs['r'] + 1 < image.shape[1])]
+	         x      y  sigma_raw
+	0    286.0  361.0        7.5
+	1    286.0  292.0        4.5
+	2    286.0  246.0        3.0
+	3    286.0   46.0        4.5
+	4    285.0  349.0        6.0
+	..     ...    ...        ...
+	620   20.0  349.0        3.0
+	621   19.0  336.0        9.0
+	622   18.0  346.0        3.0
+	623   18.0  343.0        3.0
+	624   18.0  331.0        4.5
 
-	#patch max contains the maximum intensity in the blob detected
+		"""
+
+	raw_blobs = blob_log(image,
+						 min_sigma = min_sigma,
+						 max_sigma = max_sigma,
+						 num_sigma = num_sigma,
+						 threshold = threshold)
+
+	raw_blobs[:, 2] = patch_size*raw_blobs[:, 2]
+
+	blobs = pd.DataFrame({'x': raw_blobs[:, 0], 'y': raw_blobs[:, 1], 'sigma_raw': raw_blobs[:, 2]})
+	blobs = blobs[(blobs['x'] - blobs['sigma_raw'] > 0) &
+				  (blobs['x'] + blobs['sigma_raw'] + 1 < image.shape[0]) &
+				  (blobs['y'] - blobs['sigma_raw'] > 0) &
+				  (blobs['y'] + blobs['sigma_raw'] + 1 < image.shape[1])]
+
 	blobs_np = blobs.to_numpy()
 	blob_max = []
 
@@ -42,12 +71,10 @@ def detect_blobs(image, config):
 
 
 	blobs['blob_max'] = blob_max
-	#filter blobs with intensity lower than 10% of the maximum intensity of the image
 	threshold_abs = image.max() * peak_threshold_rel
 	blobs = blobs[(blobs['blob_max'] >= threshold_abs)]
 
-	#show the detection if desired
-	if config.SCATTER_DETECTION:
+	if scatter_detection:
 
 		blobs_np = blobs.to_numpy()
 		fig, ax = plt.subplots()
@@ -65,6 +92,6 @@ def detect_blobs(image, config):
 		plt.show()
 
 
-	#dont return the patch max intensity (for now)
-	blobs = blobs[['x','y', 'r']]
+	blobs = blobs[['x','y', 'sigma_raw']]
+
 	return blobs
