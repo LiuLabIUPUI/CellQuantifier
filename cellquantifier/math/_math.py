@@ -1,7 +1,6 @@
 import scipy.optimize as op
 import numpy as np
 import math
-from scipy import stats
 
 def fit_gaussian1d(x, y, amplitude):
 
@@ -65,11 +64,6 @@ def fit_poisson1d(x,y, scale):
 
 
 
-def msd(t, D, alpha):
-
-
-	return 4*D*(t**alpha)
-
 def fit_msd(x,y, space='log'):
 
     """Mean Squared Dispacement fitting
@@ -90,9 +84,13 @@ def fit_msd(x,y, space='log'):
         optimal parameters and covariance matrix
     """
 
-    
+    def msd(t, D, alpha):
+
+    	return 4*D*(t**alpha)
 
     def fit_msd_log(xdata, ydata):
+
+        from scipy import stats
 
         xdata = [math.log(i) for i in xdata]
         ydata = [math.log(i) for i in ydata]
@@ -111,25 +109,59 @@ def fit_msd(x,y, space='log'):
     	return popt
 
 
-"""Spot count fitting function definition and its caller"""
+def fit_spotcount(t, n, n0):
 
-def spot_count(t,n_ss,tau,n0):
+    """Spot count fitting function
 
-	return n_ss*(1-np.exp(-t/tau)) + n0
+    Parameters
+    ----------
+    t: 1d array
 
-def spot_count_fit(t, n, n0):
+    n: 1d array
+        number of spots
+
+    n0: float
+        intial number of spots
+
+    Returns
+    -------
+    popt, pcov: ndarray
+        optimal parameters and covariance matrix
+    """
+
+    def spot_count(t,n_ss,tau,n0):
+
+    	return n_ss*(1-np.exp(-t/tau)) + n0
 
 	popt, pcov = op.curve_fit(lambda t,n_ss,tau: spot_count(t,n_ss, tau, n0), t, n)
 
 	return popt, popt
 
-"""Exponential decay function definition and its corresponding caller"""
 
-def exp_decay(t,t_c,tau, b):
+def fit_expdecay(t, s, b, t_c):
 
-	return b*(np.exp(-(t-t_c)/tau))
+    """Exponential decay fitting function
 
-def exp_decay_fit(t, s, b, t_c):
+    Parameters
+    ----------
+    t: 1d array
+
+    n: 1d array
+        number of spots
+
+    n0: float
+        intial number of spots
+
+    Returns
+    -------
+    popt, pcov: ndarray
+        optimal parameters and covariance matrix
+    """
+
+
+    def exp_decay(t,t_c,tau, b):
+
+    	return b*(np.exp(-(t-t_c)/tau))
 
 	popt, pcov = op.curve_fit(lambda t,tau: g(t,t_c,tau, b), t, s, p0=7)
 
