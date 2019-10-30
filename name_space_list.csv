@@ -1,0 +1,16 @@
+Name space,Short name,Full name
+function,verb_noun,example: get_moments
+object,DataFrame,example: DataFrame
+parameter,thres,threshold
+parameter,rel,relative
+parameter,sig,sigma
+parameter,num,number
+parameter,ind,index
+parameter,img,image
+parameter,array_2d,two dimensional ndarray
+parameter,array_3d,three dimensional ndarray
+library,segm,segmentation
+library,regi,registration
+library,deno,denoise
+library,smt,single molecule tracking
+library,util,utility
