@@ -6,13 +6,13 @@ from matplotlib_scalebar.scalebar import ScaleBar
 from skimage.feature import blob_log
 
 def detect_blobs(image,
-				 min_sigma = 1,
-				 max_sigma = 3,
-				 num_sigma = 5,
-				 threshold = .5,
-				 peak_threshold_rel = .1,
-				 patch_size = 3,
-				 scatter_detection=False):
+		 min_sigma = 1,
+		 max_sigma = 3,
+		 num_sigma = 5,
+		 threshold = .5,
+		 peak_threshold_rel = .1,
+		 patch_size = 3,
+		 scatter_detection=False):
 
 	"""
 	Detect blobs in 2D images
@@ -47,10 +47,10 @@ def detect_blobs(image,
 		"""
 
 	raw_blobs = blob_log(image,
-						 min_sigma = min_sigma,
-						 max_sigma = max_sigma,
-						 num_sigma = num_sigma,
-						 threshold = threshold)
+				 min_sigma = min_sigma,
+				 max_sigma = max_sigma,
+				 num_sigma = num_sigma,
+				 threshold = threshold)
 
 	raw_blobs[:, 2] = patch_size*raw_blobs[:, 2]
 
