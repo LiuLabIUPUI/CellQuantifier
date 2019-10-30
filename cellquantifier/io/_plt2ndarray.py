@@ -1,9 +1,6 @@
 def plt2rgbndarray(fig):
 
     """
-    save matplotlib.pyplot figure to numpy rgbndarray
-
-    test code
     ------------------------------------------------
     import matplotlib.pyplot as plt
     import numpy as np
@@ -29,7 +26,7 @@ def plt2rgbndarray(fig):
     Returns
     -------
     rgb_array_ed: ndarray
-    
+
     Annotate edge, long axis, short axis of ellipses.
 
     Examples
