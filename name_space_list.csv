@@ -1,5 +1,5 @@
 Name space,Short name,Full name
-function,verb_noun,example: get_moments
+function,anno_ellipse,annotate ellipse
 object,DataFrame,example: DataFrame
 parameter,thres,threshold
 parameter,rel,relative
