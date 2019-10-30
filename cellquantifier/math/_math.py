@@ -2,48 +2,47 @@ import scipy.optimize as op
 import numpy as np
 import math
 
-def fit_gaussian1d(x, y, amplitude):
+def fit_gaussian1d(x, y):
 
 	"""1D Gaussian fitting function
 
     Parameters
     ----------
-    x: ndarray
+    x: 1d ndarray
+		raw x data
 
-    x0: float
-        mean value of the gaussian
-
-    amplitude: float
-        initial guess for the amplitude of the gaussian
+    y: 1d ndarray
+        raw y data
 
     Returns
     -------
-    popt, pcov: ndarray
+    popt, pcov: 1d ndarray
         optimal parameters and covariance matrix
     """
 
-    def gaussian1d(x,x0,amplitude,sigma):
-
-        y = amplitude*np.exp(-(x-x0)**2/(2*sigma**2))
-
-        return y
-
-	popt, pcov = curve_fit(lambda x, x0, sigma: gauss(x,amplitude,x0,sigma), x, y, p0 = [np.argmax(y), 25])
+	popt, pcov = curve_fit(gaussian1d, x, y)
 
 	return popt, pcov
 
+def gaussian1d(x,x0,amp,sigma):
 
-def fit_poisson1d(x,y, scale):
+    y = amp*np.exp(-(x-x0)**2/(2*sigma**2))
+
+    return y
+
+
+def fit_poisson1d(x,y):
 
 
 	"""1D Scaled Poisson fitting function
 
     Parameters
     ----------
-    x: 1d array
+    x: 1d ndarray
+		raw x data
 
-    y: 1d array
-        raw data
+    y: 1d ndarray
+        raw y data
 
     scale: float
         scaling factor for the poisson distribution
@@ -54,14 +53,13 @@ def fit_poisson1d(x,y, scale):
         optimal parameters and covariance matrix
     """
 
-    def poisson(x, lamb, scale):
-
-        return scale*(lamb**x/factorial(x))*np.exp(-lamb)
-
-	popt, pcov = curve_fit(lambda x,lamb: poisson(x,lamb,scale), x,counts, p0=[np.argmax(counts)])
+	popt, pcov = curve_fit(poisson1d,x,y)
 
 	return popt, pcov
 
+def poisson1d(x, lambd, scale):
+
+    return scale*(lambd**x/factorial(x))*np.exp(-lambd)
 
 
 def fit_msd(x,y, space='log'):
@@ -70,113 +68,131 @@ def fit_msd(x,y, space='log'):
 
     Parameters
     ----------
-    t: 1d array
+    x: 1d array
+		raw x data
 
     y: 1d array
-        raw data
+        raw y data
 
-    scale: float
-        scaling factor for the poisson distribution
+    space: string
+        'log' for fitting in log space (default)
+		'linear' for sitting in linear space
 
     Returns
     -------
-    popt, pcov: ndarray
+    popt, pcov: 1d ndarray
         optimal parameters and covariance matrix
     """
 
-    def msd(t, D, alpha):
-
-    	return 4*D*(t**alpha)
-
-    def fit_msd_log(xdata, ydata):
+    def fit_msd_log(x, y):
 
         from scipy import stats
 
-        xdata = [math.log(i) for i in xdata]
-        ydata = [math.log(i) for i in ydata]
+        x = [math.log(i) for i in x]
+        y = [math.log(i) for i in y]
 
         slope, intercept, r, p, stderr = \
-            stats.linregress(xdata,ydata)
+            stats.linregress(x,y)
 
         D = np.exp(intercept) / 4; alpha = slope
         popt = (D, alpha)
         return popt
 
-    def fit_msd_linear(t, s):
+    def fit_msd_linear(x, y):
 
-    	popt, pcov = op.curve_fit(msd, t, s, bounds=(0, [np.inf, np.inf]))
+    	popt, pcov = op.curve_fit(msd, x, y, bounds=(0, [np.inf, np.inf]))
 
     	return popt
 
+	if space == 'log':
+		popt = fit_msd_log(x,y)
+	elif space == 'linear':
+		popt = fit_msd_linear(x,y)
 
-def fit_spotcount(t, n, n0):
+	return popt
+
+def msd(x, D, alpha):
+
+	return 4*D*(x**alpha)
+
+
+def fit_spotcount(x, y):
 
     """Spot count fitting function
 
     Parameters
     ----------
-    t: 1d array
+    x: 1d ndarray
+		raw x data
 
-    n: 1d array
-        number of spots
-
-    n0: float
-        intial number of spots
+    y: 1d ndarray
+        raw y data
 
     Returns
     -------
-    popt, pcov: ndarray
+    popt, pcov: 1d ndarray
         optimal parameters and covariance matrix
     """
 
-    def spot_count(t,n_ss,tau,n0):
+    def spot_count(x,a,b,c):
 
-    	return n_ss*(1-np.exp(-t/tau)) + n0
+    	return a*(1-np.exp(-x/b)) + c
 
-	popt, pcov = op.curve_fit(lambda t,n_ss,tau: spot_count(t,n_ss, tau, n0), t, n)
+	popt, pcov = op.curve_fit(spot_count,x,y)
 
 	return popt, popt
 
 
-def fit_expdecay(t, s, b, t_c):
+def fit_expdecay(x,y):
 
     """Exponential decay fitting function
 
     Parameters
     ----------
-    t: 1d array
+    x: 1d ndarray
+		raw x data
 
-    n: 1d array
-        number of spots
-
-    n0: float
-        intial number of spots
+    y: 1d ndarray
+		raw y data
 
     Returns
     -------
-    popt, pcov: ndarray
+    popt, pcov: 1d ndarray
         optimal parameters and covariance matrix
     """
 
+    def exp_decay(x,a,b,c):
 
-    def exp_decay(t,t_c,tau, b):
+    	return a*(np.exp(-(x-b)/c))
 
-    	return b*(np.exp(-(t-t_c)/tau))
-
-	popt, pcov = op.curve_fit(lambda t,tau: g(t,t_c,tau, b), t, s, p0=7)
+	popt, pcov = op.curve_fit(exp_decay, x, y)
 
 	return popt, pcov
 
-"""Sigmoid function definition and its corresponding caller"""
+def fit_sigmoid(x,y):
 
-def sigmoid(t, c1, c2, n0, a):
+    """Sigmoid fitting function
 
-	return a/(1+np.exp(-c1*(t-c2))) + n0
+    Parameters
+    ----------
+    x: 1d ndarray
+		raw x data
 
-def sigmoid_fit(t, s, c2, n0):
+    y: 1d ndarray
+		raw y data
+
+    Returns
+    -------
+    popt, pcov: 1d ndarray
+        optimal parameters and covariance matrix
+    """
+
+	def sigmoid(x, a, b, c, d):
+
+		return a/(1+np.exp(-b*(x-c))) + d
 
 	param_bounds=([0,1],[np.inf,1.5])
 
-	popt, pcov = op.curve_fit(lambda t,a,c1: sig(t,c1,c2,a,n0), t, s, bounds=param_bounds)
+	popt, pcov = op.curve_fit(sigmoid, x, y)
 
 	return popt, pcov
