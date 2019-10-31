@@ -1,5 +1,6 @@
 import math
 from matplotlib import patches
+import matplotlib.pyplot as plt
 
 def anno_ellipse(ax, regionprops, linewidth=2.5, color=(1,0,0,0.8)):
     """
@@ -22,6 +23,7 @@ def anno_ellipse(ax, regionprops, linewidth=2.5, color=(1,0,0,0.8)):
     -------
     Annotate edge, long axis, short axis of ellipses.
     """
+
     for region in regionprops:
         row, col = region.centroid
         y0, x0 = row, col
@@ -61,7 +63,6 @@ def anno_blob(ax, blob_df, marker='s', plot_r=True, color=(0,1,0,0.8)):
     -------
     Annotate center and the periphery of the blob.
     """
-    import matplotlib.pyplot as plt
 
     f = blob_df
     for i in f.index:
@@ -74,3 +75,32 @@ def anno_blob(ax, blob_df, marker='s', plot_r=True, color=(0,1,0,0.8)):
             c = plt.Circle((x,y), r, color=color,
                            linewidth=1, fill=False)
             ax.add_patch(c)
+
+def anno_scatter(ax, scatter_df, marker = 'o', color=(0,1,0,0.8)):
+    """
+    Annotate scatter in matplotlib axis.
+    The scatter parameters are obtained from blob_df.
+
+    Parameters
+    ----------
+    ax : object
+        matplotlib axis to annotate ellipse.
+    scatter_df : DataFrame
+        scatter_df has columns of 'x', 'y'.
+    makers: string, optional
+        The marker for the position of the scatter.
+    color: tuple, optional
+        Color of the marker and circle.
+
+    Returns
+    -------
+    Annotate scatter in the ax.
+    """
+
+    f = scatter_df
+    for i in f.index:
+        y, x = f.at[i, 'x'], f.at[i, 'y']
+        ax.scatter(x, y,
+                    s=10,
+                    marker=marker,
+                    c=[color])
