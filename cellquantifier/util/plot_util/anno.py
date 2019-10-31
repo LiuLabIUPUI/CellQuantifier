@@ -13,13 +13,18 @@ def anno_ellipse(ax, regionprops, linewidth=2.5, color=(1,0,0,0.8)):
     regionprops : list of object
         Measure properties of labeled image regions.
         regionprops is the return value of skimage.measure.regionprops().
+    linewidth: float, optional
+        Linewidth of the ellipse.
+    color: tuple, optional
+        color of the ellipse.
 
     Returns
     -------
     Annotate edge, long axis, short axis of ellipses.
     """
     for region in regionprops:
-        y0, x0 = region.centroid
+        row, col = region.centroid
+        y0, x0 = row, col
         orientation = region.orientation
         ax.plot(x0, y0, '.', markersize=15, color=color)
         x1 = x0 + math.cos(orientation) * 0.5 * region.minor_axis_length
@@ -33,3 +38,39 @@ def anno_ellipse(ax, regionprops, linewidth=2.5, color=(1,0,0,0.8)):
                         angle=-orientation/math.pi*180, facecolor='None',
                         linewidth=linewidth, edgecolor=color)
         ax.add_patch(curr_e)
+
+def anno_blob(ax, blob_df, marker='s', plot_r=True, color=(0,1,0,0.8)):
+    """
+    Annotate blob in matplotlib axis.
+    The blob parameters are obtained from blob_df.
+
+    Parameters
+    ----------
+    ax : object
+        matplotlib axis to annotate ellipse.
+    blob_df : DataFrame
+        bolb_df has columns of 'x', 'y', 'r'.
+    makers: string, optional
+        The marker for center of the blob.
+    plot_r: bool, optional
+        If True, plot the circle.
+    color: tuple, optional
+        Color of the marker and circle.
+
+    Returns
+    -------
+    Annotate center and the periphery of the blob.
+    """
+    import matplotlib.pyplot as plt
+
+    f = blob_df
+    for i in f.index:
+        y, x, r = f.at[i, 'x'], f.at[i, 'y'], f.at[i, 'r']
+        ax.scatter(x, y,
+                    s=10,
+                    marker=marker,
+                    c=[color])
+        if plot_r:
+            c = plt.Circle((x,y), r, color=color,
+                           linewidth=1, fill=False)
+            ax.add_patch(c)
