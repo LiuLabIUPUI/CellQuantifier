@@ -3,21 +3,6 @@ import numpy as np
 
 def plt2array(fig):
     """
-    ------------------------------------------------
-    import matplotlib.pyplot as plt
-    import numpy as np
-    from nubo.io import plt2rgbndarray
-
-    t = np.linspace(0, 4*np.pi, 1000)
-    fig, ax = plt.subplots()
-    ax.plot(t, np.cos(t))
-    ax.plot(t, np.sin(t))
-    out = plt2rgbndarray(fig)
-    print(out)
-    ------------------------------------------------
-    """
-
-    """
     Save matplotlib.pyplot figure to numpy rgbndarray.
 
     Parameters
