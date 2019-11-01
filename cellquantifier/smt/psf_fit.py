@@ -74,7 +74,6 @@ def psf_fit(pims_frame,
     # """
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~Prepare the dataformat~~~~~~~~~~~~~~~~~~~~~~~~~~
     # """
-
     df = pd.DataFrame([], columns=['frame', 'x_raw', 'y_raw', 'r',
             'A', 'x', 'y', 'sig_x', 'sig_y', 'phi',
             'area', 'mass', 'dist_err', 'sigx_to_sigraw', 'sigy_to_sigraw'])
@@ -128,6 +127,7 @@ def psf_fit(pims_frame,
                 good_fitting_num = good_fitting_num + 1
         except:
             pass
+
     print("Predict good fitting number and ratio in frame %d: [%d, %.2f]" %
             (pims_frame.frame_no, good_fitting_num,
             good_fitting_num/len(blobs_df)))

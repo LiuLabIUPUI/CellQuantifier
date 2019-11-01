@@ -1,6 +1,8 @@
 import numpy as np
 import math
 
+__all__ = ['gaussian', 'gain', 'boxcar']
+
 def gaussian(image, sigma):
 
 	"""Wrapper for skimage.filters.gaussian
@@ -59,7 +61,7 @@ def boxcar(image, width):
     filtered : ndarray
         The image after background subtraction
     """
-	
+
 	from scipy import signal
 	from skimage import img_as_ubyte
 

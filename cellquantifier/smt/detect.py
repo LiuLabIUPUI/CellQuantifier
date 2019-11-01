@@ -11,15 +11,15 @@ def detect_blobs(image,
 		 num_sigma = 5,
 		 threshold = .5,
 		 peak_threshold_rel = .1,
-		 patch_size = 3,
+		 r_to_sigraw = 3,
 		 scatter_detection=False):
 
 	"""
-	Detect blobs in 2D images
+	Detect blobs in time-lapse images
 
 	Parameters
 	----------
-	image : 2D ndarray
+	image : 2D/3D ndarray
 		raw image data
 	Returns
 	-------
@@ -27,11 +27,11 @@ def detect_blobs(image,
 
 	Examples
 	--------
-	>>> from skimage import data
-	>>> from cq.smt import detect_blobs
-	>>> detect_blobs(data.coins(), threshold=.1)
+	>>> from cellquantifier import data
+	>>> from cellquantifier.smt.detect import detect_blobs
+	>>> detect_blobs(data.simulated_cell(), threshold=.1)
 
-	         x      y  sigma_raw
+	         x      y  r
 	0    286.0  361.0        7.5
 	1    286.0  292.0        4.5
 	2    286.0  246.0        3.0
@@ -46,37 +46,50 @@ def detect_blobs(image,
 
 		"""
 
-	raw_blobs = blob_log(image,
+	blobs_df = pd.DataFrame(columns = ['frame', 'x', 'y', 'r'])
+
+	for i in range(len(image[:])):
+
+		raw_blobs = blob_log(image[i],
 				 min_sigma = min_sigma,
 				 max_sigma = max_sigma,
 				 num_sigma = num_sigma,
 				 threshold = threshold)
 
-	raw_blobs[:, 2] = patch_size*raw_blobs[:, 2]
+		df = pd.DataFrame({'frame': i*np.ones((raw_blobs.shape[0],)), 'x': raw_blobs[:, 0], 'y': raw_blobs[:, 1], 'r': raw_blobs[:, 2]})
+		df_np = df.to_numpy()
 
-	blobs = pd.DataFrame({'x': raw_blobs[:, 0], 'y': raw_blobs[:, 1], 'sigma_raw': raw_blobs[:, 2]})
-	blobs = blobs[(blobs['x'] - blobs['sigma_raw'] > 0) &
-				  (blobs['x'] + blobs['sigma_raw'] + 1 < image.shape[0]) &
-				  (blobs['y'] - blobs['sigma_raw'] > 0) &
-				  (blobs['y'] + blobs['sigma_raw'] + 1 < image.shape[1])]
+		if scatter_detection:
+			show_detection(image[i],df)
 
-	blobs_np = blobs.to_numpy()
-	blob_max = []
+		blob_max = []
+		for blob in df_np:
+			x,y,r = int(blob[1]), int(blob[2]), int(round(blob[3]))
+			patch = image[i][x-r:x+r+1, y-r:y+r+1]
+			max = patch.max()
+			blob_max.append(max)
 
-	for blob in blobs_np:
-		x,y,r = int(blob[0]), int(blob[1]), int(round(blob[2]))
-		patch = image[x-r:x+r+1, y-r:y+r+1]
-		max = patch.max()
-		blob_max.append(max)
+		df['blob_max'] = blob_max
+		threshold_abs = image[i].max() * peak_threshold_rel
+		df = df[(df['blob_max'] >= threshold_abs)]
+
+		blobs_df = blobs_df.append(df, ignore_index=True)
 
 
-	blobs['blob_max'] = blob_max
-	threshold_abs = image.max() * peak_threshold_rel
-	blobs = blobs[(blobs['blob_max'] >= threshold_abs)]
+	blobs_df = blobs_df[(blobs_df['x'] - blobs_df['r'] > 0) &
+				  (blobs_df['x'] + blobs_df['r'] + 1 < image[i].shape[0]) &
+				  (blobs_df['y'] - blobs_df['r'] > 0) &
+				  (blobs_df['y'] + blobs_df['r'] + 1 < image[i].shape[1])]
 
-	if scatter_detection:
+	blobs_df['sigma_raw'] = r_to_sigraw*blobs_df['r']
+	blobs_df = blobs_df[['frame','x','y','r', 'sigma_raw']]
 
-		blobs_np = blobs.to_numpy()
+	return blobs_df
+
+
+def show_detection(image, df):
+
+		df_np = df.to_numpy()
 		fig, ax = plt.subplots()
 		ax.imshow(image, cmap='gray')
 		font = {'family': 'arial', 'weight': 'bold','size': 16}
@@ -84,14 +97,9 @@ def detect_blobs(image,
 		scalebar.length_fraction = .3
 		scalebar.height_fraction = .025
 		ax.add_artist(scalebar)
-		ax.scatter(blobs['y'],blobs['x'], color='red', s = 1)
-		for blob in blobs_np:
-			y, x, r, i, d = blob
+		ax.scatter(df['y'],df['x'], color='red', s = 1)
+		for blob in df_np:
+			frame, y, x, r = blob
 			c = plt.Circle((x, y), r, color='red', linewidth=1, fill=False)
 			ax.add_patch(c)
 		plt.show()
-
-
-	blobs = blobs[['x','y', 'sigma_raw']]
-
-	return blobs
