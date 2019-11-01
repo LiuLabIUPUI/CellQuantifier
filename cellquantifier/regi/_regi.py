@@ -6,6 +6,7 @@ from skimage.transform import SimilarityTransform, warp
 from cellquantifier.math.ransac import ransac_polyfit
 from cellquantifier.util.plot_util.anno import anno_ellipse
 from cellquantifier.util.plot_util._diag_end import diag_end
+from cellquantifier.util.plot_util.anno import anno_ellipse
 from cellquantifier.segm.mask import get_thres_mask as get_mask
 
 def get_regi_params(array_3d,
@@ -50,7 +51,7 @@ def get_regi_params(array_3d,
     # """
 
     Ref = array_3d[ref_ind_num]
-    Ref_mask = get_mask(Ref, sigma=sig_mask, thres_rel=thres_rel)
+    Ref_mask = get_mask(Ref, sig=sig_mask, thres_rel=thres_rel)
     Ref_props = regionprops(Ref_mask)
 
     # """
@@ -60,7 +61,7 @@ def get_regi_params(array_3d,
     regi_params_array_2d = np.zeros((len(array_3d), 5))
     for i in range(len(array_3d)):
         Reg = array_3d[i]
-        Reg_mask = get_mask(Reg, sigma=sig_mask, thres_rel=thres_rel)
+        Reg_mask = get_mask(Reg, sig=sig_mask, thres_rel=thres_rel)
         Reg_props = regionprops(Reg_mask)
 
         # params for rotation
@@ -86,8 +87,8 @@ def get_regi_params(array_3d,
     angle_raw = np.array(regi_params_array_2d[:,2])
     poly_params1 = np.polyfit(index, angle_raw, poly_deg)
     poly_params2 = ransac_polyfit(index, angle_raw, poly_deg,
-                min_samples=len(index) // 2,
-                residual_threshold=0.1,
+                min_sample_num=len(index) // 2,
+                residual_thres=0.1,
                 max_trials=300)
     p1 = np.poly1d(poly_params1)
     p2 = np.poly1d(poly_params2)
@@ -105,13 +106,14 @@ def get_regi_params(array_3d,
     if diagnostic:
         fig, ax = plt.subplots(1, 2, figsize=(12, 6))
 
-        anno_ellipse(ax[1], Ref_props, Ref_mask)
-        anno_ellipse(ax[1], Reg_props, Reg_mask)
-
         ax[0].plot(index, angle_raw, '.-r', label='raw angle')
         ax[0].plot(index, angle_fit1, '-k', label='normal fitting')
         ax[0].plot(index, angle_fit2, '-b', label='ransac fitting')
         ax[0].legend(loc='lower left')
+
+        ax[1].imshow(Reg_mask, cmap='gray')
+        anno_ellipse(ax[1], Ref_props)
+        anno_ellipse(ax[1], Reg_props)
 
         plt.show()
 

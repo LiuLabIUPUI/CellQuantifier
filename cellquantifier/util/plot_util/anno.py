@@ -2,6 +2,20 @@ import math
 from matplotlib import patches
 import matplotlib.pyplot as plt
 
+def set_ylim_reverse(ax):
+    """
+    This function is needed for annotation. Since ax.imshow(img) display
+    the img in a different manner comparing with traditional axis.
+
+    Parameters
+    ----------
+    ax : object
+        matplotlib axis to annotate ellipse.
+    """
+    bottom, top = ax.get_ylim()
+    if top > bottom:
+        ax.set_ylim(top, bottom)
+
 def anno_ellipse(ax, regionprops, linewidth=2.5, color=(1,0,0,0.8)):
     """
     Annotate ellipse in matplotlib axis.
@@ -23,6 +37,8 @@ def anno_ellipse(ax, regionprops, linewidth=2.5, color=(1,0,0,0.8)):
     -------
     Annotate edge, long axis, short axis of ellipses.
     """
+
+    set_ylim_reverse(ax)
 
     for region in regionprops:
         row, col = region.centroid
@@ -64,6 +80,8 @@ def anno_blob(ax, blob_df, marker='s', plot_r=True, color=(0,1,0,0.8)):
     Annotate center and the periphery of the blob.
     """
 
+    set_ylim_reverse(ax)
+
     f = blob_df
     for i in f.index:
         y, x, r = f.at[i, 'x'], f.at[i, 'y'], f.at[i, 'r']
@@ -96,6 +114,8 @@ def anno_scatter(ax, scatter_df, marker = 'o', color=(0,1,0,0.8)):
     -------
     Annotate scatter in the ax.
     """
+
+    set_ylim_reverse(ax)
 
     f = scatter_df
     for i in f.index:

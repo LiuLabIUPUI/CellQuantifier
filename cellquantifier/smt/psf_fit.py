@@ -3,7 +3,6 @@ import pandas as pd
 from cellquantifier.math.gaussian_2d import (gaussian_2d, get_moments,
                                             fit_gaussian_2d)
 from cellquantifier.util.plot_util.anno import anno_scatter, anno_blob
-from cellquantifier.util.plot_util.ax_format import ax_format_1
 from cellquantifier.util.plot_util._diag_end import diag_end
 
 
@@ -207,7 +206,6 @@ def psf_fit(pims_frame,
                 fontsize = 12,
                 color = (1, 1, 1, 0.8),
                 transform=ax0.transAxes)
-        ax_format_1(ax0)
         plt_array_2d = diag_end(fig, pltshow)
 
     return psf_df, plt_array_2d
