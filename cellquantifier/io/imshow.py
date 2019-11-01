@@ -15,12 +15,12 @@ def imshow(*arg):
 
     Examples
     --------
-    >>> import numpy as np
-    >>> from cellquantifier.io.imshow import imshow
-    >>> img1 = np.random.rand(2,2)
-    >>> img2 = np.random.rand(5,5)
-    >>> img3 = np.random.rand(10,10)
-    >>> imshow(img1, img2, img3)
+    import numpy as np
+    from cellquantifier.io.imshow import imshow
+    img1 = np.random.rand(2,2)
+    img2 = np.random.rand(5,5)
+    img3 = np.random.rand(10,10)
+    imshow(img1, img2, img3)
     """
 
     plt.figure(figsize=(16,12))
@@ -46,12 +46,12 @@ def imshow_gray(*arg):
 
     Examples
     --------
-    >>> import numpy as np
-    >>> from cellquantifier.io.imshow import imshow
-    >>> img1 = np.random.rand(2,2)
-    >>> img2 = np.random.rand(5,5)
-    >>> img3 = np.random.rand(10,10)
-    >>> imshow_gray(img1, img2, img3)
+    import numpy as np
+    from cellquantifier.io.imshow import imshow_gray
+    img1 = np.random.rand(2,2)
+    img2 = np.random.rand(5,5)
+    img3 = np.random.rand(10,10)
+    imshow_gray(img1, img2, img3)
     """
 
     plt.figure(figsize=(16,12))

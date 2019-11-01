@@ -1,4 +1,5 @@
-def ax_format_1(ax, image):
-    ax.set_xlim([0, image.shape[1]])
-    ax.set_ylim([image.shape[0], 0])
+def ax_format_1(ax):
+    bottom, top = ax[0].get_ylim()
+    if top > bottom:
+        ax[0].set_ylim(top, bottom)
     ax.set_axis_off()

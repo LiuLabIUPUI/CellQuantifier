@@ -207,7 +207,7 @@ def psf_fit(pims_frame,
                 fontsize = 12,
                 color = (1, 1, 1, 0.8),
                 transform=ax0.transAxes)
-        ax_format_1(ax0, image)
+        ax_format_1(ax0)
         plt_array_2d = diag_end(fig, pltshow)
 
     return psf_df, plt_array_2d
