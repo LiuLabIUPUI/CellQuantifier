@@ -5,7 +5,6 @@ from skimage.transform import rotate
 from skimage.transform import SimilarityTransform, warp
 from cellquantifier.math.ransac import ransac_polyfit
 from cellquantifier.util.plot_util.anno import anno_ellipse
-from cellquantifier.util.plot_util._diag_end import diag_end
 from cellquantifier.util.plot_util.anno import anno_ellipse
 from cellquantifier.segm.mask import get_thres_mask as get_mask
 

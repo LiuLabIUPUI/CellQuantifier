@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from cellquantifier.io._plt2array import plt2array
 
-def diag_end(fig, pltshow=False):
+def plot_end(fig, pltshow=False):
     """
     Typical piece of code at the end of diagnostic.
 
