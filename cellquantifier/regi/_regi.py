@@ -138,16 +138,16 @@ def apply_regi_params(array_3d, regi_params_array_2d):
 
     Examples
     --------
-    >>> from skimage.io import imread, imsave
-    >>> from cellquantifier.regi._regi import get_regi_params, apply_regi_params
-    >>> m=0; delta=100
-    >>> tif = imread('53bp1.tif')[m:m+delta]
-    >>> params = get_regi_params(tif,
+    from skimage.io import imread, imsave
+    from cellquantifier.regi._regi import get_regi_params, apply_regi_params
+    m=0; delta=100
+    tif = imread('53bp1.tif')[m:m+delta]
+    params = get_regi_params(tif,
                         ref_ind_num=0, sig_mask=3, thres_rel=0.2,
                         rotation_multplier=1, poly_deg=1,
                         diagnostic=1)
-    >>> tif_array_3d = apply_regi_params(tif, params)
-    >>> imsave('test_regied.tif', tif_array_3d)
+    tif_array_3d = apply_regi_params(tif, params)
+    imsave('test_regied.tif', tif_array_3d)
     """
 
     tif_array_3d = np.zeros_like(array_3d, dtype=np.uint8)
