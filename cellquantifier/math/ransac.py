@@ -37,13 +37,13 @@ def ransac_polyfit(x_array_1d, y_array_1d, poly_deg,
 
     Examples
     --------
-    >>> import numpy as np
-    >>> from cellquantifier.math.ransac import ransac_polyfit
-    >>> a = np.array(range(10))
-    >>> b = 1 + 2*a + 3*a ** 2
-    >>> params = ransac_polyfit(x_array_1d=a, y_array_1d=b, poly_deg=2,
+    import numpy as np
+    from cellquantifier.math.ransac import ransac_polyfit
+    a = np.array(range(10))
+    b = 1 + 2*a + 3*a ** 2
+    params = ransac_polyfit(x_array_1d=a, y_array_1d=b, poly_deg=2,
                     min_sample_num=5, residual_thres=2, max_trials=100)
-    >>> print(params)
+    print(params)
     """
 
     # """
