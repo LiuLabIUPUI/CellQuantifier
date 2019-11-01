@@ -6,7 +6,7 @@ from cellquantifier.util.plot_util.anno import anno_scatter, anno_blob
 from cellquantifier.util.plot_util._plot_end import plot_end
 
 
-def psf_fit(pims_frame,
+def fit_psf(pims_frame,
             blobs_df,
             diagnostic=False,
             pltshow=False,
@@ -65,10 +65,10 @@ def psf_fit(pims_frame,
                     diagnostic=1,
                     pltshow=1)
 
-    from nubo.fitt import psf_fit
+    from nubo.fitt import fit_psf
     from nubo.io import psf_annotate
 
-    df, plt_fitt = psf_fit(frames[0], f, 1, 1, 1)
+    df, plt_fitt = fit_psf(frames[0], f, 1, 1, 1)
     """
 
     # """
@@ -211,7 +211,7 @@ def psf_fit(pims_frame,
     return psf_df, plt_array_2d
 
 
-def psf_batch(pims_frames,
+def fit_psf_batch(pims_frames,
             blobs_df,
             diagnostic=False,
             pltshow=False,
@@ -270,10 +270,10 @@ def psf_batch(pims_frames,
                     diagnostic=1,
                     pltshow=1)
 
-    from nubo.fitt import psf_fit
+    from nubo.fitt import fit_psf
     from nubo.io import psf_annotate
 
-    df, plt_fitt = psf_fit(frames[0], f, 1, 1, 1)
+    df, plt_fitt = fit_psf(frames[0], f, 1, 1, 1)
     """
 
     columns=['frame', 'x_raw', 'y_raw', 'r',
@@ -296,7 +296,7 @@ def psf_batch(pims_frames,
         else:
             current_segm_df = None
 
-        tmp_psf_df, tmp_plt_array_2d = psf_fit(pims_frame=current_frame,
+        tmp_psf_df, tmp_plt_array_2d = fit_psf(pims_frame=current_frame,
                        blobs_df=current_blob,
                        diag_max_dist_err=diag_max_dist_err,
                        diag_max_sig_to_sigraw = diag_max_sig_to_sigraw,
