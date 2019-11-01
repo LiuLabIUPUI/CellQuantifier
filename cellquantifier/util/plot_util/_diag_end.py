@@ -20,6 +20,8 @@ def diag_end(fig, pltshow=False):
     """
 
     rgb_array_3d = plt2array(fig)
+
+    plt.tight_layout()
     if pltshow:
         plt.show()
     else:
