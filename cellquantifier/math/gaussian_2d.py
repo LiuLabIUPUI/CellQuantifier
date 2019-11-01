@@ -83,6 +83,22 @@ def fit_gaussian_2d(img, diagnostic=False):
     -------
     popt, pcov: 1d ndarray
         optimal parameters and covariance matrix
+
+    Examples
+    --------
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from cellquantifier.math.gaussian_2d import gaussian_2d, fit_gaussian_2d
+    from cellquantifier.io.imshow import imshow
+    X = np.indices((100,100))
+    A, x0, y0, sig_x, sig_y, phi = 1, 50, 80, 30, 10, 0.174
+    out_array_1d = gaussian_2d(X, A, x0, y0, sig_x, sig_y, phi)
+    img = out_array_1d.reshape((100,100))
+    fig, ax = plt.subplots()
+    ax.imshow(img)
+    plt.show()
+    popt, p_err = fit_gaussian_2d(img, diagnostic=True)
+    print(popt)
     """
 
     # """
