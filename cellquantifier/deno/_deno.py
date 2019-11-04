@@ -1,7 +1,65 @@
 import numpy as np
 import math
+from skimage.util import img_as_ubyte
 
-__all__ = ['gaussian', 'gain', 'boxcar']
+def filter(image, method, arg):
+
+	"""Dispatches denoise request for a single frame to appropriate function
+
+	Parameters
+	----------
+	image : 2D ndarray
+
+	method : string
+		the method to use when denoising the image
+
+	arg: int or float
+		the argument passed to gaussian(), gain(), or boxcar() functions
+
+	Returns
+	-------
+	denoised : 2D ndarray
+		The denoise image
+	"""
+
+	if method == 'gaussian':
+		denoised[i] = gaussian(image, arg)
+	elif method == 'gain':
+		denoised[i] = gain(image, arg)
+	elif method == 'boxcar':
+		denoised[i] = boxcar(image, arg)
+
+	return denoised
+
+def filter_batch(image, method, arg):
+
+	"""Dispatches denoise request for a time-series to appropriate function
+
+	Parameters
+	----------
+	image : 2D ndarray
+
+	method : string
+		The method to use when denoising the image
+
+	Returns
+	-------
+	denoised : 3D ndarray
+		The denoised image
+	"""
+
+	denoised = np.zeros(image.shape, dtype='uint8')
+	for i in range(len(image)):
+
+		if method == 'gaussian':
+			denoised[i] = gaussian(image[i], arg)
+
+		elif method == 'gain':
+			denoised[i] = gain(image[i], arg)
+		elif method == 'boxcar':
+			denoised[i] = boxcar(image[i], arg)
+
+	return denoised
 
 def gaussian(image, sigma):
 
@@ -22,11 +80,12 @@ def gaussian(image, sigma):
 
 	from skimage.filters import gaussian
 	blurred = gaussian(image, sigma)
+	blurred = img_as_ubyte(blurred)
 
 	return blurred
 
 
-def gain(im, gain):
+def gain(image, gain):
 
 	"""Introduce image gain via scalar multiplication
 
@@ -43,7 +102,9 @@ def gain(im, gain):
         The image after scalar multiplication
     """
 
-	return im*gain
+	image = img_as_ubyte(image*gain)
+
+	return image
 
 def boxcar(image, width):
 

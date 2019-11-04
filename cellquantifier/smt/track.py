@@ -9,9 +9,10 @@ def track_blobs(blobs_df,
 				memory=5,
 				min_traj_length=10,
 				filters=None,
-				resolution=.1084,
+				pixel_size=.1084,
 				frame_rate=3.3,
-				divide_num=5):
+				divide_num=5,
+				do_filter=False):
 
 	"""
 	Wrapper for trackpy library functions (assign detection instances to particle trajectories)
@@ -36,8 +37,8 @@ def track_blobs(blobs_df,
 	filters: dict
 		a dictionary of filters to apply to the blob DataFrame
 
-	resolution: float
-		the resolution of the images in microns/pixel
+	pixel_size: float
+		the pixel_size of the images in microns/pixel
 
 	frame_rate: float
 		the frequency of the time-series acquisitio in frames/sec
@@ -63,7 +64,6 @@ def track_blobs(blobs_df,
 	>>> psf_df, fit_plt_array = fit_psf_batch(frames, blobs_df)
 	>>> blobs_df, im = track_blobs(psf_df, min_traj_length=10)
 
-
 		     frame  x_raw  y_raw    r  ...  particle  delta_area             D     alpha
 		0        0  500.0  525.0  9.0  ...         0         NaN  24216.104785  1.260086
 		40       1  499.0  525.0  9.0  ...         0    0.013233  24216.104785  1.260086
@@ -77,36 +77,25 @@ def track_blobs(blobs_df,
 		203      8  461.0  434.0  9.0  ...        33    0.036314  46937.634668  1.685204
 		225      9  463.0  436.0  9.0  ...        33    0.021886  46937.634668  1.685204
 
-
 		"""
-
-
 	# """
 	# ~~~~~~~~~~~Link Trajectories and Filter Stubs~~~~~~~~~~~~~~
 	# """
-
-	blobs_df = tp.link_df(blobs_df, search_range=search_range, memory=memory)
-	blobs_df = tp.filter_stubs(blobs_df, min_traj_length)
-	blobs_df = blobs_df.reset_index(drop=True)
+	
+	blobs_df = link(blobs_df, search_range, memory, min_traj_length)
 
 	# """
-	# ~~~~~~~~~~~Get Secondary Parameters~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Get dA/A~~~~~~~~~~~~~
 	# """
 
 	blobs_df = blobs_df.sort_values(['particle', 'frame'])
-
-	blobs_df['mass'] = 2*np.pi*blobs_df['sig_x']*blobs_df['sig_y']*blobs_df['A']
-	blobs_df['area'] = np.pi*blobs_df['sig_x']*blobs_df['sig_y']
-	blobs_df['dist_err'] = np.linalg.norm(blobs_df[['x', 'y']].values.astype(np.float64)  - blobs_df[['x_raw', 'y_raw']].values.astype(np.float64), axis=1)
 	blobs_df['delta_area'] = np.abs((blobs_df.groupby('particle')['area'].apply(pd.Series.pct_change)))
-	blobs_df['sigx_to_sigraw'] = blobs_df['sig_x']/blobs_df['sig_raw']
-	blobs_df['sigy_to_sigraw'] = blobs_df['sig_y']/blobs_df['sig_raw']
 
 	# """
 	# ~~~~~~~~~~~Get Individual Particle D Values~~~~~~~~~~~~~~
 	# """
 
-	im = tp.imsd(blobs_df, resolution, frame_rate)
+	im = tp.imsd(blobs_df, pixel_size, frame_rate)
 	blobs_df = get_d_values(blobs_df, im, divide_num)
 	blobs_df = blobs_df.apply(pd.to_numeric)
 
@@ -114,12 +103,21 @@ def track_blobs(blobs_df,
 	# ~~~~~~~~~~~Filter DataFrame and Relink~~~~~~~~~~~~~~
 	# """
 
-	if filters:
+	if do_filter:
 
 		blobs_df = filter_df(blobs_df, filters)
-		blobs_df = link(blobs_df)
+		blobs_df = link(blobs_df, search_range, memory, filters['TRAJ_LEN_THRES'])
 
 	return blobs_df, im
+
+
+def link(blobs_df, search_range, memory, min_traj_length):
+
+	blobs_df = tp.link_df(blobs_df, search_range=search_range, memory=memory)
+	blobs_df = tp.filter_stubs(blobs_df, min_traj_length)
+	blobs_df = blobs_df.reset_index(drop=True)
+
+	return blobs_df
 
 def get_d_values(traj_df, im, divide_num):
 
@@ -143,9 +141,9 @@ def get_d_values(traj_df, im, divide_num):
 
 def filter_df(blobs_df, filters):
 
-	blobs_df = blobs_df[blobs_df.dist_err < filters['max_dist_err']]
-	blobs_df = blobs_df[blobs_df.delta_area < filters['max_delta_area']]
-	blobs_df = blobs_df[blobs_df.sigx_to_sigraw < filters['sig_to_sigraw']]
-	blobs_df = blobs_df[blobs_df.sigy_to_sigraw < filters['sig_to_sigraw']]
+	blobs_df = blobs_df[blobs_df.dist_err < filters['MAX_DIST_ERROR']]
+	blobs_df = blobs_df[blobs_df.delta_area < filters['MAX_DELTA_AREA']]
+	blobs_df = blobs_df[blobs_df.sigx_to_sigraw < filters['SIG_TO_SIGRAW']]
+	blobs_df = blobs_df[blobs_df.sigy_to_sigraw < filters['SIG_TO_SIGRAW']]
 
-	return traj_df
+	return blobs_df
