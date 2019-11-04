@@ -258,6 +258,7 @@ def fit_psf_batch(pims_frames,
     for i in range(len(pims_frames)):
         current_frame = pims_frames[i]
         fnum = current_frame.frame_no
+        
         current_blobs_df = blobs_df[blobs_df['frame'] == fnum]
 
         if isinstance(truth_df, pd.DataFrame):
