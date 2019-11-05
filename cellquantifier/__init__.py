@@ -9,9 +9,9 @@ conda install -c conda-forge trackpy
 conda install -c conda-forge pims
 conda install numba
 conda install -c conda-forge scikit-image
-pip install centrosome
 conda install seaborn
-conda install matplotlib_scalebar
+pip install centrosome
+pip install matplotlib-scalebar
 
 Subpackages
 -----------
