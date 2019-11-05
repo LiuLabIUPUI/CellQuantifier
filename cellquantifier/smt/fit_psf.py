@@ -125,7 +125,6 @@ def fit_psf(pims_frame,
     print("Predict good fitting number and ratio in frame %d: [%d, %.2f]" %
             (pims_frame.frame_no, good_fitting_num,
             good_fitting_num/len(blobs_df)))
-
     psf_df = df
 
     # """

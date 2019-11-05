@@ -12,7 +12,9 @@ def track_blobs(blobs_df,
 				pixel_size=.1084,
 				frame_rate=3.3,
 				divide_num=5,
-				do_filter=False):
+				do_filter=False,
+				output_path=None,
+				root_name=None):
 
 	"""
 	Wrapper for trackpy library functions (assign detection instances to particle trajectories)
@@ -45,6 +47,12 @@ def track_blobs(blobs_df,
 
 	divide_num: int
 		The number used to divide the msd curves
+
+	output_path: string
+		The destination folder for fittData.csv to be written
+
+	root_name: string
+		The root file name for fittData.csv
 
 
 	Returns
@@ -96,9 +104,13 @@ def track_blobs(blobs_df,
 	# ~~~~~~~~~~~Get Individual Particle D Values~~~~~~~~~~~~~~
 	# """
 
-	im = tp.imsd(blobs_df, pixel_size, frame_rate)
+	blobs_df_cut = blobs_df[['frame', 'particle','x','y']]
+	blobs_df_cut = blobs_df_cut.apply(pd.to_numeric)
+	im = tp.imsd(blobs_df_cut, mpp=pixel_size, fps=frame_rate)
+
 	blobs_df = get_d_values(blobs_df, im, divide_num)
 	blobs_df = blobs_df.apply(pd.to_numeric)
+	blobs_df.to_csv(output_path + root_name + "-fittData.csv", index=False)
 
 	# """
 	# ~~~~~~~~~~~Filter DataFrame and Relink~~~~~~~~~~~~~~

@@ -12,7 +12,7 @@ settings = {
   'Date': datetime.now(),
   'Raw data file': 'simulated_cell',
   'Start frame index': 0,
-  'End frame index': 10,
+  'End frame index': 50,
 
    #IO
   'IO input_path': 'cellquantifier/data/simulated_cell.tif',
@@ -36,7 +36,7 @@ settings = {
   'Det blob_max_sigma': 3,
   'Det blob_num_sigma': 5,
   'Det pk_thresh_rel': .1,
-  'Det plot_r': False,
+  'Det plot_r': True,
 
   #FITTING SETTINGS
   'Fitt r_to_sigraw': 3, #determines the patch size
@@ -44,18 +44,18 @@ settings = {
   #TRACKING SETTINGS
   'Trak search_range': 5,
   'Trak memory': 10,
-  'Trak min_traj_length': 5,
+  'Trak min_traj_length': 25,
   'Trak frame_rate': 1,
   'Trak pixel_size': 1e-3,
   'Trak divide_num': 5,
 
   #FITTING FILTERING SETTINGS
   'Filt from_csv': False,
-  'Filt do_filter': True,
+  'Filt do_filter': False,
   'Filt max_dist_err': 1,
   'Filt max_delta_area': .3,
   'Filt sig_to_sigraw': 3,
-  'Filt traj_length_thres': 5,
+  'Filt traj_length_thres': 25,
 
   #DIAGNOSTIC
   'Diag diagnostic': False,
@@ -68,5 +68,5 @@ pipe = pipeline.Pipeline(config)
 
 pipe.register()
 pipe.deno(method='boxcar', arg=10)
-pipe.deno(method='gaussian', arg=3)
+pipe.deno(method='gaussian', arg=1)
 pipe.smt()

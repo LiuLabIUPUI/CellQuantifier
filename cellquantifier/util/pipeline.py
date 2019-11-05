@@ -1,4 +1,5 @@
 import pims
+import os.path as osp
 from skimage.io import imread, imsave
 
 from ..deno import filter_batch
@@ -41,7 +42,11 @@ class Pipeline():
 		print("Single Molecule Tracking")
 		print("######################################")
 
-		frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
+			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif')
+		else:
+			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
 		blobs_df, det_plt_array = detect_blobs_batch(frames,
@@ -74,7 +79,9 @@ class Pipeline():
 									pixel_size=self.config.PIXEL_SIZE,
 									frame_rate=self.config.FRAME_RATE,
 									divide_num=self.config.DIVIDE_NUM,
-									do_filter=self.config.DO_FILTER)
+									do_filter=self.config.DO_FILTER,
+									output_path=self.config.OUTPUT_PATH,
+									root_name=self.config.ROOT_NAME)
 
 		d, alpha = plot_msd(im,
 		            		 blobs_df,
@@ -115,4 +122,5 @@ class Pipeline():
 
 		registered = apply_regi_params(im, regi_params_array_2d)
 
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif', registered)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', registered)

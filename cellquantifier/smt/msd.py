@@ -116,6 +116,7 @@ def plot_msd(im,
 	n = int(round(len(im.index)/divide_num))
 	im = im.head(n)
 	im = im*1e6
+	im.to_csv(output_path + root_name + "-allMSD.csv", header=True)
 
 	if len(im) > 1:
 		ax[1].plot(im, 'k-', alpha=0.3)
@@ -146,7 +147,7 @@ def plot_msd(im,
 
 		imsd_mean = im.mean(axis=1)
 		imsd_std = im.std(axis=1, ddof=0)
-		imsd_mean.to_csv(output_path + root_name + "-msdData.csv", header=True)
+		imsd_mean.to_csv(output_path + root_name + "-meanMSD.csv", header=True)
 
 		x = imsd_mean.index
 		y = imsd_mean.to_numpy()

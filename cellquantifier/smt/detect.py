@@ -13,7 +13,7 @@ def detect_blobs(pims_frame,
 				blob_thres=0.1,
 				peak_thres_rel=0.1,
 				r_to_sigraw=3,
-				pixel_size = 108.4,
+				pixel_size = .1084,
 				diagnostic=True,
 				pltshow=True,
 				plot_r=True,
@@ -147,7 +147,7 @@ def detect_blobs(pims_frame,
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~Add scale bar~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		# """
 		font = {'family': 'arial', 'weight': 'bold','size': 16}
-		scalebar = ScaleBar(pixel_size, 'nm', location = 'upper right',
+		scalebar = ScaleBar(pixel_size, 'um', location = 'upper right',
 			font_properties=font, box_color = 'black', color='white')
 		scalebar.length_fraction = .3
 		scalebar.height_fraction = .025
