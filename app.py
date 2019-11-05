@@ -19,12 +19,12 @@ settings = {
   'IO output_path': '/home/cwseitz/Desktop/temp/',
 
   #REGISTRATION SETTINGS
-  'Reg ref_ind_num': 0,
-  'Reg sig_mask': 3,
-  'Reg thres_rel': .2,
-  'Reg poly_deg': 2,
-  'Reg rotation_multplier': 1,
-  'Reg translation_multiplier': 1,
+  'Regi ref_ind_num': 0,
+  'Regi sig_mask': 3,
+  'Regi thres_rel': .2,
+  'Regi poly_deg': 2,
+  'Regi rotation_multplier': 1,
+  'Regi translation_multiplier': 1,
 
   #SEGMENTATION SETTINGS
   'Segm min_size': 50,
@@ -58,15 +58,15 @@ settings = {
   'Filt traj_length_thres': 5,
 
   #DIAGNOSTIC
-  'Diag diagnostic': True,
-  'Diag pltshow': True,
+  'Diag diagnostic': False,
+  'Diag pltshow': False,
 
 }
 
 config = config.Config(settings)
 pipe = pipeline.Pipeline(config)
 
-# pipe.register()
+pipe.register()
 pipe.deno(method='boxcar', arg=10)
 pipe.deno(method='gaussian', arg=3)
 pipe.smt()

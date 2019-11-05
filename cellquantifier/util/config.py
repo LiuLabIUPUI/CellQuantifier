@@ -12,12 +12,12 @@ class Config():
 		self.TRANGE = range(config['Start frame index'], config['End frame index'])
 
 		#REGISTRATION SETTINGS
-		self.REF_IND_NUM = config['Reg ref_ind_num']
-		self.SIG_MASK = config['Reg sig_mask']
-		self.THRES_REL = config['Reg thres_rel']
-		self.POLY_DEG = config['Reg poly_deg']
-		self.ROTATION_MULTIPLIER = config['Reg rotation_multplier']
-		self.TRANSLATION_MULTIPLIER = config['Reg translation_multiplier']
+		self.REF_IND_NUM = config['Regi ref_ind_num']
+		self.SIG_MASK = config['Regi sig_mask']
+		self.THRES_REL = config['Regi thres_rel']
+		self.POLY_DEG = config['Regi poly_deg']
+		self.ROTATION_MULTIPLIER = config['Regi rotation_multplier']
+		self.TRANSLATION_MULTIPLIER = config['Regi translation_multiplier']
 
 		#SEGMENTATION SETTINGS
 		self.MIN_SIZE = config['Segm min_size']

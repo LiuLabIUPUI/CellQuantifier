@@ -65,7 +65,7 @@ def track_blobs(blobs_df,
 	>>> blobs_df, im = track_blobs(psf_df, min_traj_length=10)
 
 		     frame  x_raw  y_raw    r  ...  particle  delta_area             D     alpha
-		0        0  500.0  525.0  9.0  ...         0         NaN  24216.104785  1.260086
+		0        0  500.0  525.0  9.0  ...         0           0  24216.104785  1.260086
 		40       1  499.0  525.0  9.0  ...         0    0.013233  24216.104785  1.260086
 		59       2  501.0  525.0  9.0  ...         0    0.039819  24216.104785  1.260086
 		86       3  500.0  526.0  9.0  ...         0    0.011217  24216.104785  1.260086
@@ -81,7 +81,7 @@ def track_blobs(blobs_df,
 	# """
 	# ~~~~~~~~~~~Link Trajectories and Filter Stubs~~~~~~~~~~~~~~
 	# """
-	
+
 	blobs_df = link(blobs_df, search_range, memory, min_traj_length)
 
 	# """
@@ -90,6 +90,7 @@ def track_blobs(blobs_df,
 
 	blobs_df = blobs_df.sort_values(['particle', 'frame'])
 	blobs_df['delta_area'] = np.abs((blobs_df.groupby('particle')['area'].apply(pd.Series.pct_change)))
+	blobs_df['delta_area'] = blobs_df['delta_area'].fillna(0)
 
 	# """
 	# ~~~~~~~~~~~Get Individual Particle D Values~~~~~~~~~~~~~~
