@@ -9,7 +9,7 @@ conda install -c conda-forge trackpy
 conda install -c conda-forge pims
 conda install numba
 conda install -c conda-forge scikit-image
-conda install -c bioconda centrosome
+pip install centrosome
 conda install seaborn
 conda install matplotlib_scalebar
 
