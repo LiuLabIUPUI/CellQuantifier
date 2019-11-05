@@ -76,7 +76,6 @@ def detect_blobs(pims_frame,
 					 num_sigma=num_sig,
 					 threshold=blob_thres)
 
-
 	# """
 	# ~~~~~~~~~~~~~~~~~~~~~~Prepare blobs_df and update it~~~~~~~~~~~~~~~~~~~~~~
 	# """

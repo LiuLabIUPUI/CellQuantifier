@@ -33,10 +33,12 @@ class Pipeline():
 		print("######################################")
 
 		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
-		mask = get_mask_batch(frames, method, min_size=self.config.MIN_SIZE)
+		mask, centroid = get_mask_batch(frames, method, min_size=self.config.MIN_SIZE,show_mask=self.config.PLTSHOW)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-mask.tif', mask)
 
-	def smt(self):
+		return centroid
+
+	def smt(self, centroid=None):
 
 		print("######################################")
 		print("Single Molecule Tracking")
@@ -69,7 +71,8 @@ class Pipeline():
 		            diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
 		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
 		            truth_df=None,
-		            segm_df=None)
+		            segm_df=None,
+					centroid=centroid)
 
 		blobs_df, im = track_blobs(psf_df,
 								    search_range=self.config.SEARCH_RANGE,

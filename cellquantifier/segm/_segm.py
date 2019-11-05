@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 from ..io import imshow
 
@@ -33,10 +34,16 @@ def get_mask(image, method, min_size=50, show_mask=False):
 	elif method == 'unsharp':
 		mask = unsharp(image)
 
-	if show_mask:
-		imshow(mask)
+	centroid = regionprops(mask)[0].centroid
 
-	return mask
+	if show_mask:
+		fig,ax = plt.subplots(1,2)
+		ax[0].imshow(mask, cmap='gray')
+		ax[1].imshow(mark_boundaries(image, mask))
+		ax[1].scatter(centroid[1],centroid[0])
+		plt.show()
+
+	return mask, centroid
 
 def get_mask_batch(image, method, min_size=50, show_mask=False):
 
@@ -54,21 +61,11 @@ def get_mask_batch(image, method, min_size=50, show_mask=False):
 	mask : 3D ndarray
 		The object mask
 	"""
-
 	mask = np.zeros_like(image)
 	for i in range(len(image)):
+		mask[i], centroid = get_mask(image[i], method, min_size, show_mask)
 
-		if method == 'label':
-			mask[i] = label_image(image[i], min_size)
-		elif method == 'threshold':
-			mask[i] = threshold(image[i], min_size)
-		elif method == 'unsharp':
-			mask[i] = unsharp(image[i], min_size)
-
-		if show_mask:
-			imshow(mask[i])
-
-	return mask
+	return mask, centroid
 
 def threshold(image, min_size):
 

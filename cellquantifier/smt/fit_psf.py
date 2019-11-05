@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import math
 from cellquantifier.math.gaussian_2d import (gaussian_2d, get_moments,
                                             fit_gaussian_2d)
 from cellquantifier.util.plot_util.anno import anno_scatter, anno_blob
@@ -15,7 +16,8 @@ def fit_psf(pims_frame,
             diag_max_dist_err=1,
             diag_max_sig_to_sigraw = 3,
             truth_df=None,
-            segm_df=None):
+            segm_df=None,
+            centroid=None):
     """
     Point spread function fitting for each frame.
 
@@ -65,7 +67,7 @@ def fit_psf(pims_frame,
     df = pd.DataFrame([], columns=['frame', 'x_raw', 'y_raw', 'r', 'sig_raw',
             'peak', 'mass', 'mean', 'std',
             'A', 'x', 'y', 'sig_x', 'sig_y', 'phi',
-            'area', 'dist_err', 'sigx_to_sigraw', 'sigy_to_sigraw'])
+            'area', 'dist_err', 'sigx_to_sigraw', 'sigy_to_sigraw', 'dist_to_com'])
 
     df['frame'] = blobs_df['frame'].to_numpy()
     df['x_raw'] = blobs_df['x'].to_numpy()
@@ -109,6 +111,14 @@ def fit_psf(pims_frame,
                             (y0_refined - y0)**2) ** 0.5
             df.at[i, 'sigx_to_sigraw'] = sig_x / sig_raw
             df.at[i, 'sigy_to_sigraw'] = sig_y / sig_raw
+
+            try:
+                a = \
+                math.sqrt((centroid[0] - x0_refined)**2 + (centroid[1] - \
+                y0_refined)**2)
+                df.at[i, 'dist_to_com'] = a
+            except:
+                df.at[i, 'dist_to_com'] = None
 
             # """
             # ~~~~~~~~Count the good fitting number with virtual filters~~~~~~~~
@@ -213,7 +223,8 @@ def fit_psf_batch(pims_frames,
             diag_max_dist_err=1,
             diag_max_sig_to_sigraw = 3,
             truth_df=None,
-            segm_df=None):
+            segm_df=None,
+            centroid=None):
     """
     Point spread function fitting for the whole movie.
 
@@ -276,7 +287,8 @@ def fit_psf_batch(pims_frames,
                        diagnostic=diagnostic,
                        pltshow=pltshow,
                        truth_df=curr_truth_df,
-                       segm_df=current_segm_df)
+                       segm_df=current_segm_df,
+                       centroid=centroid)
         df = pd.concat([df, tmp_psf_df], sort=False)
         plt_array.append(tmp_plt_array)
 

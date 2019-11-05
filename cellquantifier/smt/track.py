@@ -43,7 +43,7 @@ def track_blobs(blobs_df,
 		the pixel_size of the images in microns/pixel
 
 	frame_rate: float
-		the frequency of the time-series acquisitio in frames/sec
+		the frequency of the time-series acquisition in frames/sec
 
 	divide_num: int
 		The number used to divide the msd curves
