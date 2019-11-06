@@ -111,6 +111,41 @@ class Pipeline():
 		            truth_df=None,
 		            segm_df=blobs_df,
 					centroid=None)
+	def detect_and_fit(self):
+
+		print("######################################")
+		print("Detect and Fit")
+		print("######################################")
+
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
+			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif')
+		else:
+			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+
+		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+
+		blobs_df, det_plt_array = detect_blobs_batch(frames,
+									min_sig=self.config.MIN_SIGMA,
+									max_sig=self.config.MAX_SIGMA,
+									num_sig=self.config.NUM_SIGMA,
+									blob_thres=self.config.THRESHOLD,
+									peak_thres_rel=self.config.PEAK_THRESH_REL,
+									r_to_sigraw=self.config.PATCH_SIZE,
+									pixel_size = self.config.PIXEL_SIZE,
+									diagnostic=False,
+									pltshow=False,
+									plot_r=self.config.PLOT_R,
+									truth_df=None)
+
+		psf_df, fit_plt_array = fit_psf_batch(frames_deno,
+		            blobs_df,
+		            diagnostic=False,
+		            pltshow=False,
+		            diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
+		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
+		            truth_df=None,
+		            segm_df=None,
+					centroid=None)
 
 
 	def smt(self, centroid=None):
