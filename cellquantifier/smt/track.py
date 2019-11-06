@@ -122,6 +122,7 @@ def track_blobs(blobs_df,
 
 		blobs_df = filter_df(blobs_df, filters)
 		blobs_df = link(blobs_df, search_range, memory, filters['TRAJ_LEN_THRES'])
+		blobs_df.to_csv(output_path + root_name + "-fittDataFiltered.csv", index=False)
 
 	return blobs_df, im
 
