@@ -14,7 +14,8 @@ def track_blobs(blobs_df,
 				divide_num=5,
 				do_filter=False,
 				output_path=None,
-				root_name=None):
+				root_name=None,
+				save_csv=True):
 
 	"""
 	Wrapper for trackpy library functions (assign detection instances to particle trajectories)
@@ -110,7 +111,8 @@ def track_blobs(blobs_df,
 
 	blobs_df = get_d_values(blobs_df, im, divide_num)
 	blobs_df = blobs_df.apply(pd.to_numeric)
-	blobs_df.to_csv(output_path + root_name + "-fittData.csv", index=False)
+	if save_csv:
+		blobs_df.to_csv(output_path + root_name + "-fittData.csv", index=False)
 
 	# """
 	# ~~~~~~~~~~~Filter DataFrame and Relink~~~~~~~~~~~~~~

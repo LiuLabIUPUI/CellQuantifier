@@ -1,6 +1,7 @@
 import pims
 import os.path as osp
 from skimage.io import imread, imsave
+import pandas as pd
 
 from ..deno import filter_batch
 from ..segm import get_mask_batch
@@ -116,7 +117,7 @@ class Pipeline():
 	def detect_fit_link(self):
 
 		print("######################################")
-		print("Detect and Fit")
+		print("Detect, Fit, Linking")
 		print("######################################")
 
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
@@ -160,6 +161,42 @@ class Pipeline():
 									do_filter=False,
 									output_path=self.config.OUTPUT_PATH,
 									root_name=self.config.ROOT_NAME)
+
+
+	def filter_and_plotmsd(self):
+
+		print("######################################")
+		print("Filter and PlotMSD")
+		print("######################################")
+
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
+			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif')
+		else:
+			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+
+		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
+
+		blobs_df, im = track_blobs(psf_df,
+								    search_range=self.config.SEARCH_RANGE,
+									memory=self.config.MEMORY,
+									min_traj_length=self.config.MIN_TRAJ_LENGTH,
+									filters=self.config.FILTERS,
+									pixel_size=self.config.PIXEL_SIZE,
+									frame_rate=self.config.FRAME_RATE,
+									divide_num=self.config.DIVIDE_NUM,
+									do_filter=True,
+									output_path=self.config.OUTPUT_PATH,
+									root_name=self.config.ROOT_NAME,
+									save_csv=False)
+		d, alpha = plot_msd(im,
+		            		 blobs_df,
+		            		 image=frames[0],
+		            		 output_path=self.config.OUTPUT_PATH,
+		            		 root_name=self.config.ROOT_NAME,
+		            		 pixel_size=self.config.PIXEL_SIZE,
+		            		 divide_num=self.config.DIVIDE_NUM)
+
+		self.config.save_config()
 
 
 	def smt(self, centroid=None):

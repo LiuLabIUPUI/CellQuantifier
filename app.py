@@ -75,4 +75,10 @@ pipe.deno(method='boxcar', arg=settings['Deno boxcar_radius'])
 pipe.deno(method='gaussian', arg=settings['Deno gaus_blur_sig'])
 pipe.check_start_frame()
 pipe.detect_fit_link()
+
+settings['Filt from_csv'] = True
+config = config.Config(settings)
+pipe = pipeline.Pipeline(config)
+pipe.filter_and_plotmsd()
+
 # pipe.smt()
