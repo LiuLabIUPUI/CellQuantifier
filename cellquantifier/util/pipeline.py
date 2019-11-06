@@ -1,5 +1,5 @@
 import pims
-import os.path as osp
+import os.path as osp; import os
 from skimage.io import imread, imsave
 import pandas as pd
 
@@ -197,6 +197,7 @@ class Pipeline():
 		            		 divide_num=self.config.DIVIDE_NUM)
 
 		self.config.save_config()
+		os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
 
 	def smt(self, centroid=None):
@@ -256,3 +257,4 @@ class Pipeline():
 		            		 divide_num=self.config.DIVIDE_NUM)
 
 		self.config.save_config()
+		os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
