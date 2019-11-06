@@ -74,10 +74,6 @@ def fit_psf(pims_frame,
     df['y_raw'] = blobs_df['y'].to_numpy()
     df['r'] = blobs_df['r'].to_numpy()
     df['sig_raw'] = blobs_df['sig_raw'].to_numpy()
-    df['peak'] = blobs_df['peak'].to_numpy()
-    df['mass'] = blobs_df['mass'].to_numpy()
-    df['mean'] = blobs_df['mean'].to_numpy()
-    df['std'] = blobs_df['std'].to_numpy()
 
     # """
     # ~~~~~~~~~~~~~~~~~~~~~~~Fit each blob. If fail, pass~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,6 +85,11 @@ def fit_psf(pims_frame,
         y0 = int(df.at[i, 'y_raw'])
         delta = int(round(df.at[i, 'r']))
         patch = pims_frame[x0-delta:x0+delta+1, y0-delta:y0+delta+1]
+
+        df.at[i, 'peak'] = patch.max()
+        df.at[i, 'mass'] = patch.sum()
+        df.at[i, 'mean'] = patch.mean()
+        df.at[i, 'std'] = patch.std()
 
         try:
             p, p_err = fit_gaussian_2d(patch)
@@ -164,10 +165,8 @@ def fit_psf(pims_frame,
 	    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Show the img~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	    # """
         image = pims_frame
-        fig = plt.figure(figsize=(12, 9))
-
-        ax0 = plt.subplot2grid((5,5),(0,0), colspan=5, rowspan=5)
-        ax0.imshow(image, cmap="gray")
+        fig, ax = plt.subplots(figsize=(9, 9))
+        ax.imshow(image, cmap="gray")
 
         # """
         # ~~~~~~~~~~~~~~~~~~~Add fitting contour to the image~~~~~~~~~~~~~~~~~~~
@@ -185,23 +184,23 @@ def fit_psf(pims_frame,
             contour_img[x1-r1:x1+r1+1,
                         y1-r1:y1+r1+1] = Fitting_img[x1-r1:x1+r1+1,
                                                      y1-r1:y1+r1+1]
-            ax0.contour(contour_img, cmap='cool')
+            ax.contour(contour_img, cmap='cool')
 
         # """
         # ~~~~~~~~~~~~~~~~~Annotate truth_df, segm_df, psf_df~~~~~~~~~~~~~~~~~~~
         # """
-        anno_blob(ax0, f1, marker='x', plot_r=1, color=(1,0,0,0.8))
+        anno_blob(ax, f1, marker='x', plot_r=1, color=(1,0,0,0.8))
 
         if isinstance(segm_df, pd.DataFrame):
-            anno_scatter(ax0, segm_df, marker='^', color=(0,0,1,0.8))
+            anno_scatter(ax, segm_df, marker='^', color=(0,0,1,0.8))
 
         if isinstance(truth_df, pd.DataFrame):
-            anno_scatter(ax0, truth_df, marker='o', color=(0,1,0,0.8))
+            anno_scatter(ax, truth_df, marker='o', color=(0,1,0,0.8))
 
         # """
         # ~~~~~~~~~~~~~~~~Print predict good fitting foci num~~~~~~~~~~~~~~~~~~
         # """
-        ax0.text(0.95,
+        ax.text(0.95,
                 0.00,
                 """
                 Predict good fitting foci num and ratio: %d, %.2f
@@ -210,7 +209,7 @@ def fit_psf(pims_frame,
                 verticalalignment='bottom',
                 fontsize = 12,
                 color = (1, 1, 1, 0.8),
-                transform=ax0.transAxes)
+                transform=ax.transAxes)
         plt_array = plot_end(fig, pltshow)
 
     return psf_df, plt_array

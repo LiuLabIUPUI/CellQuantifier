@@ -80,7 +80,7 @@ def detect_blobs(pims_frame,
 	# ~~~~~~~~~~~~~~~~~~~~~~Prepare blobs_df and update it~~~~~~~~~~~~~~~~~~~~~~
 	# """
 
-	columns = ['frame', 'x', 'y', 'sig_raw', 'r', 'peak', 'mass', 'mean', 'std']
+	columns = ['frame', 'x', 'y', 'sig_raw', 'r', 'peak']
 	blobs_df = pd.DataFrame([], columns=columns)
 	blobs_df['x'] = blobs[:, 0]
 	blobs_df['y'] = blobs[:, 1]
@@ -92,10 +92,7 @@ def detect_blobs(pims_frame,
 		y = int(blobs_df.at[i, 'y'])
 		r = int(round(blobs_df.at[i, 'r']))
 		blob = frame[x-r:x+r+1, y-r:y+r+1]
-		blobs_df.at[i, 'mass'] = blob.sum()
-		blobs_df.at[i, 'std'] = blob.std()
 		blobs_df.at[i, 'peak'] = blob.max()
-		blobs_df.at[i, 'mean'] = blob.mean()
 
 	# """
 	# ~~~~~~~Filter detections at the edge and those below peak_thres_abs~~~~~~~
@@ -113,9 +110,9 @@ def detect_blobs(pims_frame,
 	# """
 
 	if len(blobs_df)==0:
-		print('\n'*3+'#' * 50 \
-				+'\nERROR: No blobs detected in this frame!!!\n' \
-				+'#' * 50+'\n'*3)
+		print("##############################################")
+		print("ERROR: No blobs detected in this frame!!!")
+		print("##############################################")
 		return pd.DataFrame(np.array([])), np.array([])
 	else:
 		print("Det in frame %d: %s" % (pims_frame.frame_no, len(blobs_df)))
@@ -126,21 +123,20 @@ def detect_blobs(pims_frame,
 
 	plt_array = []
 	if diagnostic:
-		fig = plt.figure(figsize=(12,9))
-		ax0 = plt.subplot2grid((6,9),(0,0), colspan=6, rowspan=6)
+		fig, ax = plt.subplots(figsize=(9,9))
 
 		# """
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~Annotate the blobs~~~~~~~~~~~~~~~~~~~~~~~~~~
 		# """
-		ax0.imshow(frame, cmap="gray", aspect='equal')
-		anno_blob(ax0, blobs_df, marker='^',
+		ax.imshow(frame, cmap="gray", aspect='equal')
+		anno_blob(ax, blobs_df, marker='^',
 				plot_r=plot_r, color=(0,0,1,0.8))
 
 		# """
 		# ~~~~~~~~~~~~~~~~~~~Annotate ground truth if needed~~~~~~~~~~~~~~~~~~~
 		# """
 		if isinstance(truth_df, pd.DataFrame):
-			anno_scatter(ax0, truth_df, marker='o', color=(0,1,0,0.8))
+			anno_scatter(ax, truth_df, marker='o', color=(0,1,0,0.8))
 
 		# """
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~Add scale bar~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,35 +146,7 @@ def detect_blobs(pims_frame,
 			font_properties=font, box_color = 'black', color='white')
 		scalebar.length_fraction = .3
 		scalebar.height_fraction = .025
-		ax0.add_artist(scalebar)
-
-		# """
-		# ~~~~~~~~~~~~~~~~~Add histograms of several properties~~~~~~~~~~~~~~~~~
-		# """
-		ax1 = plt.subplot2grid((6,9),(1,6), colspan=3)
-		ax1.hist(blobs_df['mass']/blobs_df['mass'].max(),
-				bins=20, density=1, color=(0,0,0,0.3))
-		ax1.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-		ax1.set(xlabel='relative blob intensity mass', ylabel='weight (a.u)')
-		ax1.set_xlim([0,1])
-		ax2 = plt.subplot2grid((6,9),(2,6), colspan=3)
-		ax2.hist(blobs_df['mean']/blobs_df['mean'].max(), bins=20, density=1,
-				   color=(0,0,0,0.3))
-		ax2.set(xlabel='relative blob intensity mean', ylabel='weight (a.u)')
-		ax2.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-		ax2.set_xlim([0,1])
-		ax3 = plt.subplot2grid((6,9),(3,6), colspan=3)
-		ax3.hist(blobs_df['std']/blobs_df['std'].max(), bins=20, density=1,
-				   color=(0,0,0,0.3))
-		ax3.set(xlabel='relative blob intensity std', ylabel='weight (a.u)')
-		ax3.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-		ax3.set_xlim([0,1])
-		ax4 = plt.subplot2grid((6,9),(4,6), colspan=3)
-		ax4.hist(blobs_df['peak']/blobs_df['peak'].max(), bins=20, density=1,
-				   color=(0,0,0,0.3))
-		ax4.set(xlabel='relative blob intensity peak', ylabel='weight (a.u)')
-		ax4.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-		ax4.set_xlim([0,1])
+		ax.add_artist(scalebar)
 
 		plt_array = plot_end(fig, pltshow)
 
