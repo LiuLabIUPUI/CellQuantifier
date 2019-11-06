@@ -65,9 +65,8 @@ class Config():
 
 		self.DICT = config
 
-		if not self.FROM_CSV:
-			self.clean_dir()
-		# self.save_config()
+		# if not self.FROM_CSV:
+		# 	self.clean_dir()
 
 	def save_config(self):
 

@@ -1,10 +1,16 @@
 from datetime import datetime
-from cellquantifier.util import config
-from cellquantifier.util import pipeline
+from cellquantifier.util.pipeline import pipeline_control
+"""Part I: CellQuantifier Sequence Control"""
+CF0 = 1; CF1 = 1; CF2 = 1; CF3 = 1; CF4 = 1; Automate = 1
+#                              load regi deno check det_fit filt_plot
+if CF0:        Control_Flow = [   1,   1,   0,   0,    0,    0]
+if CF1:        Control_Flow = [   0,   0,   1,   0,    0,    0]
+if CF2:        Control_Flow = [   0,   0,   0,   1,    0,    0]
+if CF3:        Control_Flow = [   0,   0,   0,   0,    1,    0]
+if CF4:        Control_Flow = [   0,   0,   0,   0,    0,    1]
+if Automate:   Control_Flow = [   1,   1,   1,   1,    1,    1]
 
-import warnings
-warnings.filterwarnings("ignore")
-
+"""Part II: CellQuantifier Parameter Settings"""
 settings = {
 
   #HEADER INFO
@@ -67,18 +73,7 @@ settings = {
 
 }
 
-config = config.Config(settings)
-pipe = pipeline.Pipeline(config)
-
-pipe.register()
-pipe.deno(method='boxcar', arg=settings['Deno boxcar_radius'])
-pipe.deno(method='gaussian', arg=settings['Deno gaus_blur_sig'])
-pipe.check_start_frame()
-pipe.detect_fit_link()
-
-settings['Filt from_csv'] = True
-config = config.Config(settings)
-pipe = pipeline.Pipeline(config)
-pipe.filter_and_plotmsd()
-
-# pipe.smt()
+"""Part III: Run CellQuantifier"""
+label = ['load', 'regi', 'deno', 'check', 'detect_fit', 'filt_plot']
+control = dict(zip(label, Control_Flow))
+pipeline_control(settings, control)

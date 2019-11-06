@@ -2,6 +2,7 @@ import pims
 import os.path as osp; import os
 from skimage.io import imread, imsave
 import pandas as pd
+import warnings
 
 from ..deno import filter_batch
 from ..segm import get_mask_batch
@@ -11,10 +12,16 @@ from ..smt.detect import detect_blobs, detect_blobs_batch
 from ..smt.fit_psf import fit_psf, fit_psf_batch
 from ..smt.track import track_blobs
 from ..smt.msd import plot_msd
+from ..util.config import Config
 
 class Pipeline():
 
-	def __init__(self, config):
+	def __init__(self, config, is_new=True):
+
+		self.config = config
+
+		if is_new:
+			self.config.clean_dir()
 
 			frames = imread(config.INPUT_PATH)
 			frames = frames[list(config.TRANGE),:,:]
@@ -24,8 +31,6 @@ class Pipeline():
 
 			imsave(a, frames)
 			imsave(b, frames)
-
-			self.config = config
 
 
 	def segmentation(self, method):
@@ -260,3 +265,25 @@ class Pipeline():
 
 		self.config.save_config()
 		os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+
+
+def pipeline_control(settings_dict, control_dict):
+
+	warnings.filterwarnings("ignore")
+	config = Config(settings_dict)
+	pipe = Pipeline(config, is_new=False)
+
+	if control_dict['load']:
+		config = Config(settings_dict)
+		pipe = Pipeline(config)
+	if control_dict['regi']:
+		pipe.register()
+	if control_dict['deno']:
+		pipe.deno(method='boxcar', arg=settings_dict['Deno boxcar_radius'])
+		pipe.deno(method='gaussian', arg=settings_dict['Deno gaus_blur_sig'])
+	if control_dict['check']:
+		pipe.check_start_frame()
+	if control_dict['detect_fit']:
+		pipe.detect_fit_link()
+	if control_dict['filt_plot']:
+		pipe.filter_and_plotmsd()
