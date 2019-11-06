@@ -55,7 +55,7 @@ class Pipeline():
 		              poly_deg=self.config.POLY_DEG,
 		              rotation_multplier=self.config.ROTATION_MULTIPLIER,
 		              translation_multiplier=self.config.TRANSLATION_MULTIPLIER,
-		              diagnostic=self.config.DIAGNOSTIC)
+		              diagnostic=True)
 
 		registered = apply_regi_params(im, regi_params_array_2d)
 
@@ -111,7 +111,9 @@ class Pipeline():
 		            truth_df=None,
 		            segm_df=blobs_df,
 					centroid=None)
-	def detect_and_fit(self):
+
+
+	def detect_fit_link(self):
 
 		print("######################################")
 		print("Detect and Fit")
@@ -146,6 +148,18 @@ class Pipeline():
 		            truth_df=None,
 		            segm_df=None,
 					centroid=None)
+
+		blobs_df, im = track_blobs(psf_df,
+								    search_range=self.config.SEARCH_RANGE,
+									memory=self.config.MEMORY,
+									min_traj_length=self.config.MIN_TRAJ_LENGTH,
+									filters=self.config.FILTERS,
+									pixel_size=self.config.PIXEL_SIZE,
+									frame_rate=self.config.FRAME_RATE,
+									divide_num=self.config.DIVIDE_NUM,
+									do_filter=False,
+									output_path=self.config.OUTPUT_PATH,
+									root_name=self.config.ROOT_NAME)
 
 
 	def smt(self, centroid=None):
@@ -203,3 +217,5 @@ class Pipeline():
 		            		 root_name=self.config.ROOT_NAME,
 		            		 pixel_size=self.config.PIXEL_SIZE,
 		            		 divide_num=self.config.DIVIDE_NUM)
+
+		self.config.save_config()

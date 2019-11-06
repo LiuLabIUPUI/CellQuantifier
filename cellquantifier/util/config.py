@@ -24,6 +24,10 @@ class Config():
 		self.MIN_SIZE = config['Segm min_size']
 		self.SEGM_THRESHOLD = config['Segm threshold']
 
+		#DENOISE SETTINGS
+		self.BOXCAR_RADIUS = config['Deno boxcar_radius']
+		self.GAUS_BLUR_SIG = config['Deno gaus_blur_sig']
+
 		#DETECTION SETTINGS
 		self.THRESHOLD = config['Det blob_threshold']
 		self.MIN_SIGMA = config['Det blob_min_sigma']
@@ -63,13 +67,15 @@ class Config():
 
 		if not self.FROM_CSV:
 			self.clean_dir()
-		self.save_config()
+		# self.save_config()
 
 	def save_config(self):
 
 		path = self.OUTPUT_PATH + self.ROOT_NAME + '-analMeta.csv'
 		config_df = pd.DataFrame.from_dict(data=self.DICT, orient='index')
-		config_df = config_df.drop(['IO input_path', 'IO output_path', 'Det plot_r', 'Filt from_csv', 'Filt do_filter', 'Diag diagnostic', 'Diag pltshow'])
+		config_df = config_df.drop(['IO input_path', 'IO output_path',
+		'Det plot_r', 'Filt from_csv', 'Filt do_filter', 'Diag diagnostic',
+		'Diag pltshow'])
 		config_df.to_csv(path, header=False)
 
 	def clean_dir(self):

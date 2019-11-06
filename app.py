@@ -30,6 +30,10 @@ settings = {
   'Segm min_size': 50,
   'Segm threshold': 7,
 
+  #DENOISE SETTINGS
+  'Deno boxcar_radius': 10,
+  'Deno gaus_blur_sig': 0.5,
+
   #DETECTION SETTINGS
   'Det blob_threshold': 0.1,
   'Det blob_min_sigma': 1,
@@ -66,9 +70,9 @@ settings = {
 config = config.Config(settings)
 pipe = pipeline.Pipeline(config)
 
-# pipe.register()
-# pipe.deno(method='boxcar', arg=10)
-# pipe.deno(method='gaussian', arg=1)
-# pipe.check_start_frame()
-pipe.detect_and_fit()
+pipe.register()
+pipe.deno(method='boxcar', arg=settings['Deno boxcar_radius'])
+pipe.deno(method='gaussian', arg=settings['Deno gaus_blur_sig'])
+pipe.check_start_frame()
+pipe.detect_fit_link()
 # pipe.smt()
