@@ -5,6 +5,8 @@ import matplotlib as mpl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
 from ..math import msd, fit_msd
+from skimage.io import imsave
+from ..io._plt2array import plt2array
 
 mpl.rcParams['font.size'] = 14
 mpl.rcParams['font.weight'] = 'bold'
@@ -202,8 +204,9 @@ def plot_msd(im,
 	ax[2].set_xlabel(r'$D (\mathbf{nm^{2}/s})$')
 
 	plt.tight_layout()
+	plt_array = plt2array(fig)
 	if pltshow:
 		plt.show()
-	plt.savefig(output_path + root_name + "-msdPlot.png")
+	imsave(output_path + root_name + "-msdPlot.png", plt_array)
 
 	return d_avg, alpha_avg
