@@ -2,6 +2,31 @@ import scipy.optimize as op
 import numpy as np
 import math
 
+def fit_linear(x, y):
+
+	"""Perform linear regression on bivariate data
+
+	Parameters
+	----------
+	x: 1d ndarray
+		raw x data
+
+	y: 1d ndarray
+		raw y data
+
+	Returns
+	-------
+	popt, pcov: 1d ndarray
+		optimal parameters and covariance matrix
+	"""
+
+	from scipy import stats
+
+	slope, intercept, r, p, stderr = \
+		stats.linregress(x,y)
+
+	return slope, intercept, r, p
+
 def fit_gaussian1d(x, y):
 
 	"""1D Gaussian fitting function
