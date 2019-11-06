@@ -151,7 +151,7 @@ def fit_psf(pims_frame,
                 index=['detected', 'fit_success', 'dist_err', 'sigx_to_sigraw',
                         'sigy_to_sigraw'])
         df_filt.loc['detected'] = len(f1)
-        f1 = f1.dropna(how='any')
+        f1 = f1.dropna(how='any', subset=['x', 'y'])
         df_filt.loc['fit_success'] = len(f1)
         f1 = f1[ f1['dist_err']<diag_max_dist_err ]
         df_filt.loc['dist_err'] = len(f1)

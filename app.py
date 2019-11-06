@@ -16,7 +16,7 @@ settings = {
 
    #IO
   'IO input_path': 'cellquantifier/data/simulated_cell.tif',
-  'IO output_path': '/home/cwseitz/Desktop/temp/',
+  'IO output_path': '/home/linhua/Desktop/temp/',
 
   #REGISTRATION SETTINGS
   'Regi ref_ind_num': 0,
@@ -66,7 +66,8 @@ settings = {
 config = config.Config(settings)
 pipe = pipeline.Pipeline(config)
 
-pipe.register()
-pipe.deno(method='boxcar', arg=10)
-pipe.deno(method='gaussian', arg=1)
-pipe.smt()
+# pipe.register()
+# pipe.deno(method='boxcar', arg=10)
+# pipe.deno(method='gaussian', arg=1)
+pipe.check_start_frame()
+# pipe.smt()

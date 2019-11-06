@@ -9,6 +9,7 @@ class Config():
 		self.INPUT_PATH = config['IO input_path']
 		self.OUTPUT_PATH = config['IO output_path']
 		self.ROOT_NAME = config['Raw data file']
+		self.START_FRAME = config['Start frame index']
 		self.TRANGE = range(config['Start frame index'], config['End frame index'])
 
 		#REGISTRATION SETTINGS
