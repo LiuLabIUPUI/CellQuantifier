@@ -15,7 +15,8 @@ def plot_msd(im,
 			 output_path,
 			 root_name,
 			 pixel_size=.1084,
-			 divide_num=5):
+			 divide_num=5,
+			 pltshow=False):
 
 	"""
 	Generates the 3 panel msd figure with color-coded trajectories, msd curves, and a histogram of d values
@@ -74,7 +75,7 @@ def plot_msd(im,
 	D_ind = blobs_df.drop_duplicates('particle')['D'].mean()
 
 	#Plot the image
-	fig, ax = plt.subplots(1, 3, figsize=(20, 8))
+	fig, ax = plt.subplots(1, 3, figsize=(18, 6))
 	ax[0].imshow(image, cmap='gray', aspect='equal')
 
 	# """
@@ -201,6 +202,8 @@ def plot_msd(im,
 	ax[2].set_xlabel(r'$D (\mathbf{nm^{2}/s})$')
 
 	plt.tight_layout()
+	if pltshow:
+		plt.show()
 	plt.savefig(output_path + root_name + "-msdPlot.png")
 
 	return d_avg, alpha_avg

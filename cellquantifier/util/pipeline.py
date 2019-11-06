@@ -194,7 +194,8 @@ class Pipeline():
 		            		 output_path=self.config.OUTPUT_PATH,
 		            		 root_name=self.config.ROOT_NAME,
 		            		 pixel_size=self.config.PIXEL_SIZE,
-		            		 divide_num=self.config.DIVIDE_NUM)
+		            		 divide_num=self.config.DIVIDE_NUM,
+							 pltshow=True)
 
 		self.config.save_config()
 		os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
@@ -254,7 +255,8 @@ class Pipeline():
 		            		 output_path=self.config.OUTPUT_PATH,
 		            		 root_name=self.config.ROOT_NAME,
 		            		 pixel_size=self.config.PIXEL_SIZE,
-		            		 divide_num=self.config.DIVIDE_NUM)
+		            		 divide_num=self.config.DIVIDE_NUM,
+							 pltshow=True)
 
 		self.config.save_config()
 		os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
