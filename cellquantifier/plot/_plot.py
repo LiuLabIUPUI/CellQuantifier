@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-def plot_hist(labels=None, **kwargs):
+def plot_hist(labels=None, nbins=10, **kwargs):
 
 	"""Plot histogram
 	Parameters
@@ -30,7 +30,7 @@ def plot_hist(labels=None, **kwargs):
 
 	for key, value in kwargs.items():
 
-		ax.hist(value, bins=30, color=colors[list(kwargs.keys()).index(key)], density=True, label=key)
+		ax.hist(value, bins=nbins, color=colors[list(kwargs.keys()).index(key)], density=True, label=key, alpha=.75)
 		ax.legend(loc='upper right')
 
 		if type(value) is not np.ndarray:
@@ -48,7 +48,7 @@ def plot_hist(labels=None, **kwargs):
 				fontsize = 12,
 				color = 'black',
 				transform=ax.transAxes)
-
+	plt.tight_layout()
 	plt.show()
 
 def plot_cc_hist(data, nbins=10, labels=None):
@@ -103,6 +103,50 @@ def plot_cc_hist(data, nbins=10, labels=None):
 
 	if labels:
 		ax.set(xlabel=labels[0], ylabel=labels[1])
+
+	plt.tight_layout()
+	plt.show()
+
+def plot_pie(labels=None, nbins=3, **kwargs):
+
+	"""Plot pie chart
+	Parameters
+	----------
+
+	labels: list, optional
+		list of labels for each slice of the pie chart
+
+	nbins: int, optional
+		number of slices to use for pie chart
+
+	kwargs: dict
+		dictionary where keys are plot labels and values are array-like
+
+	Example
+	-------
+	>>>from cellquantifier.plot import plot_pie
+	>>>path1 = 'cellquantifier/data/test_Dalpha.csv'
+	>>>path2 = 'cellquantifier/data/test_Dalpha2.csv'
+	>>>df1 = pd.read_csv(path1, index_col=None, header=0)
+	>>>df2 = pd.read_csv(path2, index_col=None, header=0)
+	>>>labels = ['slow', 'medium', 'fast']
+	>>>plot_pie(labels, damaged=df1['D'], control=df2['D'])
+	"""
+
+	fig, ax = plt.subplots(1, len(kwargs))
+
+	i = 0
+	for key, value in kwargs.items():
+
+		value = value.to_numpy()
+		hist, edges = np.histogram(value, normed=False, bins=3)
+
+		ax[i].pie(hist, labels=labels, autopct='%1.1f%%',
+		        shadow=True, startangle=90)
+		ax[i].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+		ax[i].set_title(key)
+
+		i+=1
 
 	plt.tight_layout()
 	plt.show()

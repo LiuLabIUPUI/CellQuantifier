@@ -10,7 +10,7 @@ from skimage.filters import unsharp_mask, gaussian
 from skimage import img_as_ubyte
 
 
-def get_mask(image, method, sigma, min_size=50, show_mask=False):
+def get_mask(image, method, min_size=50, show_mask=False):
 
 	"""Dispatches segmentation request for a single frame to appropriate function
 
@@ -30,7 +30,7 @@ def get_mask(image, method, sigma, min_size=50, show_mask=False):
 	if method == 'label':
 		mask = label_image(image)
 	elif method == 'threshold':
-		mask = threshold(image, sigma, min_size)
+		mask = threshold(image, min_size)
 	elif method == 'unsharp':
 		mask = unsharp(image)
 
@@ -45,7 +45,7 @@ def get_mask(image, method, sigma, min_size=50, show_mask=False):
 
 	return mask, centroid
 
-def get_mask_batch(image, method, sigma, min_size=50, show_mask=False):
+def get_mask_batch(image, method, min_size=50, show_mask=False):
 
 	"""Dispatches segmentation request for a time-series to appropriate function
 
@@ -63,11 +63,11 @@ def get_mask_batch(image, method, sigma, min_size=50, show_mask=False):
 	"""
 	mask = np.zeros_like(image)
 	for i in range(len(image)):
-		mask[i], centroid = get_mask(image[i], method, sigma, min_size, show_mask)
+		mask[i], centroid = get_mask(image[i], method, min_size, show_mask)
 
 	return mask, centroid
 
-def threshold(image, sigma, min_size):
+def threshold(image, min_size):
 
 	"""Uses blurring/thresholding to create the object mask
 
@@ -83,7 +83,7 @@ def threshold(image, sigma, min_size):
 	mask : 2D ndarray
 		The object mask
 	"""
-
+	sigma=10
 	image = gaussian(image, sigma=sigma)
 	t = .1*image.max()
 	mask = image > t
