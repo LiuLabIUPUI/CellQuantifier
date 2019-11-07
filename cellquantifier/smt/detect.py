@@ -110,9 +110,11 @@ def detect_blobs(pims_frame,
 	# """
 
 	if len(blobs_df)==0:
+		print("\n"*3)
 		print("##############################################")
 		print("ERROR: No blobs detected in this frame!!!")
 		print("##############################################")
+		print("\n"*3)
 		return pd.DataFrame(np.array([])), np.array([])
 	else:
 		print("Det in frame %d: %s" % (pims_frame.frame_no, len(blobs_df)))

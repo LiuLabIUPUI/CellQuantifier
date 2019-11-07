@@ -59,6 +59,16 @@ def fit_psf(pims_frame,
     blobs_df, det_plt_array = detect_blobs(frames[0], diagnostic=0)
     psf_df, fit_plt_array = fit_psf(frames[0], blobs_df)
     """
+    # """
+    # ~~~~~~~~~~~~~~~~~~~~~~~~Check if df_blobs is empty~~~~~~~~~~~~~~~~~~~~~~~~
+    # """
+    if blobs_df.empty:
+        print("\n"*3)
+		print("##############################################")
+		print("ERROR: blobs_df is empty!!!")
+		print("##############################################")
+		print("\n"*3)
+        return
 
     # """
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~Prepare the dataformat~~~~~~~~~~~~~~~~~~~~~~~~~~

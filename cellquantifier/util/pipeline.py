@@ -98,7 +98,8 @@ class Pipeline():
 
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
-		blobs_df, det_plt_array = detect_blobs(frames[self.config.START_FRAME],
+		blobs_df, det_plt_array = detect_blobs(frames[(self.config.END_FRAME - \
+							self.config.START_FRAME) - self.config.START_FRAME],
 									min_sig=self.config.MIN_SIGMA,
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
@@ -111,7 +112,8 @@ class Pipeline():
 									plot_r=self.config.PLOT_R,
 									truth_df=None)
 
-		psf_df, fit_plt_array = fit_psf(frames_deno[self.config.START_FRAME],
+		psf_df, fit_plt_array = fit_psf(frames_deno[(self.config.END_FRAME - \
+							self.config.START_FRAME) - self.config.START_FRAME],
 		            blobs_df,
 		            diagnostic=True,
 		            pltshow=True,
