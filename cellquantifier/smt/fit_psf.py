@@ -64,10 +64,10 @@ def fit_psf(pims_frame,
     # """
     if blobs_df.empty:
         print("\n"*3)
-		print("##############################################")
-		print("ERROR: blobs_df is empty!!!")
-		print("##############################################")
-		print("\n"*3)
+        print("##############################################")
+        print("ERROR: blobs_df is empty!!!")
+        print("##############################################")
+        print("\n"*3)
         return
 
     # """
