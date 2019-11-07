@@ -1,6 +1,7 @@
 import pims
 import os.path as osp; import os
 from skimage.io import imread, imsave
+from skimage.util import img_as_ubyte
 import pandas as pd
 import warnings
 
@@ -76,6 +77,8 @@ class Pipeline():
 		print("######################################")
 
 		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+		frames = frames / frames.max()
+		frames = img_as_ubyte(frames)
 		filtered = filter_batch(frames, method=method, arg=arg)
 
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', filtered)
@@ -203,7 +206,8 @@ class Pipeline():
 							 pltshow=True)
 
 		self.config.save_config()
-		os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif'):
+			os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
 
 	def smt(self, centroid=None):
@@ -264,7 +268,8 @@ class Pipeline():
 							 pltshow=True)
 
 		self.config.save_config()
-		os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif'):
+			os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
 
 def pipeline_control(settings_dict, control_dict):
