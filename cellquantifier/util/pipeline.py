@@ -98,8 +98,7 @@ class Pipeline():
 
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
-		blobs_df, det_plt_array = detect_blobs(frames[(self.config.END_FRAME - \
-							self.config.START_FRAME) - self.config.START_FRAME],
+		blobs_df, det_plt_array = detect_blobs(frames[self.config.CHECK_FRAME],
 									min_sig=self.config.MIN_SIGMA,
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
@@ -112,8 +111,7 @@ class Pipeline():
 									plot_r=self.config.PLOT_R,
 									truth_df=None)
 
-		psf_df, fit_plt_array = fit_psf(frames_deno[(self.config.END_FRAME - \
-							self.config.START_FRAME) - self.config.START_FRAME],
+		psf_df, fit_plt_array = fit_psf(frames_deno[self.config.CHECK_FRAME],
 		            blobs_df,
 		            diagnostic=True,
 		            pltshow=True,
@@ -124,7 +122,7 @@ class Pipeline():
 					centroid=None)
 
 
-	def detect_fit_link(self):
+	def detect_fit_link(self, detect_video=False, fit_psf_video=False):
 
 		print("######################################")
 		print("Detect, Fit, Linking")
@@ -137,18 +135,33 @@ class Pipeline():
 
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
-		blobs_df, det_plt_array = detect_blobs_batch(frames,
-									min_sig=self.config.MIN_SIGMA,
-									max_sig=self.config.MAX_SIGMA,
-									num_sig=self.config.NUM_SIGMA,
-									blob_thres=self.config.THRESHOLD,
-									peak_thres_rel=self.config.PEAK_THRESH_REL,
-									r_to_sigraw=self.config.PATCH_SIZE,
-									pixel_size = self.config.PIXEL_SIZE,
-									diagnostic=False,
-									pltshow=False,
-									plot_r=self.config.PLOT_R,
-									truth_df=None)
+		if detect_video:
+			blobs_df, det_plt_array = detect_blobs_batch(frames,
+										min_sig=self.config.MIN_SIGMA,
+										max_sig=self.config.MAX_SIGMA,
+										num_sig=self.config.NUM_SIGMA,
+										blob_thres=self.config.THRESHOLD,
+										peak_thres_rel=self.config.PEAK_THRESH_REL,
+										r_to_sigraw=self.config.PATCH_SIZE,
+										pixel_size = self.config.PIXEL_SIZE,
+										diagnostic=True,
+										pltshow=False,
+										plot_r=False,
+										truth_df=None)
+			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
+		else:
+			blobs_df, det_plt_array = detect_blobs_batch(frames,
+										min_sig=self.config.MIN_SIGMA,
+										max_sig=self.config.MAX_SIGMA,
+										num_sig=self.config.NUM_SIGMA,
+										blob_thres=self.config.THRESHOLD,
+										peak_thres_rel=self.config.PEAK_THRESH_REL,
+										r_to_sigraw=self.config.PATCH_SIZE,
+										pixel_size = self.config.PIXEL_SIZE,
+										diagnostic=False,
+										pltshow=False,
+										plot_r=self.config.PLOT_R,
+										truth_df=None)
 
 		psf_df, fit_plt_array = fit_psf_batch(frames_deno,
 		            blobs_df,
@@ -276,6 +289,16 @@ class Pipeline():
 
 def pipeline_control(settings_dict, control_dict):
 
+	# If not registered, remove meaningless regi input
+	if settings_dict['Regi rotation_multplier'] == 0 & \
+					settings_dict['Regi rotation_multplier'] == 0:
+		settings_dict['Regi ref_ind_num'] = 'NA'
+		settings_dict['Regi sig_mask'] = 'NA'
+		settings_dict['Regi thres_rel'] = 'NA'
+		settings_dict['Regi poly_deg'] = 'NA'
+		settings_dict['Regi rotation_multplier'] = 'NA'
+		settings_dict['Regi translation_multiplier'] = 'NA'
+
 	warnings.filterwarnings("ignore")
 	config = Config(settings_dict)
 	pipe = Pipeline(config, is_new=False)
@@ -291,6 +314,6 @@ def pipeline_control(settings_dict, control_dict):
 	if control_dict['check']:
 		pipe.check_start_frame()
 	if control_dict['detect_fit']:
-		pipe.detect_fit_link()
+		pipe.detect_fit_link(detect_video=control_dict['video'])
 	if control_dict['filt_plot']:
 		pipe.filter_and_plotmsd()

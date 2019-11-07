@@ -10,7 +10,7 @@ class Config():
 		self.OUTPUT_PATH = config['IO output_path']
 		self.ROOT_NAME = config['Raw data file']
 		self.START_FRAME = config['Start frame index']
-		self.END_FRAME = config['End frame index']
+		self.CHECK_FRAME = config['Check frame index']
 		self.TRANGE = range(config['Start frame index'], config['End frame index'])
 
 		#REGISTRATION SETTINGS
@@ -75,7 +75,7 @@ class Config():
 		config_df = pd.DataFrame.from_dict(data=self.DICT, orient='index')
 		config_df = config_df.drop(['IO input_path', 'IO output_path',
 		'Det plot_r', 'Filt from_csv', 'Filt do_filter', 'Diag diagnostic',
-		'Diag pltshow'])
+		'Diag pltshow', 'Check frame index'])
 		config_df.to_csv(path, header=False)
 
 	def clean_dir(self):
