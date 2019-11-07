@@ -87,6 +87,13 @@ def detect_blobs(pims_frame,
 	blobs_df['sig_raw'] = blobs[:, 2]
 	blobs_df['r'] = blobs[:, 2] * r_to_sigraw
 	blobs_df['frame'] = pims_frame.frame_no
+	# """
+	# ~~~~~~~Filter detections at the edge~~~~~~~
+	# """
+	blobs_df = blobs_df[(blobs_df['x'] - blobs_df['r'] > 0) &
+				  (blobs_df['x'] + blobs_df['r'] + 1 < frame.shape[0]) &
+				  (blobs_df['y'] - blobs_df['r'] > 0) &
+				  (blobs_df['y'] + blobs_df['r'] + 1 < frame.shape[1])]
 	for i in blobs_df.index:
 		x = int(blobs_df.at[i, 'x'])
 		y = int(blobs_df.at[i, 'y'])
@@ -95,15 +102,11 @@ def detect_blobs(pims_frame,
 		blobs_df.at[i, 'peak'] = blob.max()
 
 	# """
-	# ~~~~~~~Filter detections at the edge and those below peak_thres_abs~~~~~~~
+	# ~~~~~~~Filter detections below peak_thres_abs~~~~~~~
 	# """
 
 	peak_thres_abs = blobs_df['peak'].max() * peak_thres_rel
-	blobs_df = blobs_df[(blobs_df['x'] - blobs_df['r'] > 0) &
-				  (blobs_df['x'] + blobs_df['r'] + 1 < frame.shape[0]) &
-				  (blobs_df['y'] - blobs_df['r'] > 0) &
-				  (blobs_df['y'] + blobs_df['r'] + 1 < frame.shape[1]) &
-				  (blobs_df['peak'] > peak_thres_abs)]
+	blobs_df = blobs_df[(blobs_df['peak'] > peak_thres_abs)]
 
 	# """
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~Print detection summary~~~~~~~~~~~~~~~~~~~~~~~~~
