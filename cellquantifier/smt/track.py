@@ -4,14 +4,39 @@ import trackpy as tp
 
 from ..math import fit_msd
 
+def get_d_values(traj_df, im, divide_num):
+
+	"""Returns a modififed traj_df with an extra column for each particles diffusion coefficient"""
+
+	n = int(round(len(im.index)/divide_num))
+	im = im.head(n)
+
+	#get diffusion coefficient of each particle
+	particles = im.columns
+	for particle in particles:
+
+		# Remove NaN, Remove non-positive value before calculate log()
+		msd = im[particle].dropna()
+		msd = msd[msd > 0]
+
+		x = msd.index.values
+		y = msd.to_numpy()
+		y = y*1e6 #convert to nm
+		popt = fit_msd(x, y)
+
+		traj_df.loc[traj_df['particle'] == particle, 'D'] = popt[0]
+		traj_df.loc[traj_df['particle'] == particle, 'alpha'] = popt[1]
+
+	return traj_df
+
+
 def track_blobs(blobs_df,
 			    search_range=3,
 				memory=5,
-				min_traj_length=10,
-				filters=None,
 				pixel_size=.1084,
 				frame_rate=3.3,
 				divide_num=5,
+				filters=None,
 				do_filter=False,
 				output_path=None,
 				root_name=None,
@@ -86,12 +111,27 @@ def track_blobs(blobs_df,
 		203      8  461.0  434.0  9.0  ...        33    0.036314  46937.634668  1.685204
 		225      9  463.0  436.0  9.0  ...        33    0.021886  46937.634668  1.685204
 
-		"""
+	"""
+
+	blobs_df = blobs_df.dropna(subset=['x', 'y', 'frame'])
+
 	# """
-	# ~~~~~~~~~~~Link Trajectories and Filter Stubs~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Apply filters, Link Trajectories~~~~~~~~~~~~~~
 	# """
 
-	blobs_df = link(blobs_df, search_range, memory, min_traj_length)
+	if do_filter:
+		blobs_df = blobs_df[blobs_df.dist_err < filters['MAX_DIST_ERROR']]
+		blobs_df = blobs_df[blobs_df.delta_area < filters['MAX_DELTA_AREA']]
+		blobs_df = blobs_df[blobs_df.sigx_to_sigraw < filters['SIG_TO_SIGRAW']]
+		blobs_df = blobs_df[blobs_df.sigy_to_sigraw < filters['SIG_TO_SIGRAW']]
+		blobs_df = tp.link_df(blobs_df, search_range=search_range, memory=memory)
+		blobs_df = tp.filter_stubs(blobs_df, filters['TRAJ_LEN_THRES'])
+		blobs_df = blobs_df.reset_index(drop=True)
+
+	else:
+		blobs_df = tp.link_df(blobs_df, search_range=search_range, memory=memory)
+		blobs_df = blobs_df.reset_index(drop=True)
+
 
 	# """
 	# ~~~~~~~~~~~Get dA/A~~~~~~~~~~~~~
@@ -105,7 +145,7 @@ def track_blobs(blobs_df,
 	# ~~~~~~~~~~~Get Individual Particle D Values~~~~~~~~~~~~~~
 	# """
 
-	blobs_df_cut = blobs_df[['frame', 'particle','x','y']]
+	blobs_df_cut = blobs_df[['frame', 'x', 'y', 'particle']]
 	blobs_df_cut = blobs_df_cut.apply(pd.to_numeric)
 	im = tp.imsd(blobs_df_cut, mpp=pixel_size, fps=frame_rate)
 
@@ -113,52 +153,10 @@ def track_blobs(blobs_df,
 	blobs_df = blobs_df.apply(pd.to_numeric)
 	if save_csv:
 		blobs_df.to_csv(output_path + root_name + "-fittData.csv", index=False)
-
-	# """
-	# ~~~~~~~~~~~Filter DataFrame and Relink~~~~~~~~~~~~~~
-	# """
-
 	if do_filter:
-
-		blobs_df = filter_df(blobs_df, filters)
-		blobs_df = link(blobs_df, search_range, memory, filters['TRAJ_LEN_THRES'])
 		blobs_df.to_csv(output_path + root_name + "-fittDataFiltered.csv", index=False)
 
 	return blobs_df, im
-
-
-def link(blobs_df, search_range, memory, min_traj_length):
-
-	blobs_df = tp.link_df(blobs_df, search_range=search_range, memory=memory)
-	blobs_df = tp.filter_stubs(blobs_df, min_traj_length)
-	blobs_df = blobs_df.reset_index(drop=True)
-
-	return blobs_df
-
-def get_d_values(traj_df, im, divide_num):
-
-	"""Returns a modififed traj_df with an extra column for each particles diffusion coefficient"""
-
-	n = int(round(len(im.index)/divide_num))
-	im = im.head(n)
-
-	#get diffusion coefficient of each particle
-	particles = np.unique(traj_df['particle'])
-	for particle in particles:
-
-		# Remove NaN, Remove non-positive value before calculate log()
-		msd = im[particle].dropna()
-		msd = msd[msd > 0]
-
-		x = msd.index.values
-		y = msd.to_numpy()
-		y = y*1e6 #convert to nm
-		popt = fit_msd(x, y)
-
-		traj_df.loc[traj_df['particle'] == particle, 'D'] = popt[0]
-		traj_df.loc[traj_df['particle'] == particle, 'alpha'] = popt[1]
-
-	return traj_df
 
 def filter_df(blobs_df, filters):
 

@@ -11,7 +11,7 @@ from ..regi import get_regi_params, apply_regi_params
 
 from ..smt.detect import detect_blobs, detect_blobs_batch
 from ..smt.fit_psf import fit_psf, fit_psf_batch
-from ..smt.track import track_blobs
+from ..smt.track import track_blobs, filter_df
 from ..smt.msd import plot_msd
 from ..util.config import Config
 
@@ -176,14 +176,14 @@ class Pipeline():
 		blobs_df, im = track_blobs(psf_df,
 								    search_range=self.config.SEARCH_RANGE,
 									memory=self.config.MEMORY,
-									min_traj_length=self.config.MIN_TRAJ_LENGTH,
-									filters=self.config.FILTERS,
 									pixel_size=self.config.PIXEL_SIZE,
 									frame_rate=self.config.FRAME_RATE,
 									divide_num=self.config.DIVIDE_NUM,
+									filters=None,
 									do_filter=False,
 									output_path=self.config.OUTPUT_PATH,
-									root_name=self.config.ROOT_NAME)
+									root_name=self.config.ROOT_NAME,
+									save_csv=True)
 
 
 	def filter_and_plotmsd(self):
@@ -202,12 +202,11 @@ class Pipeline():
 		blobs_df, im = track_blobs(psf_df,
 								    search_range=self.config.SEARCH_RANGE,
 									memory=self.config.MEMORY,
-									min_traj_length=self.config.MIN_TRAJ_LENGTH,
-									filters=self.config.FILTERS,
 									pixel_size=self.config.PIXEL_SIZE,
 									frame_rate=self.config.FRAME_RATE,
 									divide_num=self.config.DIVIDE_NUM,
-									do_filter=True,
+									filters=self.config.FILTERS,
+									do_filter=self.config.DO_FILTER,
 									output_path=self.config.OUTPUT_PATH,
 									root_name=self.config.ROOT_NAME,
 									save_csv=False)
@@ -261,17 +260,30 @@ class Pipeline():
 		            segm_df=None,
 					centroid=centroid)
 
+		# Tracking, no filters
 		blobs_df, im = track_blobs(psf_df,
 								    search_range=self.config.SEARCH_RANGE,
 									memory=self.config.MEMORY,
-									min_traj_length=self.config.MIN_TRAJ_LENGTH,
-									filters=self.config.FILTERS,
 									pixel_size=self.config.PIXEL_SIZE,
 									frame_rate=self.config.FRAME_RATE,
 									divide_num=self.config.DIVIDE_NUM,
+									filters=None,
+									do_filter=False,
+									output_path=self.config.OUTPUT_PATH,
+									root_name=self.config.ROOT_NAME,
+									save_csv=True)
+		# Do filters and plot
+		blobs_df, im = track_blobs(blobs_df,
+								    search_range=self.config.SEARCH_RANGE,
+									memory=self.config.MEMORY,
+									pixel_size=self.config.PIXEL_SIZE,
+									frame_rate=self.config.FRAME_RATE,
+									divide_num=self.config.DIVIDE_NUM,
+									filters=self.config.FILTERS,
 									do_filter=self.config.DO_FILTER,
 									output_path=self.config.OUTPUT_PATH,
-									root_name=self.config.ROOT_NAME)
+									root_name=self.config.ROOT_NAME,
+									save_csv=False)
 
 		d, alpha = plot_msd(im,
 		            		 blobs_df,

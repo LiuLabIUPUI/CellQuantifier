@@ -43,13 +43,11 @@ class Config():
 	    #TRACKING SETTINGS
 		self.SEARCH_RANGE = config['Trak search_range']
 		self.MEMORY = config['Trak memory']
-		self.MIN_TRAJ_LENGTH = config['Trak min_traj_length']
 		self.FRAME_RATE = config['Trak frame_rate']
 		self.PIXEL_SIZE = config['Trak pixel_size']
 		self.DIVIDE_NUM = config['Trak divide_num']
 
 		#TRACKING FILTERING SETTINGS
-		self.FROM_CSV = config['Filt from_csv']
 		self.DO_FILTER = config['Filt do_filter']
 		self.FILTERS = {
 
@@ -74,7 +72,7 @@ class Config():
 		path = self.OUTPUT_PATH + self.ROOT_NAME + '-analMeta.csv'
 		config_df = pd.DataFrame.from_dict(data=self.DICT, orient='index')
 		config_df = config_df.drop(['IO input_path', 'IO output_path',
-		'Det plot_r', 'Filt from_csv', 'Filt do_filter', 'Diag diagnostic',
+		'Det plot_r', 'Filt do_filter', 'Diag diagnostic',
 		'Diag pltshow', 'Check frame index'])
 		config_df.to_csv(path, header=False)
 

@@ -110,6 +110,17 @@ def plot_msd(im,
 	ax[0].set_aspect(1.0)
 	ax[0].set(xlabel='y (pixel)', ylabel='x (pixel)')
 
+	ax[0].text(0.95,
+            0.00,
+            """
+            Total trajectory number: %d
+            """ %(len(particles)),
+            horizontalalignment='right',
+            verticalalignment='bottom',
+            fontsize = 10,
+            color = (0.5, 0.5, 0.5, 0.5),
+            transform=ax[0].transAxes)
+
 
 	# """
 	# ~~~~~~~~~~~Plot the MSD curves for each particle~~~~~~~~~~~~~~

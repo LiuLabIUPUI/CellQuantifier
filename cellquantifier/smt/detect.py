@@ -226,7 +226,7 @@ def detect_blobs_batch(pims_frames,
 					   pltshow=pltshow,
 					   plot_r=plot_r,
 					   truth_df=current_truth_df)
-		blobs_df = pd.concat([blobs_df, tmp])
+		blobs_df = pd.concat([blobs_df, tmp], sort=True)
 		plt_array.append(tmp_plt_array)
 
 	blobs_df.index = range(len(blobs_df))
