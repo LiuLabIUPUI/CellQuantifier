@@ -154,15 +154,6 @@ def track_blobs(blobs_df,
 	if save_csv:
 		blobs_df.to_csv(output_path + root_name + "-fittData.csv", index=False)
 	if do_filter:
-		blobs_df.to_csv(output_path + root_name + "-fittDataFiltered.csv", index=False)
+		blobs_df.to_csv(output_path + root_name + "-filtTrakData.csv", index=False)
 
 	return blobs_df, im
-
-def filter_df(blobs_df, filters):
-
-	blobs_df = blobs_df[blobs_df.dist_err < filters['MAX_DIST_ERROR']]
-	blobs_df = blobs_df[blobs_df.delta_area < filters['MAX_DELTA_AREA']]
-	blobs_df = blobs_df[blobs_df.sigx_to_sigraw < filters['SIG_TO_SIGRAW']]
-	blobs_df = blobs_df[blobs_df.sigy_to_sigraw < filters['SIG_TO_SIGRAW']]
-
-	return blobs_df

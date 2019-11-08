@@ -9,7 +9,7 @@ CF4 = 1         #filt_plot
 Automate = 1    #automate smt
 #                              load regi deno check det_fit filt_plot video
 if CF0:        Control_Flow = [   1,   1,   0,   0,    0,    0,         0]
-if CF1:        Control_Flow = [   1,   0,   1,   0,    0,    0,         0]
+if CF1:        Control_Flow = [   0,   0,   1,   0,    0,    0,         0]
 if CF2:        Control_Flow = [   0,   0,   0,   1,    0,    0,         0]
 if CF3:        Control_Flow = [   0,   0,   0,   0,    1,    0,         1]
 if CF4:        Control_Flow = [   0,   0,   0,   0,    0,    1,         0]
@@ -59,14 +59,14 @@ settings = {
   'Fitt r_to_sigraw': 1, #determines the patch size
 
   #TRACKING SETTINGS
-  'Trak search_range': 4,
-  'Trak memory': 3,
   'Trak frame_rate': 20,
   'Trak pixel_size': 0.163,
   'Trak divide_num': 1,
+  'Trak search_range': 3,
+  'Trak memory': 3,
 
   #FITTING FILTERING SETTINGS
-  'Filt do_filter': True,
+  'Filt do_filter': False,
   'Filt max_dist_err': 1,
   'Filt max_delta_area': 0.3,
   'Filt sig_to_sigraw': 3,
@@ -82,12 +82,3 @@ settings = {
 label = ['load', 'regi', 'deno', 'check', 'detect_fit', 'filt_plot', 'video']
 control = dict(zip(label, Control_Flow))
 pipeline_control(settings, control)
-
-
-# from cellquantifier.util import pipeline, config
-# config = config.Config(settings)
-# pipe = pipeline.Pipeline(config)
-# pipe.register()
-# pipe.deno(method='boxcar', arg=settings['Deno boxcar_radius'])
-# pipe.deno(method='gaussian', arg=settings['Deno gaus_blur_sig'])
-# pipe.smt()
