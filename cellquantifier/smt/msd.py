@@ -79,6 +79,8 @@ def plot_msd(im,
 	#Plot the image
 	fig, ax = plt.subplots(1, 3, figsize=(18, 6))
 	ax[0].imshow(image, cmap='gray', aspect='equal')
+	ax[0].set_xlim((0, image.shape[1]))
+	ax[0].set_ylim((image.shape[0], 0))
 
 	# """
 	# ~~~~~~~~~~~Add D value scale bar to left plot~~~~~~~~~~~~~~
