@@ -6,9 +6,9 @@ class Config():
 	def __init__(self, config):
 
 		#I/O
-		self.INPUT_PATH = config['IO input_path']
+		self.INPUT_PATH = config['IO input_path'] + config['Raw data file']
 		self.OUTPUT_PATH = config['IO output_path']
-		self.ROOT_NAME = config['Raw data file']
+		self.ROOT_NAME = config['Raw data file'][:config['Raw data file'].index('.')]
 		self.START_FRAME = config['Start frame index']
 		self.CHECK_FRAME = config['Check frame index']
 		self.TRANGE = range(config['Start frame index'], config['End frame index'])

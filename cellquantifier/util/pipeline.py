@@ -122,10 +122,10 @@ class Pipeline():
 					centroid=None)
 
 
-	def detect_fit_link(self, detect_video=False, fit_psf_video=False):
+	def detect_fit(self, detect_video=False, fit_psf_video=False):
 
 		print("######################################")
-		print("Detect, Fit, Linking")
+		print("Detect, Fit")
 		print("######################################")
 
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
@@ -258,6 +258,6 @@ def pipeline_control(settings_dict, control_dict):
 	if control_dict['check']:
 		pipe.check_start_frame()
 	if control_dict['detect_fit']:
-		pipe.detect_fit_link(detect_video=control_dict['video'])
+		pipe.detect_fit(detect_video=control_dict['video'])
 	if control_dict['filt_plot']:
 		pipe.filter_and_plotmsd()

@@ -9,11 +9,11 @@ CF4 = 1         #filt_plot
 Automate = 1    #automate smt
 #                              load regi deno check det_fit filt_plot video
 if CF0:        Control_Flow = [   1,   1,   0,   0,    0,    0,         0]
-if CF1:        Control_Flow = [   0,   0,   1,   0,    0,    0,         0]
+if CF1:        Control_Flow = [   1,   0,   1,   0,    0,    0,         0]
 if CF2:        Control_Flow = [   0,   0,   0,   1,    0,    0,         0]
 if CF3:        Control_Flow = [   0,   0,   0,   0,    1,    0,         1]
 if CF4:        Control_Flow = [   0,   0,   0,   0,    0,    1,         0]
-if Automate:   Control_Flow = [   1,   1,   1,   1,    1,    1,         1]
+if Automate:   Control_Flow = [   1,   0,   1,   0,    1,    1,         1]
 
 """Part II: CellQuantifier Parameter Settings"""
 settings = {
@@ -21,14 +21,13 @@ settings = {
   #HEADER INFO
   'Processed By:': 'Hua Lin',
   'Date': datetime.now(),
-  'Raw data file': 'simulated_cell',
-  'Start frame index': 0,
-  'End frame index': 50,
+  'Raw data file': '191004_NcBLM50_A1-HT.tif',
+  'Start frame index': 100,
+  'End frame index': 200,
   'Check frame index': 0,
 
   #IO
-  # 'IO input_path': '/home/linhua/cq/191004_NcBLM50_A1-HT.tif',
-  'IO input_path': 'cellquantifier/data/simulated_cell.tif',
+  'IO input_path': '/home/linhua/Downloads/',
   'IO output_path': '/home/linhua/Desktop/temp/',
 
   #REGISTRATION SETTINGS
@@ -36,19 +35,19 @@ settings = {
   'Regi sig_mask': 3,
   'Regi thres_rel': .2,
   'Regi poly_deg': 2,
-  'Regi rotation_multplier': 1,
-  'Regi translation_multiplier': 1,
+  'Regi rotation_multplier': 0,
+  'Regi translation_multiplier': 0,
 
   #SEGMENTATION SETTINGS
   'Segm min_size': 'NA',
   'Segm threshold': 'NA',
 
   #DENOISE SETTINGS
-  'Deno boxcar_radius': 10,
+  'Deno boxcar_radius': 50,
   'Deno gaus_blur_sig': 0.5,
 
   #DETECTION SETTINGS
-  'Det blob_threshold': 0.1,
+  'Det blob_threshold': 0.0002,
   'Det blob_min_sigma': 2,
   'Det blob_max_sigma': 4,
   'Det blob_num_sigma': 5,
@@ -61,15 +60,15 @@ settings = {
   #TRACKING SETTINGS
   'Trak frame_rate': 20,
   'Trak pixel_size': 0.163,
-  'Trak divide_num': 1,
-  'Trak search_range': 3,
+  'Trak divide_num': 10,
+  'Trak search_range': 2.5,
   'Trak memory': 3,
 
   #FITTING FILTERING SETTINGS
-  'Filt do_filter': False,
+  'Filt do_filter': True,
   'Filt max_dist_err': 1,
-  'Filt max_delta_area': 0.3,
   'Filt sig_to_sigraw': 3,
+  'Filt max_delta_area': 1,
   'Filt traj_length_thres': 25,
 
   #DIAGNOSTIC
