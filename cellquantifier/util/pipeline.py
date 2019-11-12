@@ -2,6 +2,7 @@ import pims
 import os.path as osp; import os
 from skimage.io import imread, imsave
 from skimage.util import img_as_ubyte
+from skimage.measure import regionprops
 import pandas as pd
 import warnings
 
@@ -118,8 +119,7 @@ class Pipeline():
 		            diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
 		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
 		            truth_df=None,
-		            segm_df=blobs_df,
-					centroid=None)
+		            segm_df=blobs_df)
 
 
 	def detect_fit(self, detect_video=False, fit_psf_video=False):
@@ -171,7 +171,6 @@ class Pipeline():
 		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
 		            truth_df=None,
 		            segm_df=None,
-					centroid=None,
 					output_path=self.config.OUTPUT_PATH,
 					root_name=self.config.ROOT_NAME,
 					save_csv=True)
