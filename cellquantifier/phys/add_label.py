@@ -19,6 +19,6 @@ def add_label(region_mask, df):
 
     for i, row in df.iterrows():
 
-        df.at[i, 'region_label'] = region_mask[int(df.at[i, 'x'])][int(df.at[i, 'y'])]
+        df.at[i, 'region_label'] = region_mask[int(round(df.at[i, 'x'])), int(round(df.at[i, 'y']))]
 
     return df

@@ -29,9 +29,9 @@ def add_dist_to_boundary(mask, df):
 
     """
 
-    from cellquantifier.segm import add_label, get_ring_mask
+    from cellquantifier.segm import add_label, get_dist2bounday_mask
 
-    region_mask = get_ring_mask(mask)
+    region_mask = get_dist2bounday_mask(mask)
     df = add_label(region_mask, df)
 
     return df
