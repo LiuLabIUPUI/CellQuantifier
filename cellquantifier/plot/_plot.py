@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-def plot_hist(labels=None, nbins=10, **kwargs):
+def plot_hist(labels=None, nbins=10, norm=False, **kwargs):
 
 	"""Plot histogram
 	Parameters
@@ -11,15 +11,19 @@ def plot_hist(labels=None, nbins=10, **kwargs):
 		dictionary where keys are plot labels and values are array-like
 	labels: list, optional
 		list of labels for x,y axes
+	norm: bool, optional
+		whether or not to normalize the data to the max value
+
 	Example
 	-------
 	>>>from cellquantifier.plot import plot_hist
+	>>>import pandas as pd
 	>>>path1 = 'cellquantifier/data/test_Dalpha.csv'
 	>>>path2 = 'cellquantifier/data/test_Dalpha2.csv'
 	>>>df1 = pd.read_csv(path1, index_col=None, header=0)
 	>>>df2 = pd.read_csv(path2, index_col=None, header=0)
-	>>>labels = [r'D (nm$^2$/s)','Weight (a.u)']
-	>>>plot_hist(labels, damaged=df1['D'], control=df2['D'])
+	>>>labels = [r'Normalized Diffusion','Weight (a.u)']
+	>>>plot_hist(labels, norm=False, damaged=df1['D'], control=df2['D'])
 	"""
 
 	from cellquantifier.util.stats import t_test
@@ -30,6 +34,8 @@ def plot_hist(labels=None, nbins=10, **kwargs):
 
 	for key, value in kwargs.items():
 
+		if norm:
+			value = value/value.max()
 		ax.hist(value, bins=nbins, color=colors[list(kwargs.keys()).index(key)], density=True, label=key, alpha=.75)
 		ax.legend(loc='upper right')
 
@@ -51,9 +57,9 @@ def plot_hist(labels=None, nbins=10, **kwargs):
 	plt.tight_layout()
 	plt.show()
 
-def plot_cc_hist(data, nbins=10, labels=None):
+def plot_cc_hist(data, nbins=10, norm=False, labels=None):
 
-	"""Plot histogram
+	"""Plot color-coded histogram
 
 	Parameters
 	----------
@@ -70,6 +76,7 @@ def plot_cc_hist(data, nbins=10, labels=None):
 	Example
 	-------
 	>>>from cellquantifier.plot import plot_hist
+	>>>import pandas as pd
 	>>>path = 'cellquantifier/data/test_fittData.csv'
 	>>>labels = ['Distance to COM', 'Weight (a.u.)']
 	>>>df = pd.read_csv(path, index_col=None, header=0)
@@ -80,6 +87,10 @@ def plot_cc_hist(data, nbins=10, labels=None):
 	import matplotlib as mpl
 	from matplotlib import colors
 	from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+	if norm:
+		data.iloc[:,0] = data.iloc[:,0]/data.iloc[:,0].max()
+		data.iloc[:,1] = data.iloc[:,1]/data.iloc[:,1].max()
 
 	fig, ax = plt.subplots()
 	data['bin'] = pd.cut(data.iloc[:,0], nbins)
@@ -98,7 +109,7 @@ def plot_cc_hist(data, nbins=10, labels=None):
 	ax_cb = divider.new_horizontal(size="5%", pad=0.1)
 	norm = mpl.colors.Normalize(vmin = average.min(), vmax = average.max())
 	cb1 = mpl.colorbar.ColorbarBase(ax_cb, cmap=mpl.cm.jet, norm=norm, orientation='vertical')
-	cb1.set_label(r'$\mathbf{D (nm^{2}/s)}$')
+	cb1.set_label(labels[2])
 	fig.add_axes(ax_cb)
 
 	if labels:
@@ -151,7 +162,7 @@ def plot_pie(labels=None, nbins=3, **kwargs):
 	plt.tight_layout()
 	plt.show()
 
-def scatter_bivariate(x,y, labels=None, fit=False):
+def scatter_bivariate(x,y, labels=None, color_col=None, norm=False, fit=False):
 
 	"""Generate scatter plot of two variables typically for correlation use
 
@@ -179,8 +190,12 @@ def scatter_bivariate(x,y, labels=None, fit=False):
 	from scipy.stats import pearsonr
 	from cellquantifier.math import fit_linear
 
-	fig, ax = plt.subplots()
+	if norm:
+		x = x/x.max()
+		y = y/y.max()
+		color_col = color_col/color_col.max()
 
+	fig, ax = plt.subplots()
 	slope, intercept, r, p = fit_linear(x,y)
 
 	if fit:
@@ -189,7 +204,10 @@ def scatter_bivariate(x,y, labels=None, fit=False):
 	if labels:
 		ax.set(xlabel=labels[0], ylabel=labels[1])
 
-	ax.scatter(x, y, label=pearsonr, color='orange', s=10)
+	from matplotlib  import cm
+	import matplotlib as mpl
+	from mpl_toolkits.axes_grid1 import make_axes_locatable
+	ax.scatter(x, y, label=pearsonr, c=color_col, cmap=cm.jet, s=10)
 	ax.text(0.75,
 			0.75,
 			r'$\mathbf{\rho}$' + """: % .2f""" %(r),
@@ -197,5 +215,12 @@ def scatter_bivariate(x,y, labels=None, fit=False):
 			color = 'blue',
 			transform=ax.transAxes)
 
+	divider = make_axes_locatable(ax)
+	ax_cb = divider.new_horizontal(size="5%", pad=0.1)
+	norm = mpl.colors.Normalize(vmin = color_col.min(), vmax = color_col.max())
+	cb1 = mpl.colorbar.ColorbarBase(ax_cb, cmap=mpl.cm.jet, norm=norm, orientation='vertical')
+	cb1.set_label(labels[2])
+	fig.add_axes(ax_cb)
 
+	plt.tight_layout()
 	plt.show()
