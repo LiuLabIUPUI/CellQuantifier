@@ -1,4 +1,4 @@
-def add_label(region_mask, df):
+def add_label(df, region_mask):
 
     """
     Label particles in a DataFrame based on region derived from region_mask
