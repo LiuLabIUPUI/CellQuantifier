@@ -146,8 +146,8 @@ def get_dist2boundary_mask_batch(masks):
     dist_masks = get_dist2boundary_mask_batch(masks)
     imshow(tif[0], tif[10], tif[20], tif[30], tif[40])
     imshow(masks[0], masks[10], masks[20], masks[30], masks[40])
-    imshow(dist_masks[0], dist_masks[10], dist_masks[20],
-            dist_masks[30], dist_masks[40])
+    imshow(dist_masks[0], dist_masks[10], dist_masks[20], dist_masks[30],
+            dist_masks[40])
 	"""
 
     shape = (len(masks), masks[0].shape[0], masks[0].shape[1])
