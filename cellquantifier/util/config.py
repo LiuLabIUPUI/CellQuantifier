@@ -58,14 +58,32 @@ class Config():
 
 		}
 
+		#PHYSICS SETTINGS
+		self.DIST2BOUNDARY_MASK_NAME = config['Phys dist2boundary_mask file']\
+							[:config['Phys dist2boundary_mask file'].index('.')]
+		self.MASK_SIG_BOUNDARY = config['Phys dist2boundary_mask sig']
+		self.MASK_THRES_BOUNDARY = config['Phys dist2boundary_mask thres_rel']
+		self.DIST253BP1_MASK_NAME = config['Phys dist253bp1_mask file']\
+							[:config['Phys dist253bp1_mask file'].index('.')]
+		self.MASK_SIG_53BP1 = config['Phys dist253bp1_mask sig']
+		self.MASK_THRES_53BP1 = config['Phys dist253bp1_mask thres_rel']
+
+
+		#SORTING SETTINGS
+		self.DO_SORT = config['Sort do_sort']
+		self.SORTERS = {
+
+		'DIST_TO_BOUNDARY': config['Sort dist_to_boundary'],
+		'DIST_TO_53BP1' : config['Sort dist_to_53bp1'],
+
+		}
+
 		#DIAGNOSTIC
 		self.DIAGNOSTIC = config['Diag diagnostic']
 		self.PLTSHOW = config['Diag pltshow']
 
 		self.DICT = config
 
-		# if not self.FROM_CSV:
-		# 	self.clean_dir()
 
 	def save_config(self):
 

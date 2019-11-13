@@ -1,4 +1,5 @@
 import pims
+import trackpy as tp
 import os.path as osp; import os
 from skimage.io import imread, imsave
 from skimage.util import img_as_ubyte
@@ -8,13 +9,16 @@ import warnings
 
 from ..deno import filter_batch
 from ..segm import get_mask_batch
+from ..segm import get_thres_mask_batch
 from ..regi import get_regi_params, apply_regi_params
 
 from ..smt.detect import detect_blobs, detect_blobs_batch
 from ..smt.fit_psf import fit_psf, fit_psf_batch
 from ..smt.track import track_blobs
 from ..smt.msd import plot_msd
+from ..phys import *
 from ..util.config import Config
+
 
 class Pipeline():
 
@@ -53,8 +57,6 @@ class Pipeline():
 		print("######################################")
 		print("Registering Image Stack")
 		print("######################################")
-
-		print(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
 		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
@@ -177,7 +179,7 @@ class Pipeline():
 					root_name=self.config.ROOT_NAME,
 					save_csv=True)
 
-	def filter_and_plotmsd(self):
+	def filter_and_track(self):
 
 		print("######################################")
 		print("Filter and PlotMSD")
@@ -218,13 +220,77 @@ class Pipeline():
 			blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-filtTrakData.csv')
 
 
+	def phys(self):
+
+		print("######################################")
+		print("Add Physics Parameters")
+		print("######################################")
+
+		blobs_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-filtTrakData.csv')
+
+		# add 'dist_to_boundary' column
+		print("######################################")
+		print("Add 'dist_to_boundary'")
+		print("######################################")
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
+			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
+							self.config.DIST2BOUNDARY_MASK_NAME + \
+							'-regi.tif')[list(config.TRANGE),:,:]
+		else:
+			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
+							self.config.DIST2BOUNDARY_MASK_NAME + \
+							'-raw.tif')[list(config.TRANGE),:,:]
+
+		dist2boundary_thres_masks = get_thres_mask_batch(dist2boundary_tif,
+							self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
+		phys_df = add_dist_to_boundary_batch(blobs_df, dist2boundary_thres_masks)
+
+		# add 'dist_to_boundary' column
+		print("######################################")
+		print("Add 'dist_to_53bp1'")
+		print("######################################")
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
+			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
+							self.config.DIST253BP1_MASK_NAME + \
+							'-regi.tif')[list(config.TRANGE),:,:]
+		else:
+			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
+							self.config.DIST253BP1_MASK_NAME + \
+							'-raw.tif')[list(config.TRANGE),:,:]
+
+		dist253bp1_thres_masks = get_thres_mask_batch(dist253bp1_tif,
+							self.config.MASK_SIG_53BP1, self.config.MASK_THRES_53BP1)
+		phys_df = add_dist_to_53bp1_batch(blobs_df, dist253bp1_thres_masks)
+
+		# Save '-physData.csv'
+		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+
+	def sort_and_plot(self):
+
+		print("######################################")
+		print("Sort and PlotMSD")
+		print("######################################")
+
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
+			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif')
+		else:
+			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+		if self.config.DO_SORT:
+			phys_df = sort_phys(phys_df, self.config.SORTERS)
+		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-sortPhysData.csv')
+
+		im = tp.imsd(phys_df, mpp=self.config.PIXEL_SIZE, fps=self.config.FRAME_RATE)
+
 		d, alpha = plot_msd(im,
-		            		 blobs_df,
-		            		 image=frames[0],
-		            		 output_path=self.config.OUTPUT_PATH,
-		            		 root_name=self.config.ROOT_NAME,
-		            		 pixel_size=self.config.PIXEL_SIZE,
-		            		 divide_num=self.config.DIVIDE_NUM,
+							 phys_df,
+							 image=frames[0],
+							 output_path=self.config.OUTPUT_PATH,
+							 root_name=self.config.ROOT_NAME,
+							 pixel_size=self.config.PIXEL_SIZE,
+							 divide_num=self.config.DIVIDE_NUM,
 							 pltshow=True)
 
 		self.config.save_config()
@@ -260,5 +326,9 @@ def pipeline_control(settings_dict, control_dict):
 		pipe.check_start_frame()
 	if control_dict['detect_fit']:
 		pipe.detect_fit(detect_video=control_dict['video'])
-	if control_dict['filt_plot']:
-		pipe.filter_and_plotmsd()
+	if control_dict['filt_trak']:
+		pipe.filter_and_track()
+	if control_dict['phys']:
+		pipe.phys()
+	if control_dict['sort_plot']:
+		pipe.sort_and_plot()

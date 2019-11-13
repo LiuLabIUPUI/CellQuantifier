@@ -33,24 +33,25 @@ def sort_phys(df, sorters=None):
 	"""
 
     sorted_df = df.copy()
+    bad_particles = pd.Series([], name='particle')
 
     # """
 	# ~~~~~~~~~~~~~~~~~Sort dist_to_boundary~~~~~~~~~~~~~~~~~
 	# """
 
     if sorters['DIST_TO_BOUNDARY'] != None:
-        df = df[(df['dist_to_boundary'] < min(sorters['DIST_TO_BOUNDARY'])) ^
+        bad_df = df[(df['dist_to_boundary'] < min(sorters['DIST_TO_BOUNDARY'])) ^
                 (df['dist_to_boundary'] > max(sorters['DIST_TO_BOUNDARY'])) ]
-        bad_particles = df['particle']
+        bad_particles = pd.concat( [ bad_particles, bad_df['particle'] ] )
 
     # """
 	# ~~~~~~~~~~~~~~~~~Sort dist_to_53bp1~~~~~~~~~~~~~~~~~
 	# """
 
     if sorters['DIST_TO_53BP1'] != None:
-        df = df[(df['dist_to_53bp1'] < min(sorters['DIST_TO_53BP1'])) ^
+        bad_df = df[(df['dist_to_53bp1'] < min(sorters['DIST_TO_53BP1'])) ^
                 (df['dist_to_53bp1'] > max(sorters['DIST_TO_53BP1'])) ]
-        bad_particles = pd.concat( [ bad_particles, df['particle'] ] )
+        bad_particles = pd.concat( [ bad_particles, bad_df['particle'] ] )
 
     # """
 	# ~~~~~~~~~~~~~~~~~Remove bad_particles from df~~~~~~~~~~~~~~~~~
