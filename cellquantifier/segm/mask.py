@@ -1,9 +1,10 @@
 from skimage.filters import gaussian
 import numpy as np
+from pims import Frame
 from skimage.morphology import binary_dilation, binary_erosion, disk
 
 
-def get_thres_mask(img, sig, thres_rel=0.2):
+def get_thres_mask(img, sig=3, thres_rel=0.2):
     """
     Get a mask based on "gaussian blur" and "threshold".
 
@@ -24,42 +25,45 @@ def get_thres_mask(img, sig, thres_rel=0.2):
 
     img = gaussian(img, sigma=sig)
     img = img > img.max()*thres_rel
-    mask_array_2d = img.astype(int)
+    mask_array_2d = img.astype(np.uint8)
 
     return mask_array_2d
 
-# def get_ring_mask(mask, nrings=1, ring_width=10):
-#
-# 	from skimage.morphology import binary_erosion
-# 	from cellquantifier.segm.mask import get_thres_mask
-# 	from skimage.morphology import disk
-# 	from copy import deepcopy
-#
-# 	"""Create ring mask via binary erosion
-#
-# 	Parameters
-# 	----------
-# 	mask : 2D binary ndarray
-#
-#     nrings: int, optional
-#         The number of rings to generate
-#     ring_width: int, optional
-#         The width of each ring
-#
-# 	Returns
-# 	-------
-# 	ring_mask : 2D ndarray
-# 		The ring mask
-# 	"""
-#
-# 	ring_mask = deepcopy(mask)
-# 	selem = disk(ring_width)
-#
-# 	for i in range(nrings):
-# 	    mask = binary_erosion(mask, selem=selem)
-# 	    ring_mask[mask > 0] = i+2
-#
-# 	return ring_mask
+
+def get_thres_mask_batch(pims_frames, sig=3, thres_rel=0.2):
+    """
+    Get a mask stack based on "gaussian blur" and "threshold".
+
+    Parameters
+    ----------
+    pims_frames : pims.Frame object
+		3d ndarray in the format of pims.Frame.
+    sig : float
+        Sigma of gaussian blur
+    thres_rel : float, optional
+        Relative threshold comparing to the peak of the image.
+
+    Returns
+    -------
+    masks: pims.Frame object
+        3d ndarray of 0s and 1s in the format of pims.Frame.
+
+    Examples
+    --------
+    import pims
+    from cellquantifier.io import imshow
+    from cellquantifier.segm import get_thres_mask_batch
+    frames = pims.open('cellquantifier/data/simulated_cell.tif')
+    masks = get_thres_mask_batch(frames, sig=3, thres_rel=0.1)
+    imshow(masks[0], masks[10], masks[20], masks[30], masks[40])
+    """
+
+    shape = (len(pims_frames), pims_frames[0].shape[0], pims_frames[0].shape[1])
+    masks = Frame(np.zeros(shape, dtype=np.uint8))
+    for i in range(len(pims_frames)):
+        masks[i] = get_thres_mask(pims_frames[i], sig=sig, thres_rel=thres_rel)
+
+    return masks
 
 
 def get_dist2boundary_mask(mask):
