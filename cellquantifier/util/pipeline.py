@@ -54,6 +54,8 @@ class Pipeline():
 		print("Registering Image Stack")
 		print("######################################")
 
+		print(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+
 		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
 		regi_params_array_2d = get_regi_params(im,
@@ -231,17 +233,6 @@ class Pipeline():
 
 
 def pipeline_control(settings_dict, control_dict):
-
-	# If not registered, remove meaningless regi input
-	if settings_dict['Regi rotation_multplier'] == 0 & \
-					settings_dict['Regi rotation_multplier'] == 0:
-		settings_dict['Regi ref_ind_num'] = 'NA'
-		settings_dict['Regi sig_mask'] = 'NA'
-		settings_dict['Regi thres_rel'] = 'NA'
-		settings_dict['Regi poly_deg'] = 'NA'
-		settings_dict['Regi rotation_multplier'] = 'NA'
-		settings_dict['Regi translation_multiplier'] = 'NA'
-
 	warnings.filterwarnings("ignore")
 	config = Config(settings_dict)
 	pipe = Pipeline(config, is_new=False)
@@ -251,6 +242,17 @@ def pipeline_control(settings_dict, control_dict):
 		pipe = Pipeline(config)
 	if control_dict['regi']:
 		pipe.register()
+
+	# If not registered, remove meaningless regi parameters
+	if settings_dict['Regi rotation_multplier'] == 0 & \
+					settings_dict['Regi rotation_multplier'] == 0:
+		settings_dict['Regi ref_ind_num'] = 'NA'
+		settings_dict['Regi sig_mask'] = 'NA'
+		settings_dict['Regi thres_rel'] = 'NA'
+		settings_dict['Regi poly_deg'] = 'NA'
+		settings_dict['Regi rotation_multplier'] = 'NA'
+		settings_dict['Regi translation_multiplier'] = 'NA'
+
 	if control_dict['deno']:
 		pipe.deno(method='boxcar', arg=settings_dict['Deno boxcar_radius'])
 		pipe.deno(method='gaussian', arg=settings_dict['Deno gaus_blur_sig'])
