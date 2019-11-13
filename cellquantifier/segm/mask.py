@@ -1,6 +1,5 @@
 from skimage.filters import gaussian
 import numpy as np
-from pims import Frame
 from skimage.morphology import binary_dilation, binary_erosion, disk
 
 
@@ -30,14 +29,14 @@ def get_thres_mask(img, sig=3, thres_rel=0.2):
     return mask_array_2d
 
 
-def get_thres_mask_batch(pims_frames, sig=3, thres_rel=0.2):
+def get_thres_mask_batch(tif, sig=3, thres_rel=0.2):
     """
     Get a mask stack based on "gaussian blur" and "threshold".
 
     Parameters
     ----------
-    pims_frames : pims.Frame object
-		3d ndarray in the format of pims.Frame.
+    tif : 3darray
+		3d ndarray.
     sig : float
         Sigma of gaussian blur
     thres_rel : float, optional
@@ -45,8 +44,8 @@ def get_thres_mask_batch(pims_frames, sig=3, thres_rel=0.2):
 
     Returns
     -------
-    masks: pims.Frame object
-        3d ndarray of 0s and 1s in the format of pims.Frame.
+    masks_array_3d: 3darray
+        3d ndarray of 0s and 1s.
 
     Examples
     --------
@@ -58,12 +57,13 @@ def get_thres_mask_batch(pims_frames, sig=3, thres_rel=0.2):
     imshow(masks[0], masks[10], masks[20], masks[30], masks[40])
     """
 
-    shape = (len(pims_frames), pims_frames[0].shape[0], pims_frames[0].shape[1])
-    masks = Frame(np.zeros(shape, dtype=np.uint8))
-    for i in range(len(pims_frames)):
-        masks[i] = get_thres_mask(pims_frames[i], sig=sig, thres_rel=thres_rel)
+    shape = (len(tif), tif[0].shape[0], tif[0].shape[1])
+    masks_array_3d = np.zeros(shape, dtype=np.uint8)
+    for i in range(len(tif)):
+        masks_array_3d[i] = get_thres_mask(tif[i], sig=sig, thres_rel=thres_rel)
+        print("Get thres_mask NO.%d is done!" % i)
 
-    return masks
+    return masks_array_3d
 
 
 def get_dist2boundary_mask(mask):
@@ -121,3 +121,39 @@ def get_dist2boundary_mask(mask):
             break
 
     return dist_mask
+
+
+def get_dist2boundary_mask_batch(masks):
+    """
+    Create dist2boundary mask via binary dilation and erosion
+
+	Parameters
+	----------
+	masks : 3D binary ndarray
+
+	Returns
+	-------
+	dist_masks : 3D int ndarray
+
+    Examples
+	--------
+    from skimage.io import imread
+    from cellquantifier.io import imshow
+    from cellquantifier.segm import (get_thres_mask_batch,
+                                    get_dist2boundary_mask_batch)
+    tif = imread('cellquantifier/data/simulated_cell.tif')[:, 285:385, 260:360]
+    masks = get_thres_mask_batch(tif, sig=1, thres_rel=0.5)
+    dist_masks = get_dist2boundary_mask_batch(masks)
+    imshow(tif[0], tif[10], tif[20], tif[30], tif[40])
+    imshow(masks[0], masks[10], masks[20], masks[30], masks[40])
+    imshow(dist_masks[0], dist_masks[10], dist_masks[20],
+            dist_masks[30], dist_masks[40])
+	"""
+
+    shape = (len(masks), masks[0].shape[0], masks[0].shape[1])
+    dist_masks = np.zeros(shape, dtype=int)
+    for i in range(len(masks)):
+        dist_masks[i] = get_dist2boundary_mask(masks[i])
+        print("Get dist2boundary_mask NO.%d is done!" % i)
+
+    return dist_masks
