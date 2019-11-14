@@ -235,11 +235,11 @@ class Pipeline():
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
 			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
 							self.config.DIST2BOUNDARY_MASK_NAME + \
-							'-regi.tif')[list(config.TRANGE),:,:]
+							'-regi.tif')[list(self.config.TRANGE),:,:]
 		else:
 			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
 							self.config.DIST2BOUNDARY_MASK_NAME + \
-							'-raw.tif')[list(config.TRANGE),:,:]
+							'-raw.tif')[list(self.config.TRANGE),:,:]
 
 		dist2boundary_thres_masks = get_thres_mask_batch(dist2boundary_tif,
 							self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
@@ -252,11 +252,11 @@ class Pipeline():
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
 			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
 							self.config.DIST253BP1_MASK_NAME + \
-							'-regi.tif')[list(config.TRANGE),:,:]
+							'-regi.tif')[list(self.config.TRANGE),:,:]
 		else:
 			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
 							self.config.DIST253BP1_MASK_NAME + \
-							'-raw.tif')[list(config.TRANGE),:,:]
+							'-raw.tif')[list(self.config.TRANGE),:,:]
 
 		dist253bp1_thres_masks = get_thres_mask_batch(dist253bp1_tif,
 							self.config.MASK_SIG_53BP1, self.config.MASK_THRES_53BP1)
