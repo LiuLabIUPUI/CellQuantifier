@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib as mpl
+import trackpy as tp
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
@@ -11,12 +12,12 @@ from ..io._plt2array import plt2array
 mpl.rcParams['font.size'] = 14
 mpl.rcParams['font.weight'] = 'bold'
 
-def plot_msd(im,
-			 blobs_df,
+def plot_msd(blobs_df,
 			 image,
 			 output_path,
 			 root_name,
 			 pixel_size=.1084,
+			 frame_rate=3.3,
 			 divide_num=5,
 			 pltshow=False):
 
@@ -72,6 +73,8 @@ def plot_msd(im,
 						 pixel_size=.1084,
 						 divide_num=5)
 		"""
+	# Calculate individual msd
+	im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
 
 	#Get the diffusion coefficient for each individual particle
 	D_ind = blobs_df.drop_duplicates('particle')['D'].mean()

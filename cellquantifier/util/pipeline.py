@@ -282,16 +282,14 @@ class Pipeline():
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
 		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-sortPhysData.csv')
 
-		im = tp.imsd(phys_df, mpp=self.config.PIXEL_SIZE, fps=self.config.FRAME_RATE)
-
-		d, alpha = plot_msd(im,
-							 phys_df,
-							 image=frames[0],
-							 output_path=self.config.OUTPUT_PATH,
-							 root_name=self.config.ROOT_NAME,
-							 pixel_size=self.config.PIXEL_SIZE,
-							 divide_num=self.config.DIVIDE_NUM,
-							 pltshow=True)
+		d, alpha = plot_msd(phys_df,
+						 image=frames[0],
+						 output_path=self.config.OUTPUT_PATH,
+						 root_name=self.config.ROOT_NAME,
+						 pixel_size=self.config.PIXEL_SIZE,
+						 frame_rate=self.config.FRAME_RATE,
+						 divide_num=self.config.DIVIDE_NUM,
+						 pltshow=True)
 
 		self.config.save_config()
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif'):
