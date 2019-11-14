@@ -1,8 +1,8 @@
 import pandas as pd
 
 def sort_phys(df, sorters=None):
-    """
-	Wrapper for trackpy library functions (assign detection instances to particle trajectories)
+	"""
+	Label rows with boolean depending on if they meet the sorting criteria
 
 	Parameters
 	----------
@@ -15,50 +15,44 @@ def sort_phys(df, sorters=None):
 	Returns
 	-------
 	sorted_df : DataFrame
-		DataFrame after sorting.
+		DataFrame after boolean labeling
 
 	Examples
 	--------
-    import pandas as pd
-    from cellquantifier.phys import sort_phys
+	import pandas as pd
+	from cellquantifier.phys import sort_phys
 
-    sorters = {
-        'DIST_TO_BOUNDARY': [-100, 0],
-        'DIST_TO_53BP1' : [-5, 0],
-    }
-    df = pd.read_csv('cellquantifier/data/simulated_cell-physData.csv')
-    sorted_df = sort_phys(df, sorters=sorters)
-    print(df['particle'].unique())
-    print(sorted_df['particle'].unique())
+	sorters = {
+		'DIST_TO_BOUNDARY': [-100, 0],
+		'DIST_TO_53BP1' : [-5, 0],
+	}
+	df = pd.read_csv('cellquantifier/data/simulated_cell-physData.csv')
+	sorted_df = sort_phys(df, sorters=sorters)
 	"""
 
-    sorted_df = df.copy()
-    bad_particles = pd.Series([], name='particle')
+	sorted_df = df.copy()
+	particles = sorted_df['particle'].unique()
 
-    # """
+	# """
 	# ~~~~~~~~~~~~~~~~~Sort dist_to_boundary~~~~~~~~~~~~~~~~~
 	# """
 
-    if sorters['DIST_TO_BOUNDARY'] != None:
-        bad_df = df[(df['dist_to_boundary'] < min(sorters['DIST_TO_BOUNDARY'])) ^
-                (df['dist_to_boundary'] > max(sorters['DIST_TO_BOUNDARY'])) ]
-        bad_particles = pd.concat( [ bad_particles, bad_df['particle'] ] )
+	if sorters['DIST_TO_BOUNDARY'] != None:
+		avg_dist = sorted_df.groupby('particle')['dist_to_boundary'].mean()
+		for particle in particles:
+			bool = avg_dist[particle] >= sorters['DIST_TO_BOUNDARY'][0] \
+			and avg_dist[particle] <= sorters['DIST_TO_BOUNDARY'][1]
+			sorted_df.loc[sorted_df['particle'] == particle, 'sort_flag_boundary'] = bool
 
-    # """
+	# """
 	# ~~~~~~~~~~~~~~~~~Sort dist_to_53bp1~~~~~~~~~~~~~~~~~
 	# """
 
-    if sorters['DIST_TO_53BP1'] != None:
-        bad_df = df[(df['dist_to_53bp1'] < min(sorters['DIST_TO_53BP1'])) ^
-                (df['dist_to_53bp1'] > max(sorters['DIST_TO_53BP1'])) ]
-        bad_particles = pd.concat( [ bad_particles, bad_df['particle'] ] )
+	if sorters['DIST_TO_53BP1'] != None:
+		avg_dist = sorted_df.groupby('particle')['dist_to_53bp1'].mean()
+		for particle in particles:
+			bool = avg_dist[particle] >= sorters['DIST_TO_53BP1'][0] \
+			and avg_dist[particle] <= sorters['DIST_TO_53BP1'][1]
+			sorted_df.loc[sorted_df['particle'] == particle, 'sort_flag_53bp1'] = bool
 
-    # """
-	# ~~~~~~~~~~~~~~~~~Remove bad_particles from df~~~~~~~~~~~~~~~~~
-	# """
-
-    bad_particles = bad_particles.unique()
-    for particle in bad_particles:
-        sorted_df = sorted_df[ sorted_df['particle'] != particle ]
-
-    return sorted_df
+	return sorted_df
