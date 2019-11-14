@@ -66,7 +66,7 @@ def get_thres_mask_batch(tif, sig=3, thres_rel=0.2):
     return masks_array_3d
 
 
-def get_dist2boundary_mask(mask):
+def get_dist2boundary_mask(mask, step_size=5):
     """
     Create dist2boundary mask via binary dilation and erosion
 
@@ -91,12 +91,12 @@ def get_dist2boundary_mask(mask):
     m = 285; n = 260; delta = 30
     img = simulated_cell()[0][m:m+delta, n:n+delta]
     mask = get_thres_mask(img, sig=1, thres_rel=0.5)
-    dist2boundary_mask = get_dist2boundary_mask(mask)
+    dist2boundary_mask = get_dist2boundary_mask(mask, step_size=5)
     imshow(dist2boundary_mask)
 	"""
 
     dist_mask = np.zeros(mask.shape, dtype=int)
-    selem = disk(1)
+    selem = disk(step_size)
     dist_mask[ mask==0 ] = 999999
     dist_mask[ mask==1 ] = -999999
 
@@ -104,7 +104,7 @@ def get_dist2boundary_mask(mask):
     i = 1
     while True:
         dilated_mask_outwards = binary_dilation(mask_outwards, selem=selem)
-        dist_mask[ dilated_mask_outwards ^ mask_outwards==1 ] = i
+        dist_mask[ dilated_mask_outwards ^ mask_outwards==1 ] = i * step_size
         mask_outwards = dilated_mask_outwards
         i = i + 1
         if np.count_nonzero(dist_mask == 999999) == 0:
@@ -114,7 +114,7 @@ def get_dist2boundary_mask(mask):
     i = 0
     while True:
         shrinked_mask_inwards = binary_erosion(mask_inwards, selem=selem)
-        dist_mask[ shrinked_mask_inwards ^ mask_inwards==1 ] = i
+        dist_mask[ shrinked_mask_inwards ^ mask_inwards==1 ] = i * step_size
         mask_inwards = shrinked_mask_inwards
         i = i - 1
         if np.count_nonzero(dist_mask == -999999) == 0:
@@ -123,7 +123,7 @@ def get_dist2boundary_mask(mask):
     return dist_mask
 
 
-def get_dist2boundary_mask_batch(masks):
+def get_dist2boundary_mask_batch(masks, step_size=5):
     """
     Create dist2boundary mask via binary dilation and erosion
 
@@ -143,7 +143,7 @@ def get_dist2boundary_mask_batch(masks):
                                     get_dist2boundary_mask_batch)
     tif = imread('cellquantifier/data/simulated_cell.tif')[:, 285:385, 260:360]
     masks = get_thres_mask_batch(tif, sig=1, thres_rel=0.5)
-    dist_masks = get_dist2boundary_mask_batch(masks)
+    dist_masks = get_dist2boundary_mask_batch(masks, step_size=5)
     imshow(tif[0], tif[10], tif[20], tif[30], tif[40])
     imshow(masks[0], masks[10], masks[20], masks[30], masks[40])
     imshow(dist_masks[0], dist_masks[10], dist_masks[20], dist_masks[30],
@@ -153,7 +153,7 @@ def get_dist2boundary_mask_batch(masks):
     shape = (len(masks), masks[0].shape[0], masks[0].shape[1])
     dist_masks = np.zeros(shape, dtype=int)
     for i in range(len(masks)):
-        dist_masks[i] = get_dist2boundary_mask(masks[i])
+        dist_masks[i] = get_dist2boundary_mask(masks[i], step_size=step_size)
         print("Get dist2boundary_mask NO.%d is done!" % i)
 
     return dist_masks

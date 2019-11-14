@@ -8,7 +8,7 @@ CF3 = 1         #det_fit
 CF4 = 1         #filt_track
 CF5 = 1         #physics
 CF6 = 1         #sort_plot
-Automate = 1    #automate smt
+Automate = 0    #automate smt
 #                              load regi deno check dt_ft fl_tk phys st_pt video
 if CF0:        Control_Flow = [   1,   1,   0,   0,   0,   0,   0,    0,   0]
 if CF1:        Control_Flow = [   1,   0,   1,   0,   0,   0,   0,    0,   0]
