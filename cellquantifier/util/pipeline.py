@@ -15,7 +15,7 @@ from ..regi import get_regi_params, apply_regi_params
 from ..smt.detect import detect_blobs, detect_blobs_batch
 from ..smt.fit_psf import fit_psf, fit_psf_batch
 from ..smt.track import track_blobs
-from ..smt.msd import plot_msd
+from ..smt.msd import plot_msd_batch
 from ..phys import *
 from ..util.config import Config
 
@@ -282,14 +282,14 @@ class Pipeline():
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
 		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-sortPhysData.csv')
 
-		d, alpha = plot_msd(phys_df,
-						 image=frames[0],
-						 output_path=self.config.OUTPUT_PATH,
-						 root_name=self.config.ROOT_NAME,
-						 pixel_size=self.config.PIXEL_SIZE,
-						 frame_rate=self.config.FRAME_RATE,
-						 divide_num=self.config.DIVIDE_NUM,
-						 pltshow=True)
+		plot_msd_batch(phys_df,
+					 image=frames[0],
+					 output_path=self.config.OUTPUT_PATH,
+					 root_name=self.config.ROOT_NAME,
+					 pixel_size=self.config.PIXEL_SIZE,
+					 frame_rate=self.config.FRAME_RATE,
+					 divide_num=self.config.DIVIDE_NUM,
+					 pltshow=True)
 
 		self.config.save_config()
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif'):

@@ -8,9 +8,76 @@ from matplotlib_scalebar.scalebar import ScaleBar
 from ..math import msd, fit_msd
 from skimage.io import imsave
 from ..io._plt2array import plt2array
+from ..smt import get_sorter_list
 
-mpl.rcParams['font.size'] = 14
+mpl.rcParams['font.size'] = 10
 mpl.rcParams['font.weight'] = 'bold'
+
+
+def get_physdf_list(phys_df, sorter_list):
+	physdf_list = [phys_df]
+
+	for sorter in sorter_list:
+		single_sorted_df = phys_df[ phys_df[sorter] == True ]
+		physdf_list.append(single_sorted_df)
+
+	all_sorted_df = phys_df.copy()
+	for sorter in sorter_list:
+		all_sorted_df = all_sorted_df[ all_sorted_df[sorter] == True ]
+
+	physdf_list.append(all_sorted_df)
+
+	return physdf_list
+
+
+def plot_msd_batch(blobs_df,
+			 image,
+			 output_path,
+			 root_name,
+			 pixel_size=.1084,
+			 frame_rate=3.3,
+			 divide_num=5,
+			 pltshow=False):
+
+	sorter_list = get_sorter_list(blobs_df)
+	physdf_list = get_physdf_list(blobs_df, sorter_list)
+
+	sort_cols = ['no sort']
+	sort_cols.extend(sorter_list)
+	sort_cols.append('full sort')
+
+
+
+	fig = plt.figure()
+
+	for i, sort_col in enumerate(sort_cols):
+
+		ax1 = plt.subplot2grid((len(sort_cols), 3), (i, 0))
+		ax2 = plt.subplot2grid((len(sort_cols), 3), (i, 1))
+		ax3 = plt.subplot2grid((len(sort_cols), 3), (i, 2))
+
+		ax = [ax1,ax2,ax3]
+
+
+		# plot_msd(blobs_df[blobs_df[sort_col] == True], image, output_path,
+		# 			 root_name, pixel_size, frame_rate,divide_num,
+		# 			 ax=ax)
+
+		plot_msd(physdf_list[i], image, output_path,
+					 root_name, pixel_size, frame_rate,divide_num,
+					 ax=ax)
+
+		ax1.set_xticks([])
+		ax1.set_yticks([])
+		ax1.set_ylabel(sort_col, labelpad=50)#, fontsize=20)
+
+	plt.subplots_adjust(wspace=.6)
+
+	if pltshow:
+		plt.show()
+
+	plt_array = plt2array(fig)
+	imsave(output_path + root_name + "-msdPlot.png", plt_array)
 
 def plot_msd(blobs_df,
 			 image,
@@ -19,7 +86,8 @@ def plot_msd(blobs_df,
 			 pixel_size=.1084,
 			 frame_rate=3.3,
 			 divide_num=5,
-			 pltshow=False):
+			 ax=None):
+
 
 	"""
 	Generates the 3 panel msd figure with color-coded trajectories, msd curves, and a histogram of d values
@@ -73,6 +141,7 @@ def plot_msd(blobs_df,
 						 pixel_size=.1084,
 						 divide_num=5)
 		"""
+
 	# Calculate individual msd
 	im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
 
@@ -80,7 +149,6 @@ def plot_msd(blobs_df,
 	D_ind = blobs_df.drop_duplicates('particle')['D'].mean()
 
 	#Plot the image
-	fig, ax = plt.subplots(1, 3, figsize=(18, 6))
 	ax[0].imshow(image, cmap='gray', aspect='equal')
 	ax[0].set_xlim((0, image.shape[1]))
 	ax[0].set_ylim((image.shape[0], 0))
@@ -97,6 +165,7 @@ def plot_msd(blobs_df,
 	norm = mpl.colors.Normalize(vmin = blobs_df['D'].min(), vmax = blobs_df['D'].max())
 	cb1 = mpl.colorbar.ColorbarBase(ax_cb, cmap=mpl.cm.jet, norm=norm, orientation='vertical')
 	cb1.set_label(r'$\mathbf{D (nm^{2}/s)}$')
+	fig = plt.gcf()
 	fig.add_axes(ax_cb)
 
 	colormap = plt.cm.get_cmap('jet')
@@ -113,18 +182,18 @@ def plot_msd(blobs_df,
 		ax[0].plot(traj.y, traj.x, color=colormap(traj['D_norm'].mean()))
 
 	ax[0].set_aspect(1.0)
-	ax[0].set(xlabel='y (pixel)', ylabel='x (pixel)')
+	# ax[0].set(xlabel='y (pixel)'), ylabel='x (pixel)')
 
 	ax[0].text(0.95,
-            0.00,
-            """
-            Total trajectory number: %d
-            """ %(len(particles)),
-            horizontalalignment='right',
-            verticalalignment='bottom',
-            fontsize = 10,
-            color = (0.5, 0.5, 0.5, 0.5),
-            transform=ax[0].transAxes)
+			0.00,
+			"""
+			Total trajectory number: %d
+			""" %(len(particles)),
+			horizontalalignment='right',
+			verticalalignment='bottom',
+			# fontsize = 10,
+			color = (0.5, 0.5, 0.5, 0.5),
+			transform=ax[0].transAxes)
 
 
 	# """
@@ -204,7 +273,8 @@ def plot_msd(blobs_df,
 
 
 		props = dict(boxstyle='round', facecolor='wheat', alpha=0.0)
-		ax[1].text(.1, .8, textstr, transform=ax[1].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=14, color='black', bbox=props)
+		# ax[1].text(.1, .8, textstr, transform=ax[1].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=8, color='black', bbox=props)
+		ax[1].text(.1, .8, textstr, transform=ax[1].transAxes,  horizontalalignment='left', verticalalignment='top', color='black', bbox=props)
 
 
 	ax[1].set_xlabel(r'$\tau (\mathbf{s})$')
@@ -218,11 +288,3 @@ def plot_msd(blobs_df,
 	ax[2].hist(blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(), bins=10, color='gray')
 	ax[2].set_ylabel('Frequency')
 	ax[2].set_xlabel(r'$D (\mathbf{nm^{2}/s})$')
-
-	plt.tight_layout()
-	plt_array = plt2array(fig)
-	if pltshow:
-		plt.show()
-	imsave(output_path + root_name + "-msdPlot.png", plt_array)
-
-	return d_avg, alpha_avg
