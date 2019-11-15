@@ -289,7 +289,7 @@ class Pipeline():
 					 pixel_size=self.config.PIXEL_SIZE,
 					 frame_rate=self.config.FRAME_RATE,
 					 divide_num=self.config.DIVIDE_NUM,
-					 pltshow=True)
+					 pltshow=False)
 
 		self.config.save_config()
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif'):

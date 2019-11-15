@@ -2,35 +2,63 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib as mpl
 import trackpy as tp
+import pandas as pd
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
 from ..math import msd, fit_msd
 from skimage.io import imsave
 from ..io._plt2array import plt2array
-from ..smt import get_sorter_list
 
 mpl.rcParams['font.size'] = 10
 mpl.rcParams['font.weight'] = 'bold'
 
+def get_sorter_list(phys_df):
+	sorter_list = ['no sort']
 
-def get_physdf_list(phys_df, sorter_list):
-	physdf_list = [phys_df]
+	for column_name in phys_df.columns:
+	    if "sort_flag" in column_name:
+	        sorter_list.append(column_name)
 
-	for sorter in sorter_list:
+	sorter_list.append('full sort')
+	return sorter_list
+
+
+
+def get_gooddf_list(phys_df, sorter_list):
+	gooddf_list = [phys_df]
+
+	for sorter in sorter_list[1:-1]:
 		single_sorted_df = phys_df[ phys_df[sorter] == True ]
-		physdf_list.append(single_sorted_df)
+		gooddf_list.append(single_sorted_df)
 
 	all_sorted_df = phys_df.copy()
-	for sorter in sorter_list:
+	for sorter in sorter_list[1:-1]:
 		all_sorted_df = all_sorted_df[ all_sorted_df[sorter] == True ]
 
-	physdf_list.append(all_sorted_df)
+	gooddf_list.append(all_sorted_df)
 
-	return physdf_list
+	return gooddf_list
+
+def get_baddf_list(phys_df, sorter_list):
+	baddf_list = [pd.DataFrame([])]
+
+	for sorter in sorter_list[1:-1]:
+		single_sorted_df = phys_df[ phys_df[sorter] == False ]
+		baddf_list.append(single_sorted_df)
+
+	not_good_index = ( phys_df[sorter_list[1]] == False )
+	for i in range(2, len(sorter_list)-1):
+		tmp = ( phys_df[sorter_list[i]]==False )
+		not_good_index = not_good_index ^ tmp
+	not_good_df = phys_df[not_good_index]
+
+	baddf_list.append(not_good_df)
+
+	return baddf_list
 
 
-def plot_msd_batch(blobs_df,
+def plot_msd_batch(phys_df,
 			 image,
 			 output_path,
 			 root_name,
@@ -39,47 +67,50 @@ def plot_msd_batch(blobs_df,
 			 divide_num=5,
 			 pltshow=False):
 
-	sorter_list = get_sorter_list(blobs_df)
-	physdf_list = get_physdf_list(blobs_df, sorter_list)
+	# """
+	# ~~~~~~~~~~~Prepare the input data~~~~~~~~~~~~~~
+	# """
 
-	sort_cols = ['no sort']
-	sort_cols.extend(sorter_list)
-	sort_cols.append('full sort')
+	sorter_list = get_sorter_list(phys_df)
+	gooddf_list = get_gooddf_list(phys_df, sorter_list)
+	baddf_list = get_baddf_list(phys_df, sorter_list)
 
+	# """
+	# ~~~~~~~~~~~Plot_msd_batch~~~~~~~~~~~~~~
+	# """
 
+	fig = plt.figure(figsize=(18, 6*len(sorter_list)))
 
-	fig = plt.figure()
+	for i, sorter in enumerate(sorter_list):
 
-	for i, sort_col in enumerate(sort_cols):
-
-		ax1 = plt.subplot2grid((len(sort_cols), 3), (i, 0))
-		ax2 = plt.subplot2grid((len(sort_cols), 3), (i, 1))
-		ax3 = plt.subplot2grid((len(sort_cols), 3), (i, 2))
+		ax1 = plt.subplot2grid((len(sorter_list), 3), (i, 0))
+		ax2 = plt.subplot2grid((len(sorter_list), 3), (i, 1))
+		ax3 = plt.subplot2grid((len(sorter_list), 3), (i, 2))
 
 		ax = [ax1,ax2,ax3]
 
-
-		# plot_msd(blobs_df[blobs_df[sort_col] == True], image, output_path,
-		# 			 root_name, pixel_size, frame_rate,divide_num,
-		# 			 ax=ax)
-
-		plot_msd(physdf_list[i], image, output_path,
+		plot_msd(gooddf_list[i], baddf_list[i], image, output_path,
 					 root_name, pixel_size, frame_rate,divide_num,
 					 ax=ax)
 
 		ax1.set_xticks([])
 		ax1.set_yticks([])
-		ax1.set_ylabel(sort_col, labelpad=50)#, fontsize=20)
+		ax1.set_ylabel(sorter, labelpad=50, fontsize=20)
 
-	plt.subplots_adjust(wspace=.6)
-
+	plt.tight_layout()
 	if pltshow:
 		plt.show()
 
-	plt_array = plt2array(fig)
-	imsave(output_path + root_name + "-msdPlot.png", plt_array)
+	# """
+	# ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
+	# """
+
+	fig.savefig(output_path + root_name + '-msdPlot.pdf')
+	import webbrowser
+	webbrowser.open_new(r'file://' + output_path + root_name + '-msdPlot.pdf')
 
 def plot_msd(blobs_df,
+			 other_blobs_df,
 			 image,
 			 output_path,
 			 root_name,
@@ -87,7 +118,6 @@ def plot_msd(blobs_df,
 			 frame_rate=3.3,
 			 divide_num=5,
 			 ax=None):
-
 
 	"""
 	Generates the 3 panel msd figure with color-coded trajectories, msd curves, and a histogram of d values
@@ -174,7 +204,16 @@ def plot_msd(blobs_df,
 	# """
 	# ~~~~~~~~~~~Plot the color coded trajectories~~~~~~~~~~~~~~
 	# """
-
+	# ax[0].text(0.95,
+	# 		0.00,
+	# 		"""
+	# 		Total trajectory number: %d
+	# 		""" %(len(particles)),
+	# 		horizontalalignment='right',
+	# 		verticalalignment='bottom',
+	# 		# fontsize = 10,
+	# 		color = (0.5, 0.5, 0.5, 0.5),
+	# 		transform=ax[0].transAxes)
 	particles = blobs_df.particle.unique()
 	for i in range(len(particles)):
 		traj = blobs_df[blobs_df.particle == particles[i]]
@@ -185,15 +224,15 @@ def plot_msd(blobs_df,
 	# ax[0].set(xlabel='y (pixel)'), ylabel='x (pixel)')
 
 	ax[0].text(0.95,
-			0.00,
-			"""
-			Total trajectory number: %d
-			""" %(len(particles)),
-			horizontalalignment='right',
-			verticalalignment='bottom',
-			# fontsize = 10,
-			color = (0.5, 0.5, 0.5, 0.5),
-			transform=ax[0].transAxes)
+            0.00,
+            """
+            Total trajectory number: %d
+            """ %(len(particles)),
+            horizontalalignment='right',
+            verticalalignment='bottom',
+            fontsize = 12,
+            color = (0.5, 0.5, 0.5, 0.5),
+            transform=ax[0].transAxes)
 
 
 	# """
@@ -204,7 +243,7 @@ def plot_msd(blobs_df,
 	n = int(round(len(im.index)/divide_num))
 	im = im.head(n)
 	im = im*1e6
-	im.to_csv(output_path + root_name + "-allMSD.csv", header=True)
+	# im.to_csv(output_path + root_name + "-allMSD.csv", header=True)
 
 	if len(im) > 1:
 		ax[1].plot(im, 'k-', alpha=0.3)
@@ -226,7 +265,7 @@ def plot_msd(blobs_df,
 	# ~~~~~~~~~~~Save D and alpha values per particle~~~~~~~~~~~~~~
 	# """
 
-		blobs_df.drop_duplicates(subset='particle')[['D', 'alpha']].to_csv(output_path + root_name + "-Dalpha.csv", index=False)
+		# blobs_df.drop_duplicates(subset='particle')[['D', 'alpha']].to_csv(output_path + root_name + "-Dalpha.csv", index=False)
 
 
 	# """
@@ -235,7 +274,7 @@ def plot_msd(blobs_df,
 
 		imsd_mean = im.mean(axis=1)
 		imsd_std = im.std(axis=1, ddof=0)
-		imsd_mean.to_csv(output_path + root_name + "-meanMSD.csv", header=True)
+		# imsd_mean.to_csv(output_path + root_name + "-meanMSD.csv", header=True)
 
 		x = imsd_mean.index
 		y = imsd_mean.to_numpy()
@@ -273,9 +312,7 @@ def plot_msd(blobs_df,
 
 
 		props = dict(boxstyle='round', facecolor='wheat', alpha=0.0)
-		# ax[1].text(.1, .8, textstr, transform=ax[1].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=8, color='black', bbox=props)
-		ax[1].text(.1, .8, textstr, transform=ax[1].transAxes,  horizontalalignment='left', verticalalignment='top', color='black', bbox=props)
-
+		ax[1].text(.1, .8, textstr, transform=ax[1].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=12, color='black', bbox=props)
 
 	ax[1].set_xlabel(r'$\tau (\mathbf{s})$')
 	ax[1].set_ylabel(r'$\langle \Delta r^2 \rangle$ [$nm^2$]')
@@ -285,6 +322,12 @@ def plot_msd(blobs_df,
 	# ~~~~~~~~~~~Add D value histogram~~~~~~~~~~~~~~
 	# """
 
-	ax[2].hist(blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(), bins=10, color='gray')
+	ax[2].hist(blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(),
+				bins=30, color=(1,0,0,0.5), label='Inside the sorter')
+	if not other_blobs_df.empty:
+		ax[2].hist(other_blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(),
+					bins=30, color=(0,0,1,0.5), label='Outside the sorter')
+	ax[2].legend(loc='upper right')
+
 	ax[2].set_ylabel('Frequency')
 	ax[2].set_xlabel(r'$D (\mathbf{nm^{2}/s})$')
