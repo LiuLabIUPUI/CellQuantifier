@@ -154,6 +154,6 @@ def track_blobs(blobs_df,
 	if save_csv:
 		blobs_df.to_csv(output_path + root_name + "-fittData.csv", index=False)
 	if do_filter:
-		blobs_df.to_csv(output_path + root_name + "-filtTrakData.csv", index=False)
+		blobs_df.to_csv(output_path + root_name + "-physData.csv", index=False)
 
 	return blobs_df, im

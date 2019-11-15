@@ -66,7 +66,7 @@ def get_thres_mask_batch(tif, sig=3, thres_rel=0.2):
     return masks_array_3d
 
 
-def get_dist2boundary_mask(mask, step_size=5):
+def get_dist2boundary_mask(mask, step_size=3):
     """
     Create dist2boundary mask via binary dilation and erosion
 
@@ -123,7 +123,7 @@ def get_dist2boundary_mask(mask, step_size=5):
     return dist_mask
 
 
-def get_dist2boundary_mask_batch(masks, step_size=5):
+def get_dist2boundary_mask_batch(masks, step_size=3):
     """
     Create dist2boundary mask via binary dilation and erosion
 

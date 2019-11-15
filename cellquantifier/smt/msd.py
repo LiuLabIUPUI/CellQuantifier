@@ -98,8 +98,6 @@ def plot_msd_batch(phys_df,
 		ax1.set_ylabel(sorter, labelpad=50, fontsize=20)
 
 	plt.tight_layout()
-	if pltshow:
-		plt.show()
 
 	# """
 	# ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
@@ -108,6 +106,9 @@ def plot_msd_batch(phys_df,
 	fig.savefig(output_path + root_name + '-msdPlot.pdf')
 	import webbrowser
 	webbrowser.open_new(r'file://' + output_path + root_name + '-msdPlot.pdf')
+
+	if pltshow:
+		plt.show()
 
 def plot_msd(blobs_df,
 			 other_blobs_df,
@@ -204,21 +205,12 @@ def plot_msd(blobs_df,
 	# """
 	# ~~~~~~~~~~~Plot the color coded trajectories~~~~~~~~~~~~~~
 	# """
-	# ax[0].text(0.95,
-	# 		0.00,
-	# 		"""
-	# 		Total trajectory number: %d
-	# 		""" %(len(particles)),
-	# 		horizontalalignment='right',
-	# 		verticalalignment='bottom',
-	# 		# fontsize = 10,
-	# 		color = (0.5, 0.5, 0.5, 0.5),
-	# 		transform=ax[0].transAxes)
 	particles = blobs_df.particle.unique()
 	for i in range(len(particles)):
 		traj = blobs_df[blobs_df.particle == particles[i]]
 		traj = traj.sort_values(by='frame')
-		ax[0].plot(traj.y, traj.x, color=colormap(traj['D_norm'].mean()))
+		ax[0].plot(traj.y, traj.x, linewidth=0.3,
+					color=colormap(traj['D_norm'].mean()))
 
 	ax[0].set_aspect(1.0)
 	# ax[0].set(xlabel='y (pixel)'), ylabel='x (pixel)')

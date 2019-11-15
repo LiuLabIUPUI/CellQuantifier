@@ -8,7 +8,7 @@ CF3 = 1         #det_fit
 CF4 = 1         #filt_track
 CF5 = 1         #physics
 CF6 = 1         #sort_plot
-Automate = 0    #automate smt
+Automate = 1    #automate smt
 #                              load regi deno check dt_ft fl_tk phys st_pt video
 if CF0:        Control_Flow = [   1,   1,   0,   0,   0,   0,   0,    0,   0]
 if CF1:        Control_Flow = [   1,   0,   1,   0,   0,   0,   0,    0,   0]
@@ -65,15 +65,15 @@ settings = {
   'Trak frame_rate': 20,
   'Trak pixel_size': 0.163,
   'Trak divide_num': 5,
-  'Trak search_range': 2,
-  'Trak memory': 3,
+  'Trak search_range': 3,
+  'Trak memory': 5,
 
   #FITTING FILTERING SETTINGS
   'Filt do_filter': True,
   'Filt max_dist_err': 1,
   'Filt sig_to_sigraw': 3,
   'Filt max_delta_area': 1,
-  'Filt traj_length_thres': 10,
+  'Filt traj_length_thres': 25,
 
   #PHYSICS SETTINGS
   'Phys dist2boundary_mask file': 'simulated_cell.tif',
@@ -86,7 +86,7 @@ settings = {
   #SORTING SETTINGS
   'Sort do_sort': True,
   'Sort dist_to_boundary': [-150, 0],
-  'Sort dist_to_53bp1': [-100, 100],
+  'Sort dist_to_53bp1': [-3, 0],
 
   #DIAGNOSTIC
   'Diag diagnostic': False,

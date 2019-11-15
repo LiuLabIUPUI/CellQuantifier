@@ -217,7 +217,11 @@ class Pipeline():
 										root_name=self.config.ROOT_NAME,
 										save_csv=False)
 		else:
-			blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-filtTrakData.csv')
+			blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		print("######################################")
+		print("Trajectory number after filters: %d" % blobs_df['particle'].nunique())
+		print("######################################")
 
 
 	def phys(self):
@@ -226,7 +230,7 @@ class Pipeline():
 		print("Add Physics Parameters")
 		print("######################################")
 
-		blobs_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-filtTrakData.csv')
+		blobs_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
 		# add 'dist_to_boundary' column
 		print("######################################")
@@ -280,7 +284,7 @@ class Pipeline():
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 		if self.config.DO_SORT:
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
-		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-sortPhysData.csv')
+		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
 		plot_msd_batch(phys_df,
 					 image=frames[0],
