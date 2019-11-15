@@ -19,13 +19,14 @@ def get_d_values(traj_df, im, divide_num):
 		msd = im[particle].dropna()
 		msd = msd[msd > 0]
 
-		x = msd.index.values
-		y = msd.to_numpy()
-		y = y*1e6 #convert to nm
-		popt = fit_msd(x, y)
+		if len(msd) > 2: # Only fit when msd has more than 2 data points
+			x = msd.index.values
+			y = msd.to_numpy()
+			y = y*1e6 #convert to nm
+			popt = fit_msd(x, y)
 
-		traj_df.loc[traj_df['particle'] == particle, 'D'] = popt[0]
-		traj_df.loc[traj_df['particle'] == particle, 'alpha'] = popt[1]
+			traj_df.loc[traj_df['particle'] == particle, 'D'] = popt[0]
+			traj_df.loc[traj_df['particle'] == particle, 'alpha'] = popt[1]
 
 	return traj_df
 
