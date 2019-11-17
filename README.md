@@ -1,3 +1,3 @@
 # cellquantifier
 
-![alt text](https://raw.githubusercontent.com/LiuLabIUPUI/cellquantifier/master/cellquantifier/cq_diagram.png)
+![alt text](https://github.com/LiuLabIUPUI/cellquantifier/blob/master/cq_diagram.png)
