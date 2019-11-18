@@ -199,6 +199,7 @@ class Pipeline():
 									output_path=self.config.OUTPUT_PATH,
 									root_name=self.config.ROOT_NAME,
 									save_csv=False)
+		traj_num_before = blobs_df['particle'].nunique()
 
 		if self.config.DO_FILTER:
 			blobs_df, im = track_blobs(blobs_df,
@@ -216,7 +217,8 @@ class Pipeline():
 			blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
 		print("######################################")
-		print("Trajectory number after filters: %d" % blobs_df['particle'].nunique())
+		print("Trajectory number before filters: \t%d" % traj_num_before)
+		print("Trajectory number after filters: \t%d" % blobs_df['particle'].nunique())
 		print("######################################")
 
 
@@ -288,7 +290,8 @@ class Pipeline():
 		phys_df = add_dist_to_53bp1_batch(blobs_df, dist253bp1_thres_masks)
 
 		# Save '-physData.csv'
-		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physData.csv', index=False)
 
 
 	def sort_and_plot(self):
@@ -305,7 +308,8 @@ class Pipeline():
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 		if self.config.DO_SORT:
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
-		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physData.csv', index=False)
 
 		plot_msd_batch(phys_df,
 					 image=frames[0],

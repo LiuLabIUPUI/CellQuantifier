@@ -121,6 +121,11 @@ def track_blobs(blobs_df,
 	# """
 
 	if do_filter:
+
+		print("######################################")
+		print("Filtering out suspicious data points")
+		print("######################################")
+
 		blobs_df = blobs_df[blobs_df['dist_err'] < filters['MAX_DIST_ERROR']]
 		blobs_df = blobs_df[blobs_df['delta_area'] < filters['MAX_DELTA_AREA']]
 		blobs_df = blobs_df[blobs_df['sigx_to_sigraw'] < filters['SIG_TO_SIGRAW']]
@@ -137,6 +142,10 @@ def track_blobs(blobs_df,
 	# """
 	# ~~~~~~~~~~~Get dA/A~~~~~~~~~~~~~
 	# """
+
+	print("######################################")
+	print("Calculating delta_area")
+	print("######################################")
 
 	blobs_df = blobs_df.sort_values(['particle', 'frame'])
 	blobs_df['delta_area'] = np.abs((blobs_df.groupby('particle')['area'].apply(pd.Series.pct_change)))
