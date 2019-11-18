@@ -29,14 +29,10 @@ class Pipeline():
 		if is_new:
 			self.config.clean_dir()
 
-			frames = imread(config.INPUT_PATH)
+			frames = imread(config.INPUT_PATH + config.DICT['Raw data file'])
 			frames = frames[list(config.TRANGE),:,:]
-
-			a = config.OUTPUT_PATH + config.ROOT_NAME + '-raw.tif'
-			b = config.OUTPUT_PATH + config.ROOT_NAME + '-active.tif'
-
-			imsave(a, frames)
-			imsave(b, frames)
+			imsave(config.OUTPUT_PATH + config.ROOT_NAME + '-raw.tif', frames)
+			imsave(config.OUTPUT_PATH + config.ROOT_NAME + '-active.tif', frames)
 
 
 	def segmentation(self, method):
@@ -90,10 +86,10 @@ class Pipeline():
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif', filtered)
 
 
-	def check_start_frame(self):
+	def check(self):
 
 		print("######################################")
-		print("Check Start Frame")
+		print("Check detection and fitting")
 		print("######################################")
 
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
@@ -182,7 +178,7 @@ class Pipeline():
 	def filter_and_track(self):
 
 		print("######################################")
-		print("Filter and PlotMSD")
+		print("Filter and Linking")
 		print("######################################")
 
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
@@ -224,6 +220,41 @@ class Pipeline():
 		print("######################################")
 
 
+	def mask(self):
+
+		print("######################################")
+		print("Generate dist2boundary_thres_masks")
+		print("######################################")
+		dist2boundary_tif = imread(self.config.INPUT_PATH + \
+							self.config.DIST2BOUNDARY_MASK_NAME) \
+							[list(self.config.TRANGE),:,:]
+
+		dist2boundary_thres_masks = get_thres_mask_batch(dist2boundary_tif,
+							self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
+		dist2boundary_thres_masks = np.rint(dist2boundary_thres_masks / \
+							dist2boundary_thres_masks.max() * 255).astype(np.uint8)
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif',
+				dist2boundary_thres_masks)
+
+		print("######################################")
+		print("Generate dist253bp1_thres_masks")
+		print("######################################")
+		dist253bp1_tif = imread(self.config.INPUT_PATH + \
+							self.config.DIST253BP1_MASK_NAME) \
+							[list(self.config.TRANGE),:,:]
+
+		dist253bp1_thres_masks = get_thres_mask_batch(dist253bp1_tif,
+							self.config.MASK_SIG_53BP1, self.config.MASK_THRES_53BP1)
+		dist253bp1_thres_masks = np.rint(dist253bp1_thres_masks / \
+							dist253bp1_thres_masks.max() * 255).astype(np.uint8)
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif',
+				dist253bp1_thres_masks)
+
+		print("######################################")
+		print("Mask generation are done!")
+		print("######################################")
+
+
 	def phys(self):
 
 		print("######################################")
@@ -236,14 +267,9 @@ class Pipeline():
 		print("######################################")
 		print("Add 'dist_to_boundary'")
 		print("######################################")
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
-			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
-							self.config.DIST2BOUNDARY_MASK_NAME + \
-							'-regi.tif')[list(self.config.TRANGE),:,:]
-		else:
-			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
-							self.config.DIST2BOUNDARY_MASK_NAME + \
-							'-raw.tif')[list(self.config.TRANGE),:,:]
+		dist2boundary_tif = imread(self.config.INPUT_PATH + \
+							self.config.DIST2BOUNDARY_MASK_NAME) \
+							[list(self.config.TRANGE),:,:]
 
 		dist2boundary_thres_masks = get_thres_mask_batch(dist2boundary_tif,
 							self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
@@ -253,14 +279,9 @@ class Pipeline():
 		print("######################################")
 		print("Add 'dist_to_53bp1'")
 		print("######################################")
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
-			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
-							self.config.DIST253BP1_MASK_NAME + \
-							'-regi.tif')[list(self.config.TRANGE),:,:]
-		else:
-			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
-							self.config.DIST253BP1_MASK_NAME + \
-							'-raw.tif')[list(self.config.TRANGE),:,:]
+		dist253bp1_tif = imread(self.config.INPUT_PATH + \
+							self.config.DIST253BP1_MASK_NAME) \
+							[list(self.config.TRANGE),:,:]
 
 		dist253bp1_thres_masks = get_thres_mask_batch(dist253bp1_tif,
 							self.config.MASK_SIG_53BP1, self.config.MASK_THRES_53BP1)
@@ -298,6 +319,10 @@ class Pipeline():
 		self.config.save_config()
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif'):
 			os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif'):
+			os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif'):
+			os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif')
 
 
 def pipeline_control(settings_dict, control_dict):
@@ -320,12 +345,13 @@ def pipeline_control(settings_dict, control_dict):
 		settings_dict['Regi poly_deg'] = 'NA'
 		settings_dict['Regi rotation_multplier'] = 'NA'
 		settings_dict['Regi translation_multiplier'] = 'NA'
-
+	if control_dict['mask']:
+		pipe.mask()
 	if control_dict['deno']:
 		pipe.deno(method='boxcar', arg=settings_dict['Deno boxcar_radius'])
 		pipe.deno(method='gaussian', arg=settings_dict['Deno gaus_blur_sig'])
 	if control_dict['check']:
-		pipe.check_start_frame()
+		pipe.check()
 	if control_dict['detect_fit']:
 		pipe.detect_fit(detect_video=control_dict['video'])
 	if control_dict['filt_trak']:

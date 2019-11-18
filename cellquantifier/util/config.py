@@ -6,7 +6,7 @@ class Config():
 	def __init__(self, config):
 
 		#I/O
-		self.INPUT_PATH = config['IO input_path'] + config['Raw data file']
+		self.INPUT_PATH = config['IO input_path']
 		self.OUTPUT_PATH = config['IO output_path']
 		self.ROOT_NAME = config['Raw data file'][:config['Raw data file'].index('.')]
 		self.START_FRAME = config['Start frame index']
@@ -59,12 +59,10 @@ class Config():
 		}
 
 		#PHYSICS SETTINGS
-		self.DIST2BOUNDARY_MASK_NAME = config['Phys dist2boundary_mask file']\
-							[:config['Phys dist2boundary_mask file'].index('.')]
+		self.DIST2BOUNDARY_MASK_NAME = config['Phys dist2boundary_mask file']
 		self.MASK_SIG_BOUNDARY = config['Phys dist2boundary_mask sig']
 		self.MASK_THRES_BOUNDARY = config['Phys dist2boundary_mask thres_rel']
-		self.DIST253BP1_MASK_NAME = config['Phys dist253bp1_mask file']\
-							[:config['Phys dist253bp1_mask file'].index('.')]
+		self.DIST253BP1_MASK_NAME = config['Phys dist253bp1_mask file']
 		self.MASK_SIG_53BP1 = config['Phys dist253bp1_mask sig']
 		self.MASK_THRES_53BP1 = config['Phys dist253bp1_mask thres_rel']
 
