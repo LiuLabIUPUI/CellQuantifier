@@ -172,6 +172,11 @@ def plot_msd(blobs_df,
 						 pixel_size=.1084,
 						 divide_num=5)
 		"""
+	# """
+	# ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
+	# """
+	if blobs_df.empty:
+		return		
 
 	# Calculate individual msd
 	im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
@@ -318,7 +323,7 @@ def plot_msd(blobs_df,
 				bins=30, color=(1,0,0,0.5), label='Inside the sorter')
 	if not other_blobs_df.empty:
 		ax[2].hist(other_blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(),
-					bins=30, color=(0,0,1,0.5), label='Outside the sorter')
+					bins=30, color=(0,0,1,0.3), label='Outside the sorter')
 	ax[2].legend(loc='upper right')
 
 	ax[2].set_ylabel('Frequency')

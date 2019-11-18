@@ -337,8 +337,8 @@ def pipeline_control(settings_dict, control_dict):
 		pipe.register()
 
 	# If not registered, remove meaningless regi parameters
-	if settings_dict['Regi rotation_multplier'] == 0 & \
-					settings_dict['Regi rotation_multplier'] == 0:
+	if int(settings_dict['Regi rotation_multplier'] * 1000) < 1 & \
+					int(settings_dict['Regi rotation_multplier'] * 1000) < 0.001:
 		settings_dict['Regi ref_ind_num'] = 'NA'
 		settings_dict['Regi sig_mask'] = 'NA'
 		settings_dict['Regi thres_rel'] = 'NA'
