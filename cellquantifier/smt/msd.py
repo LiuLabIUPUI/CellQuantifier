@@ -79,23 +79,24 @@ def plot_msd_batch(phys_df,
 	# ~~~~~~~~~~~Plot_msd_batch~~~~~~~~~~~~~~
 	# """
 
-	fig = plt.figure(figsize=(18, 6*len(sorter_list)))
+	fig = plt.figure(figsize=(24, 6*len(sorter_list)))
 
 	for i, sorter in enumerate(sorter_list):
 
-		ax1 = plt.subplot2grid((len(sorter_list), 3), (i, 0))
-		ax2 = plt.subplot2grid((len(sorter_list), 3), (i, 1))
-		ax3 = plt.subplot2grid((len(sorter_list), 3), (i, 2))
+		ax0 = plt.subplot2grid((len(sorter_list), 4), (i, 0))
+		ax1 = plt.subplot2grid((len(sorter_list), 4), (i, 1))
+		ax2 = plt.subplot2grid((len(sorter_list), 4), (i, 2))
+		ax3 = plt.subplot2grid((len(sorter_list), 4), (i, 3))
 
-		ax = [ax1,ax2,ax3]
+		ax = [ax0,ax1,ax2,ax3]
 
 		plot_msd(gooddf_list[i], baddf_list[i], image, output_path,
 					 root_name, pixel_size, frame_rate,divide_num,
 					 ax=ax)
 
-		ax1.set_xticks([])
-		ax1.set_yticks([])
-		ax1.set_ylabel(sorter, labelpad=50, fontsize=20)
+		ax0.set_xticks([])
+		ax0.set_yticks([])
+		ax0.set_ylabel(sorter, labelpad=50, fontsize=20)
 
 	plt.tight_layout()
 
@@ -176,7 +177,7 @@ def plot_msd(blobs_df,
 	# ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
 	# """
 	if blobs_df.empty:
-		return		
+		return
 
 	# Calculate individual msd
 	im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
@@ -328,3 +329,17 @@ def plot_msd(blobs_df,
 
 	ax[2].set_ylabel('Frequency')
 	ax[2].set_xlabel(r'$D (\mathbf{nm^{2}/s})$')
+
+	# """
+	# ~~~~~~~~~~~Add alpha value histogram~~~~~~~~~~~~~~
+	# """
+
+	ax[3].hist(blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
+				bins=30, color=(1,0,0,0.5), label='Inside the sorter')
+	if not other_blobs_df.empty:
+		ax[3].hist(other_blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
+					bins=30, color=(0,0,1,0.3), label='Outside the sorter')
+	ax[3].legend(loc='upper right')
+
+	ax[3].set_ylabel('Frequency')
+	ax[3].set_xlabel(r'$alpha$')
