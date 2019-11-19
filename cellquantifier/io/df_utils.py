@@ -25,7 +25,6 @@ def relabel_particles(df):
       particles = sub_df['particle'].unique()
 
       for particle in particles:
-
         df.loc[(df['raw_data'] == file_name) & \
         (df['particle'] == particle), 'new_label'] = i
         i+=1
@@ -57,12 +56,11 @@ def merge_dfs(files):
     merged_df = pd.DataFrame([], columns=columns, dtype='int')
 
     for file in files:
-
         df = pd.read_csv(file, index_col=False)
         root_name = file.split('/')[-1]
         exp = re.findall(r'[a-zA-Z]{3}\d{1}', file)
         df = df.assign(raw_data=root_name)
-        df = df.assign(exp_label=exp[0])
+        df = df.assign(exp_label=exp[0][:-1])
         merged_df = pd.concat([merged_df, df], sort=True, ignore_index=True)
 
     return merged_df
