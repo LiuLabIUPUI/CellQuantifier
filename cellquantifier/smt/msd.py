@@ -20,9 +20,9 @@ def get_sorter_list(phys_df):
 	    if "sort_flag" in column_name:
 	        sorter_list.append(column_name)
 
-	sorter_list.append('full sort')
+	if len(sorter_list) > 1:
+		sorter_list.append('full sort')
 	return sorter_list
-
 
 
 def get_gooddf_list(phys_df, sorter_list):
@@ -32,13 +32,15 @@ def get_gooddf_list(phys_df, sorter_list):
 		single_sorted_df = phys_df[ phys_df[sorter] == True ]
 		gooddf_list.append(single_sorted_df)
 
-	all_sorted_df = phys_df.copy()
-	for sorter in sorter_list[1:-1]:
-		all_sorted_df = all_sorted_df[ all_sorted_df[sorter] == True ]
+	if len(gooddf_list) > 1:
+		all_sorted_df = phys_df.copy()
+		for sorter in sorter_list[1:-1]:
+			all_sorted_df = all_sorted_df[ all_sorted_df[sorter] == True ]
 
-	gooddf_list.append(all_sorted_df)
+		gooddf_list.append(all_sorted_df)
 
 	return gooddf_list
+	
 
 def get_baddf_list(phys_df, sorter_list):
 	baddf_list = [pd.DataFrame([])]
@@ -47,13 +49,14 @@ def get_baddf_list(phys_df, sorter_list):
 		single_sorted_df = phys_df[ phys_df[sorter] == False ]
 		baddf_list.append(single_sorted_df)
 
-	not_good_index = ( phys_df[sorter_list[1]] == False )
-	for i in range(2, len(sorter_list)-1):
-		tmp = ( phys_df[sorter_list[i]]==False )
-		not_good_index = not_good_index ^ tmp
-	not_good_df = phys_df[not_good_index]
+	if len(baddf_list) > 1:
+		not_good_index = pd.Series()
+		for i in range(1, len(sorter_list)-1):
+			tmp = ( phys_df[sorter_list[i]]==False )
+			not_good_index = not_good_index ^ tmp
+		not_good_df = phys_df[not_good_index]
 
-	baddf_list.append(not_good_df)
+		baddf_list.append(not_good_df)
 
 	return baddf_list
 

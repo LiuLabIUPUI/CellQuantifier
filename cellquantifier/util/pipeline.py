@@ -15,7 +15,7 @@ from ..regi import get_regi_params, apply_regi_params
 from ..smt.detect import detect_blobs, detect_blobs_batch
 from ..smt.fit_psf import fit_psf, fit_psf_batch
 from ..smt.track import track_blobs
-from ..smt.msd import plot_msd_batch
+from ..smt.msd import plot_msd_batch, get_sorter_list
 from ..phys import *
 from ..util.config import Config
 
@@ -308,8 +308,11 @@ class Pipeline():
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 		if self.config.DO_SORT:
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
-		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+			phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
+		else:
+			sorter_list = get_sorter_list(phys_df)
+			phys_df = phys_df.drop(columns=sorter_list[1:-1])
 
 		plot_msd_batch(phys_df,
 					 image=frames[0],
