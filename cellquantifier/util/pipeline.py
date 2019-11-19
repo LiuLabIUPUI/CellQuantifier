@@ -307,8 +307,14 @@ class Pipeline():
 			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 
 		phys_files = glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')
-		phys_df = merge_dfs(phys_files)
-		phys_df = relabel_particles(phys_df)
+
+		if len(phys_files) > 1:
+			phys_df = merge_dfs(phys_files)
+			phys_df = relabel_particles(phys_df)
+
+		else:
+			phys_df = pd.read_csv(phys_files[0])
+
 
 		if self.config.DO_SORT:
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
