@@ -6,6 +6,7 @@ from skimage.util import img_as_ubyte
 from skimage.measure import regionprops
 import pandas as pd
 import warnings
+import glob
 
 from ..deno import filter_batch
 from ..segm import get_mask_batch
@@ -18,7 +19,7 @@ from ..smt.track import track_blobs
 from ..smt.msd import plot_msd_batch, get_sorter_list
 from ..phys import *
 from ..util.config import Config
-
+from ..io import relabel_particles, merge_dfs
 
 class Pipeline():
 
@@ -305,11 +306,14 @@ class Pipeline():
 		else:
 			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 
-		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+		phys_files = glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')
+		phys_df = merge_dfs(phys_files)
+		phys_df = relabel_particles(phys_df)
+
 		if self.config.DO_SORT:
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
 			phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-						'-physData.csv', index=False)
+						'-physDataMerged.csv', index=False)
 		else:
 			sorter_list = get_sorter_list(phys_df)
 			phys_df = phys_df.drop(columns=sorter_list[1:-1])
