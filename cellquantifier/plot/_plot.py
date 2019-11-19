@@ -2,51 +2,42 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-def plot_hist(labels=None, nbins=10, norm=False, **kwargs):
+def plot_hist(df, data_col, cat_col, nbins=10, labels=None):
 
-	"""Plot histogram
+	"""Plot histogram from a DataFrame
+
 	Parameters
 	----------
 	kwargs: dict
 		dictionary where keys are plot labels and values are array-like
+	nbins: int, optional
+		number of bins to use for histogram
 	labels: list, optional
-		list of labels for x,y axes
-	norm: bool, optional
-		whether or not to normalize the data to the max value
+		list of labels for x,y axes respectively
 
-	Example
-	-------
-	>>>from cellquantifier.plot import plot_hist
-	>>>import pandas as pd
-	>>>path1 = 'cellquantifier/data/test_Dalpha.csv'
-	>>>path2 = 'cellquantifier/data/test_Dalpha2.csv'
-	>>>df1 = pd.read_csv(path1, index_col=None, header=0)
-	>>>df2 = pd.read_csv(path2, index_col=None, header=0)
-	>>>labels = [r'Normalized Diffusion','Weight (a.u)']
-	>>>plot_hist(labels, norm=False, damaged=df1['D'], control=df2['D'])
 	"""
 
 	from cellquantifier.util.stats import t_test
 
 	fig, ax = plt.subplots()
-	colors = plt.cm.jet(np.linspace(0,1,len(kwargs)))
+	cats = df[cat_col].unique()
+	colors = plt.cm.jet(np.linspace(0,1,len(cats)))
 	x = []
 
-	for key, value in kwargs.items():
+	for i, cat in enumerate(cats):
 
-		if norm:
-			value = value/value.max()
-		ax.hist(value, bins=nbins, color=colors[list(kwargs.keys()).index(key)], density=True, label=key, alpha=.75)
+		values = df.loc[df[cat_col] == cat, data_col]
+		ax.hist(values, bins=nbins, color=colors[i], density=True, label=cat, alpha=.5)
 		ax.legend(loc='upper right')
 
-		if type(value) is not np.ndarray:
-			value = value.to_numpy()
-		x.append(value)
+		if type(values) is not np.ndarray:
+			values = values.to_numpy()
+		x.append(values)
 
 	if labels:
 		ax.set(xlabel=labels[0], ylabel=labels[1])
 
-	if len(kwargs) == 2:
+	if len(cats) == 2:
 		t,p = t_test(x[0], x[1])
 		ax.text(0.75,
 				0.75,

@@ -19,6 +19,7 @@ from ..smt.track import track_blobs
 from ..smt.msd import plot_msd_batch, get_sorter_list
 from ..phys import *
 from ..util.config import Config
+from ..plot import plot_msd_merged
 from ..io import relabel_particles, merge_dfs
 
 class Pipeline():
@@ -306,15 +307,7 @@ class Pipeline():
 		else:
 			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 
-		phys_files = glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')
-
-		if len(phys_files) > 1:
-			phys_df = merge_dfs(phys_files)
-			phys_df = relabel_particles(phys_df)
-
-		else:
-			phys_df = pd.read_csv(phys_files[0])
-
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
 		if self.config.DO_SORT:
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
@@ -340,6 +333,23 @@ class Pipeline():
 			os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif'):
 			os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif')
+
+	def merge_and_plot(self):
+
+		print("######################################")
+		print("Merge and PlotMSD")
+		print("######################################")
+
+		phys_files = glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')
+
+		if len(phys_files) > 1:
+			phys_df = merge_dfs(phys_files)
+			phys_df = relabel_particles(phys_df)
+
+		else:
+			phys_df = pd.read_csv(phys_files[0])
+
+		plot_msd_merged(phys_df, 'exp_label')
 
 
 def pipeline_control(settings_dict, control_dict):
