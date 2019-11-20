@@ -19,7 +19,7 @@ from ..smt.msd import plot_msd_batch, get_sorter_list
 from ..phys import *
 from ..util.config import Config
 from ..plot import plot_msd_merged
-from ..phys.physutil import relabel_particles, merge_dfs
+from ..phys.physutil import relabel_particles, merge_physdfs
 
 class Pipeline():
 
@@ -342,7 +342,7 @@ class Pipeline():
 		phys_files = glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')
 
 		if len(phys_files) > 1:
-			phys_df = merge_dfs(phys_files)
+			phys_df = merge_physdfs(phys_files)
 			phys_df = relabel_particles(phys_df)
 
 		else:

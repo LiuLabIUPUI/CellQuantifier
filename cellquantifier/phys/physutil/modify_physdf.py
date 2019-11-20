@@ -34,7 +34,7 @@ def relabel_particles(df):
 
     return df
 
-def merge_dfs(files):
+def merge_physdfs(files):
 
     """
     Relabel particles after merging dataframes from several experiments
