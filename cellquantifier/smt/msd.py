@@ -8,7 +8,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
 from ..math import msd, fit_msd
 from skimage.io import imsave
-from ..io._plt2array import plt2array
+from ..plot.plotutil import plt2array
 
 mpl.rcParams['font.size'] = 10
 mpl.rcParams['font.weight'] = 'bold'
@@ -40,7 +40,7 @@ def get_gooddf_list(phys_df, sorter_list):
 		gooddf_list.append(all_sorted_df)
 
 	return gooddf_list
-	
+
 
 def get_baddf_list(phys_df, sorter_list):
 	baddf_list = [pd.DataFrame([])]

@@ -8,7 +8,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
 from ..math import msd, fit_msd
 from skimage.io import imsave
-from ..io._plt2array import plt2array
+from ..plot.plotutil import plt2array
 
 
 def plot_msd_merged(blobs_df,

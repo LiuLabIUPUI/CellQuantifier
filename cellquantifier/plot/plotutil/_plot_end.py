@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from cellquantifier.io._plt2array import plt2array
+from ._plt2array import plt2array
 
 def plot_end(fig, pltshow=False):
     """

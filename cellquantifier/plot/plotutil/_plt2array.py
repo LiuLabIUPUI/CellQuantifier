@@ -19,7 +19,7 @@ def plt2array(fig):
     --------
     import matplotlib.pyplot as plt
     import numpy as np
-    from cellquantifier.io._plt2array import plt2array
+    from cellquantifier.plot.plotutil import plt2array
     t = np.linspace(0, 4*np.pi, 1000)
     fig, ax = plt.subplots()
     ax.plot(t, np.cos(t))
