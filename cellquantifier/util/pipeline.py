@@ -217,6 +217,16 @@ class Pipeline():
 		else:
 			blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
+		plot_msd_batch(blobs_df,
+					 image=frames[0],
+					 output_path=self.config.OUTPUT_PATH,
+					 root_name=self.config.ROOT_NAME,
+					 pixel_size=self.config.PIXEL_SIZE,
+					 frame_rate=self.config.FRAME_RATE,
+					 divide_num=self.config.DIVIDE_NUM,
+					 pltshow=True,
+					 check_traj_msd=True)
+
 		print("######################################")
 		print("Trajectory number before filters: \t%d" % traj_num_before)
 		print("Trajectory number after filters: \t%d" % blobs_df['particle'].nunique())

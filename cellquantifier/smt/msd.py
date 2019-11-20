@@ -68,7 +68,8 @@ def plot_msd_batch(phys_df,
 			 pixel_size,
 			 frame_rate,
 			 divide_num,
-			 pltshow=False):
+			 pltshow=False,
+			 check_traj_msd=False):
 
 	# """
 	# ~~~~~~~~~~~Prepare the input data~~~~~~~~~~~~~~
@@ -95,31 +96,38 @@ def plot_msd_batch(phys_df,
 
 		plot_msd(gooddf_list[i], baddf_list[i], image, output_path,
 					 root_name, pixel_size, frame_rate,divide_num,
-					 ax=ax)
+					 ax=ax, check_traj_msd=check_traj_msd)
 
 		ax0.set_xticks([])
 		ax0.set_yticks([])
-		ax0.set_ylabel(sorter, labelpad=50, fontsize=20)
+		if not check_traj_msd:
+			ax0.set_ylabel(sorter, labelpad=50, fontsize=20)
 
 	plt.tight_layout()
 
-	# """
-	# ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
-	# """
-
-	fig.savefig(output_path + root_name + '-results.pdf')
-	plt.clf()
-	plt.close()
-
-	fig, ax = plt.subplots(figsize=(6,6))
-	anno_traj(ax, phys_df, image, pixel_size, frame_rate)
-	import webbrowser
-	webbrowser.open_new(r'file://' + output_path + root_name + '-results.pdf')
-	if pltshow:
+	if check_traj_msd:
 		plt.show()
+
 	else:
+
+		# """
+		# ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
+		# """
+
+		fig.savefig(output_path + root_name + '-results.pdf')
 		plt.clf()
 		plt.close()
+
+		fig, ax = plt.subplots(figsize=(6,6))
+		anno_traj(ax, phys_df, image, pixel_size, frame_rate)
+		import webbrowser
+		webbrowser.open_new(r'file://' + output_path + root_name + '-results.pdf')
+		if pltshow:
+			plt.show()
+		else:
+			plt.clf()
+			plt.close()
+
 
 def plot_msd(blobs_df,
 			 other_blobs_df,
@@ -129,7 +137,8 @@ def plot_msd(blobs_df,
 			 pixel_size,
 			 frame_rate,
 			 divide_num,
-			 ax=None):
+			 ax=None,
+			 check_traj_msd=False):
 
 	"""
 	Generates the 3 panel msd figure with color-coded trajectories, msd curves, and a histogram of d values
@@ -329,9 +338,13 @@ def plot_msd(blobs_df,
 	# """
 	# ~~~~~~~~~~~Add D value histogram~~~~~~~~~~~~~~
 	# """
+	if check_traj_msd:
+		ax[2].hist(blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(),
+					bins=30, color=(0,0,0,0.5))
+	else:
+		ax[2].hist(blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(),
+					bins=30, color=(1,0,0,0.5), label='Inside the sorter')
 
-	ax[2].hist(blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(),
-				bins=30, color=(1,0,0,0.5), label='Inside the sorter')
 	if not other_blobs_df.empty:
 		ax[2].hist(other_blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(),
 					bins=30, color=(0,0,1,0.3), label='Outside the sorter')
@@ -343,9 +356,13 @@ def plot_msd(blobs_df,
 	# """
 	# ~~~~~~~~~~~Add alpha value histogram~~~~~~~~~~~~~~
 	# """
+	if check_traj_msd:
+		ax[3].hist(blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
+					bins=30, color=(0,0,0,0.5))
+	else:
+		ax[3].hist(blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
+					bins=30, color=(1,0,0,0.5), label='Inside the sorter')
 
-	ax[3].hist(blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
-				bins=30, color=(1,0,0,0.5), label='Inside the sorter')
 	if not other_blobs_df.empty:
 		ax[3].hist(other_blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
 					bins=30, color=(0,0,1,0.3), label='Outside the sorter')
