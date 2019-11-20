@@ -3,8 +3,8 @@ import pandas as pd
 import math
 from cellquantifier.math.gaussian_2d import (gaussian_2d, get_moments,
                                             fit_gaussian_2d)
-from cellquantifier.util.plot_util.anno import anno_scatter, anno_blob
-from cellquantifier.util.plot_util._plot_end import plot_end
+from ..plot.plotutil import anno_scatter, anno_blob
+from ..plot.plotutil import plot_end
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 

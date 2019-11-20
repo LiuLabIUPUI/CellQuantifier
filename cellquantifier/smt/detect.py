@@ -1,6 +1,6 @@
 import numpy as np; import pandas as pd; import pims
-from cellquantifier.util.plot_util.anno import anno_blob, anno_scatter
-from cellquantifier.util.plot_util._plot_end import plot_end
+from ..plot.plotutil import anno_blob, anno_scatter
+from ..plot.plotutil import plot_end
 from matplotlib_scalebar.scalebar import ScaleBar
 from skimage.feature import blob_log
 import matplotlib.pyplot as plt

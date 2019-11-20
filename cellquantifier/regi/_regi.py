@@ -3,10 +3,9 @@ import matplotlib.pyplot as plt
 from skimage.measure import regionprops
 from skimage.transform import rotate
 from skimage.transform import SimilarityTransform, warp
-from cellquantifier.math.ransac import ransac_polyfit
-from cellquantifier.util.plot_util.anno import anno_ellipse
-from cellquantifier.util.plot_util.anno import anno_ellipse
-from cellquantifier.segm.mask import get_thres_mask as get_mask
+from ..math.ransac import ransac_polyfit
+from ..plot.plotutil import anno_ellipse
+from ..segm.mask import get_thres_mask as get_mask
 
 def get_regi_params(array_3d,
               ref_ind_num=0,
