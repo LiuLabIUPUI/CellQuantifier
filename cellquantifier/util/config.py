@@ -52,7 +52,7 @@ class Config():
 		self.FILTERS = {
 
 		'MAX_DIST_ERROR': config['Filt max_dist_err'],
-		'SIG_TO_SIGRAW' : config['Filt sig_to_sigraw'],
+		'SIG_TO_SIGRAW' : config['Filt max_sig_to_sigraw'],
 		'MAX_DELTA_AREA': config['Filt max_delta_area'],
 		'TRAJ_LEN_THRES': config['Filt traj_length_thres']
 

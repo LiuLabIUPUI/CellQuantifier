@@ -8,7 +8,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
 from ..math import msd, fit_msd
 from skimage.io import imsave
-from ..plot.plotutil import plt2array
+from ..plot.plotutil import plt2array, anno_traj
 
 mpl.rcParams['font.size'] = 10
 mpl.rcParams['font.weight'] = 'bold'
@@ -108,11 +108,18 @@ def plot_msd_batch(phys_df,
 	# """
 
 	fig.savefig(output_path + root_name + '-results.pdf')
+	plt.clf()
+	plt.close()
+
+	fig, ax = plt.subplots(figsize=(6,6))
+	anno_traj(ax, phys_df, image, pixel_size, frame_rate)
 	import webbrowser
 	webbrowser.open_new(r'file://' + output_path + root_name + '-results.pdf')
-
 	if pltshow:
 		plt.show()
+	else:
+		plt.clf()
+		plt.close()
 
 def plot_msd(blobs_df,
 			 other_blobs_df,
