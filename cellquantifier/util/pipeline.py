@@ -339,7 +339,8 @@ class Pipeline():
 		print("Merge and PlotMSD")
 		print("######################################")
 
-		phys_files = glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')
+		phys_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')))
+		print(phys_files)
 
 		if len(phys_files) > 1:
 			phys_df = merge_physdfs(phys_files)
@@ -348,7 +349,16 @@ class Pipeline():
 		else:
 			phys_df = pd.read_csv(phys_files[0])
 
-		plot_msd_merged(phys_df, 'exp_label')
+		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+					'-physDataMerged.csv', index=False)
+
+		plot_msd_merged(phys_df, 'exp_label',
+						output_path=self.config.OUTPUT_PATH,
+						root_name=self.config.ROOT_NAME,
+						pixel_size=self.config.PIXEL_SIZE,
+						frame_rate=self.config.FRAME_RATE,
+						divide_num=self.config.DIVIDE_NUM,
+						pltshow=True)
 
 
 def pipeline_control(settings_dict, control_dict):

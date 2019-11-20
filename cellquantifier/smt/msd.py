@@ -65,9 +65,9 @@ def plot_msd_batch(phys_df,
 			 image,
 			 output_path,
 			 root_name,
-			 pixel_size=.1084,
-			 frame_rate=3.3,
-			 divide_num=5,
+			 pixel_size,
+			 frame_rate,
+			 divide_num,
 			 pltshow=False):
 
 	# """
@@ -107,9 +107,9 @@ def plot_msd_batch(phys_df,
 	# ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
 	# """
 
-	fig.savefig(output_path + root_name + '-msdPlot.pdf')
+	fig.savefig(output_path + root_name + '-results.pdf')
 	import webbrowser
-	webbrowser.open_new(r'file://' + output_path + root_name + '-msdPlot.pdf')
+	webbrowser.open_new(r'file://' + output_path + root_name + '-results.pdf')
 
 	if pltshow:
 		plt.show()
@@ -119,9 +119,9 @@ def plot_msd(blobs_df,
 			 image,
 			 output_path,
 			 root_name,
-			 pixel_size=.1084,
-			 frame_rate=3.3,
-			 divide_num=5,
+			 pixel_size,
+			 frame_rate,
+			 divide_num,
 			 ax=None):
 
 	"""
