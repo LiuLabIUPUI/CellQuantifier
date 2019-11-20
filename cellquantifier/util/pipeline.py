@@ -1,10 +1,9 @@
-import pims
+import pims; import pandas as pd; import numpy as np
 import trackpy as tp
 import os.path as osp; import os
 from skimage.io import imread, imsave
 from skimage.util import img_as_ubyte
 from skimage.measure import regionprops
-import pandas as pd
 import warnings
 import glob
 
@@ -20,7 +19,7 @@ from ..smt.msd import plot_msd_batch, get_sorter_list
 from ..phys import *
 from ..util.config import Config
 from ..plot import plot_msd_merged
-from ..io import relabel_particles, merge_dfs
+from ..phys.physutil import relabel_particles, merge_dfs
 
 class Pipeline():
 
@@ -312,7 +311,7 @@ class Pipeline():
 		if self.config.DO_SORT:
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
 			phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-						'-physDataMerged.csv', index=False)
+						'-physData.csv', index=False)
 		else:
 			sorter_list = get_sorter_list(phys_df)
 			phys_df = phys_df.drop(columns=sorter_list[1:-1])
@@ -387,3 +386,5 @@ def pipeline_control(settings_dict, control_dict):
 		pipe.phys()
 	if control_dict['sort_plot']:
 		pipe.sort_and_plot()
+	if control_dict['merge_plot']:
+		pipe.merge_and_plot()
