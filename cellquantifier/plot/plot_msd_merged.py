@@ -4,10 +4,13 @@ import matplotlib as mpl
 import trackpy as tp
 import pandas as pd
 from datetime import date
+import matplotlib as mpl
+mpl.rcParams['font.size'] = 10
+mpl.rcParams['font.weight'] = 'bold'
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
-from ..math import msd, fit_msd
+from ..math import msd, fit_msd, t_test
 from skimage.io import imsave
 from ..plot.plotutil import plt2array
 
@@ -27,6 +30,16 @@ def plot_msd_merged(blobs_df,
 	blobs_dfs = [blobs_df.loc[blobs_df[cat_col] == cat] for cat in cats]
 	colors = plt.cm.jet(np.linspace(0,1,len(cats)))
 
+	#
+	# ~~~~~~~~~~~Run a t-test~~~~~~~~~~~~~~
+	# """
+
+	if len(cats) == 2:
+		x = blobs_df.drop_duplicates('particle')[['D', 'alpha', cat_col]]
+		D_stats = t_test(x.loc[x[cat_col] == cats[0]]['D'], \
+						   x.loc[x[cat_col] == cats[1]]['D'])
+		alpha_stats = t_test(x.loc[x[cat_col] == cats[0]]['alpha'], \
+						   x.loc[x[cat_col] == cats[1]]['alpha'])
 	#
 	# ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
 	# """
@@ -98,10 +111,18 @@ def plot_msd_merged(blobs_df,
 		# """
 
 		ax[1].hist(blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(),
-					bins=30, color=(colors[i][0], colors[i][1], colors[i][2], 0.5), label=cats[i])
+					bins=30, color=(colors[i][0], colors[i][1], colors[i][2], 0.5), label=cats[i], normed=True)
+
+		textstr = '\n'.join((
+
+			r'$t-value: %.2f$' % (D_stats[0]),
+			r'$p-value: %.2f$' % (D_stats[1])))
+
+
+		props = dict(boxstyle='round', facecolor='wheat', alpha=0.0)
+		ax[1].text(.7, .8, textstr, transform=ax[1].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=12, color='black', bbox=props)
 
 		ax[1].legend(loc='upper right')
-
 		ax[1].set_ylabel('Frequency')
 		ax[1].set_xlabel('D')
 
@@ -110,10 +131,19 @@ def plot_msd_merged(blobs_df,
 		# """
 
 		ax[2].hist(blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
-					bins=30, color=(colors[i][0], colors[i][1], colors[i][2], 0.5), label=cats[i])
+					bins=30, color=(colors[i][0], colors[i][1], colors[i][2], 0.5), label=cats[i], normed=True)
+
+		textstr = '\n'.join((
+
+			r'$t-value: %.2f$' % (alpha_stats[0]),
+			r'$p-value: %.2f$' % (alpha_stats[1])))
+
+
+		props = dict(boxstyle='round', facecolor='wheat', alpha=0.0)
+		ax[2].text(.7, .8, textstr, transform=ax[2].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=12, color='black', bbox=props)
+
 
 		ax[2].legend(loc='upper right')
-
 		ax[2].set_ylabel('Frequency')
 		ax[2].set_xlabel('alpha')
 

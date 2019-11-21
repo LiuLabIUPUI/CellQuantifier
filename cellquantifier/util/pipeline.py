@@ -349,20 +349,27 @@ class Pipeline():
 		print("Merge and PlotMSD")
 		print("######################################")
 
-		phys_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')))
-		print(phys_files)
 
-		if len(phys_files) > 1:
-			phys_df = merge_physdfs(phys_files)
-			phys_df = relabel_particles(phys_df)
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physDataMerged.csv'):
+			phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physDataMerged.csv')
 
 		else:
-			phys_df = pd.read_csv(phys_files[0])
+			phys_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')))
+			print(phys_files)
 
-		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-					'-physDataMerged.csv', index=False)
+			if len(phys_files) > 1:
+				phys_df = merge_physdfs(phys_files)
+				phys_df = relabel_particles(phys_df)
 
-		plot_msd_merged(phys_df, 'exp_label',
+			else:
+				phys_df = pd.read_csv(phys_files[0])
+
+			phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physDataMerged.csv', index=False)
+
+
+		phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
+		plot_msd_merged(phys_df, 'sort_flag_53bp1',
 						output_path=self.config.OUTPUT_PATH,
 						root_name=self.config.ROOT_NAME,
 						pixel_size=self.config.PIXEL_SIZE,

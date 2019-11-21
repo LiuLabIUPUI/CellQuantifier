@@ -21,6 +21,6 @@ def t_test(a,b):
 	>>>plot_d_hist(damaged=path1, control=path2)
 
 	"""
-	t, p = ttest_ind(a, b, equal_var=False)
+	t = ttest_ind(a, b)
 
-	return t,p
+	return t
