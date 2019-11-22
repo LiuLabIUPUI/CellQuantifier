@@ -368,8 +368,8 @@ class Pipeline():
 						'-physDataMerged.csv', index=False)
 
 
-		phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
-		plot_msd_merged(phys_df, 'sort_flag_53bp1',
+		# phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
+		plot_msd_merged(phys_df, 'sort_flag_boundary',
 						output_path=self.config.OUTPUT_PATH,
 						root_name=self.config.ROOT_NAME,
 						pixel_size=self.config.PIXEL_SIZE,

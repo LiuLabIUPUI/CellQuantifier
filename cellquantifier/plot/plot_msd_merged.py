@@ -24,7 +24,6 @@ def plot_msd_merged(blobs_df,
 			 divide_num,
 			 pltshow=True):
 
-
 	fig, ax = plt.subplots(1,3, figsize=(18, 6))
 	cats = blobs_df[cat_col].unique()
 	blobs_dfs = [blobs_df.loc[blobs_df[cat_col] == cat] for cat in cats]
@@ -120,7 +119,7 @@ def plot_msd_merged(blobs_df,
 
 
 		props = dict(boxstyle='round', facecolor='wheat', alpha=0.0)
-		ax[1].text(.7, .8, textstr, transform=ax[1].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=12, color='black', bbox=props)
+		ax[1].text(.6, .8, textstr, transform=ax[1].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=12, color='black', bbox=props)
 
 		ax[1].legend(loc='upper right')
 		ax[1].set_ylabel('Frequency')
@@ -140,7 +139,7 @@ def plot_msd_merged(blobs_df,
 
 
 		props = dict(boxstyle='round', facecolor='wheat', alpha=0.0)
-		ax[2].text(.7, .8, textstr, transform=ax[2].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=12, color='black', bbox=props)
+		ax[2].text(.6, .8, textstr, transform=ax[2].transAxes,  horizontalalignment='left', verticalalignment='top', fontsize=12, color='black', bbox=props)
 
 
 		ax[2].legend(loc='upper right')

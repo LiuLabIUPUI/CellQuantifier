@@ -53,7 +53,7 @@ def merge_physdfs(files):
 
     temp_df = pd.read_csv(files[0], index_col=False)
     columns = temp_df.columns.tolist()
-    merged_df = pd.DataFrame([], columns=columns, dtype='int')
+    merged_df = pd.DataFrame([], columns=columns)
 
     for file in files:
         df = pd.read_csv(file, index_col=False)
