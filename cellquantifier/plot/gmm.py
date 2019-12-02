@@ -1,18 +1,86 @@
-from matplotlib import rc
-from sklearn import mixture
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
 import matplotlib.ticker as tkr
 import scipy.stats as stats
 import pandas as pd
+import itertools
+import matplotlib as mpl
+
+from matplotlib import rc
+from sklearn import mixture
+from sklearn import mixture
+from scipy import linalg
+
+def plot_gmm_selection(df,
+					   cat_col,
+					   max_comp=5):
+
+	"""
+	Fit a GaussianMixtureModel (GMM) to data iteratively and find best model
+
+	Parameters
+	----------
+	df : DataFrame object
+		The DataFrame containing cat_col and hist_col columns
+	cat_col : str
+		Column to use for categorical sorting
+	max_comp : int
+		The maximum number of components to test for the GMM
+
+	"""
+
+	lowest_bic = np.infty
+	bic = []
+	n_components_range = range(1, max_comp)
+	cv_types = ['spherical', 'tied', 'diag', 'full']
+	this_df = df[cat_col]
+	for cv_type in cv_types:
+		for n_components in n_components_range:
+			# Fit a Gaussian mixture with EM
+			f = np.ravel(this_df).astype(np.float)
+			f = f.reshape(-1,1)
+			gmm = mixture.GaussianMixture(n_components=n_components,
+										  covariance_type=cv_type)
+			gmm.fit(f)
+			bic.append(gmm.bic(f))
+			if bic[-1] < lowest_bic:
+				lowest_bic = bic[-1]
+				best_gmm = gmm
+
+	bic = np.array(bic)
+	color_iter = itertools.cycle(['navy', 'turquoise', 'cornflowerblue',
+								  'darkorange'])
+	clf = best_gmm
+	bars = []
+
+	# Plot the BIC scores
+	plt.figure(figsize=(8, 6))
+	spl = plt.subplot(1, 1, 1)
+	for i, (cv_type, color) in enumerate(zip(cv_types, color_iter)):
+		xpos = np.array(n_components_range) + .2 * (i - 2)
+		bars.append(plt.bar(xpos, bic[i * len(n_components_range):
+									  (i + 1) * len(n_components_range)],
+							width=.2, color=color))
+	plt.xticks(n_components_range)
+	plt.ylim([bic.min() * 1.01 - .01 * bic.max(), bic.max()])
+	plt.title('BIC score per model')
+	xpos = np.mod(bic.argmin(), len(n_components_range)) + .65 +\
+		.2 * np.floor(bic.argmin() / len(n_components_range))
+	plt.text(xpos, bic.min() * 0.97 + .03 * bic.max(), '*', fontsize=14)
+	spl.set_xlabel('Number of components')
+	spl.legend([b[0] for b in bars], cv_types)
+
+	plt.tight_layout()
+	plt.show()
 
 
 def plot_gmm(df,
-			n_comp,
-			cat_col,
-			hist_col,
-			pltshow=True):
+	n_comp,
+	cat_col,
+	hist_col,
+	cv_type='full',
+	pltshow=True):
 
 	"""
 	Fit a GaussianMixtureModel (GMM) to data
@@ -27,6 +95,8 @@ def plot_gmm(df,
 		Column to use for categorical sorting
 	hist_col : int
 		Column containing the data to be fit
+	cv_type: str, optional
+		The type of covariance to use
 	pltshow : bool, optional
 		Whether to show the figure or just save to disk
 
@@ -53,8 +123,9 @@ def plot_gmm(df,
 
 		f = np.ravel(this_df).astype(np.float)
 		f = f.reshape(-1,1)
-		g = mixture.GaussianMixture(n_components=n_comp,covariance_type='full')
+		g = mixture.GaussianMixture(n_components=n_comp,covariance_type=cv_type)
 		g.fit(f)
+		bic = g.bic(f)
 
 		gmm_df = pd.DataFrame()
 		gmm_df['weights'] = g.weights_
@@ -79,3 +150,5 @@ def plot_gmm(df,
 
 	if pltshow:
 		plt.show()
+
+	return g
