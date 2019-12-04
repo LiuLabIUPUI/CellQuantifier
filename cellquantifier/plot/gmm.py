@@ -14,6 +14,7 @@ from scipy import linalg
 
 def plot_gmm_selection(df,
 					   cat_col,
+					   hist_col,
 					   max_comp=5):
 
 	"""
@@ -25,51 +26,68 @@ def plot_gmm_selection(df,
 		The DataFrame containing cat_col and hist_col columns
 	cat_col : str
 		Column to use for categorical sorting
-	max_comp : int
+	hist_col : str
+		Column that contains the actual data
+	max_comp : int, optional
 		The maximum number of components to test for the GMM
 
 	"""
 
+	cats = df[cat_col].unique()
 	lowest_bic = np.infty
 	bic = []
+	log_like = []
 	n_components_range = range(1, max_comp)
-	cv_types = ['spherical', 'tied', 'diag', 'full']
-	this_df = df[cat_col]
-	for cv_type in cv_types:
+
+	for cat in cats:
+		this_df = df.loc[df[cat_col] == cat]
 		for n_components in n_components_range:
 			# Fit a Gaussian mixture with EM
-			f = np.ravel(this_df).astype(np.float)
+			f = np.ravel(this_df[hist_col]).astype(np.float)
 			f = f.reshape(-1,1)
 			gmm = mixture.GaussianMixture(n_components=n_components,
-										  covariance_type=cv_type)
+										  covariance_type='full')
 			gmm.fit(f)
+			# bic.append(2 * gmm.score(f) * len(f) +\
+            #     n_components * np.log(len(f)))
 			bic.append(gmm.bic(f))
+			log_like.append(gmm.score(f))
 			if bic[-1] < lowest_bic:
 				lowest_bic = bic[-1]
 				best_gmm = gmm
 
 	bic = np.array(bic)
+
 	color_iter = itertools.cycle(['navy', 'turquoise', 'cornflowerblue',
 								  'darkorange'])
 	clf = best_gmm
 	bars = []
+	bars2 = []
 
-	# Plot the BIC scores
-	plt.figure(figsize=(8, 6))
-	spl = plt.subplot(1, 1, 1)
-	for i, (cv_type, color) in enumerate(zip(cv_types, color_iter)):
+	fix, ax = plt.subplots(1,2)
+
+	for i, (cat, color) in enumerate(zip(cats, color_iter)):
 		xpos = np.array(n_components_range) + .2 * (i - 2)
-		bars.append(plt.bar(xpos, bic[i * len(n_components_range):
+		bars.append(ax[1].bar(xpos, bic[i * len(n_components_range):
 									  (i + 1) * len(n_components_range)],
 							width=.2, color=color))
-	plt.xticks(n_components_range)
-	plt.ylim([bic.min() * 1.01 - .01 * bic.max(), bic.max()])
-	plt.title('BIC score per model')
-	xpos = np.mod(bic.argmin(), len(n_components_range)) + .65 +\
-		.2 * np.floor(bic.argmin() / len(n_components_range))
-	plt.text(xpos, bic.min() * 0.97 + .03 * bic.max(), '*', fontsize=14)
-	spl.set_xlabel('Number of components')
-	spl.legend([b[0] for b in bars], cv_types)
+		bars2.append(ax[0].bar(xpos, log_like[i * len(n_components_range):
+									  (i + 1) * len(n_components_range)],
+							width=.2, color=color))
+
+	ax[1].set_xticks(n_components_range)
+	ax[1].set_ylim([bic.min() * 1.01 - .01 * bic.max(), bic.max()])
+	ax[1].set_title('BIC score per model')
+	ax[1].set_xlabel('Number of components')
+	ax[1].legend([b[0] for b in bars], cats)
+
+	ax[0].set_title('Log likelihood')
+	ax[0].set_xticks(n_components_range)
+	ax[0].set_ylim([0, min(log_like)])
+	ax[0].set_xlabel('Number of components')
+	ax[0].legend([b[0] for b in bars], cats)
+
+
 
 	plt.tight_layout()
 	plt.show()
@@ -80,6 +98,7 @@ def plot_gmm(df,
 	cat_col,
 	hist_col,
 	cv_type='full',
+	nbins=100,
 	pltshow=True):
 
 	"""
@@ -108,6 +127,7 @@ def plot_gmm(df,
 	>>> from cellquantifier.plot import plot_gmm
 	>>> path = 'cellquantifier/data/test_physDataMerged.csv'
 	>>> df = pd.read_csv(path, index_col=None, header=0)
+	>>> df = df.drop_duplicates('D')
 	>>> plot_gmm(df, 5, 'exp_label', 'D')
 
 	"""
@@ -119,13 +139,15 @@ def plot_gmm(df,
 	for i, cat in enumerate(cats):
 
 		this_df = df.loc[df[cat_col] == cat]
-		this_df = this_df['D']
+		this_df = this_df[hist_col]
 
 		f = np.ravel(this_df).astype(np.float)
+
 		f = f.reshape(-1,1)
 		g = mixture.GaussianMixture(n_components=n_comp,covariance_type=cv_type)
 		g.fit(f)
 		bic = g.bic(f)
+		log_like = g.score(f)
 
 		gmm_df = pd.DataFrame()
 		gmm_df['weights'] = g.weights_
@@ -136,13 +158,30 @@ def plot_gmm(df,
 		f_axis = f.copy().ravel()
 		f_axis.sort()
 
-		ax[0,i].hist(f, bins=100, histtype='bar', density=True, ec='red', alpha=0.5)
+		ax[0,i].hist(f, bins=nbins, histtype='bar', density=True, ec='red', alpha=0.5)
 		ax[0,i].set_title(cat)
 		ax[1,i].pie(gmm_df['weights'], colors=colors, autopct='%1.1f%%')
 
 		for j in range(n_comp):
-			ax[0,i].plot(f_axis,gmm_df['weights'].to_numpy()[j]*stats.norm.pdf(f_axis,gmm_df['means'].to_numpy()[j],\
-						 np.sqrt(gmm_df['covar'].to_numpy()[j])).ravel(), c=colors[j])
+			label = r'$\mu$=' + str(round(gmm_df['means'].to_numpy()[j], 2))\
+					+ r' $\sigma$=' + str(round(np.sqrt(gmm_df['covar'].to_numpy()[j]), 2))
+			ax[0,i].plot(f_axis,gmm_df['weights'].to_numpy()[j]*stats.norm.pdf(\
+						 f_axis,gmm_df['means'].to_numpy()[j],\
+						 np.sqrt(gmm_df['covar'].to_numpy()[j])).ravel(),\
+						 c=colors[j], label=label)
+
+		ax[0,i].legend(fontsize=8)
+
+		textstr = '\n'.join((
+
+			r'$\hat{L}: %.2f$' % (log_like),
+			r'$BIC: %.2f$' % (bic)))
+
+
+		props = dict(boxstyle='round', facecolor='wheat', alpha=0.0)
+		ax[0,i].text(.7, .8, textstr, transform=ax[0,i].transAxes,  \
+					horizontalalignment='left', verticalalignment='top',\
+					fontsize=8, color='black', bbox=props)
 
 	plt.rcParams['agg.path.chunksize'] = 10000
 	plt.grid()
