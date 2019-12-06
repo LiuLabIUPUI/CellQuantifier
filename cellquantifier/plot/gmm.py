@@ -191,3 +191,124 @@ def plot_gmm(df,
 		plt.show()
 
 	return g
+
+def plot_gmm_temp(df,
+	n_comp1,
+	n_comp2,
+	cat_col1,
+	cat_col2,
+	cv_type='full',
+	nbins=100,
+	pltshow=True):
+
+	"""
+	Fit a GaussianMixtureModel (GMM) to data
+
+	Parameters
+	----------
+	df : DataFrame object
+		The DataFrame containing cat_col and hist_col columns
+	n_comp : int
+		Number of gaussian components in the GMM
+	cat_col1 : str
+		Column to use for categorical sorting
+	cat_col2 : str
+		Column to use for categorical sorting
+	cv_type: str, optional
+		The type of covariance to use
+	pltshow : bool, optional
+		Whether to show the figure or just save to disk
+
+
+	Examples
+	--------
+
+	>>> import pandas as pd
+	>>> from cellquantifier.plot import plot_gmm
+	>>> path = 'cellquantifier/data/test_physDataMerged.csv'
+	>>> df = pd.read_csv(path, index_col=None, header=0)
+	>>> df = df.drop_duplicates('D')
+	>>> plot_gmm(df, 5, 'exp_label', 'D')
+
+	"""
+
+	cats1 = sorted(df[cat_col1].unique())
+	cats2 = sorted(df[cat_col2].unique())
+	hist_cols=['D', 'alpha']
+	n_comp=[n_comp1, n_comp2]
+	line_types = ['-.','--', '-']
+	dist_labels=['Far', 'Near']
+	fig,ax = plt.subplots(len(cats1),len(cats2))
+	# colors = plt.cm.jet(np.linspace(0,1,n_comp))
+	hist_colors=['red','blue']
+
+	for i, cat1 in enumerate(cats1):
+
+		df1 = df.loc[df[cat_col1] == cat1]
+		ax[i,0].set_ylabel(cat1)
+
+		for j, hist_col in enumerate(hist_cols):
+
+			df2 = df1[[hist_col, cat_col2]]
+
+			for k, cat2 in enumerate(cats2):
+
+				this_df = df2.loc[df2[cat_col2] == cat2]
+
+				this_df = this_df[hist_col]
+
+				f = np.ravel(this_df).astype(np.float)
+
+				f = f.reshape(-1,1)
+				g = mixture.GaussianMixture(n_components=n_comp[j],covariance_type=cv_type)
+				g.fit(f)
+				bic = g.bic(f)
+				log_like = g.score(f)
+
+				gmm_df = pd.DataFrame()
+				gmm_df['weights'] = g.weights_
+				gmm_df['means'] = g.means_
+				gmm_df['covar'] = g.covariances_.reshape(1,n_comp[j])[0]
+				gmm_df = gmm_df.sort_values(by='means')
+
+				f_axis = f.copy().ravel()
+				f_axis.sort()
+
+				ax[i,j].hist(f, bins=nbins, histtype='bar', density=True, ec=hist_colors[k], alpha=0.4)
+
+				for m in range(n_comp[j]):
+					label = r'$\mu$=' + str(round(gmm_df['means'].to_numpy()[m], 2))\
+							+ r' $\sigma$=' + str(round(np.sqrt(gmm_df['covar'].to_numpy()[m]), 2))
+					ax[i,j].plot(f_axis,gmm_df['weights'].to_numpy()[m]*stats.norm.pdf(\
+								 f_axis,gmm_df['means'].to_numpy()[m],\
+								 np.sqrt(gmm_df['covar'].to_numpy()[m])).ravel(),\
+								 c=hist_colors[k], label=label, linestyle=line_types[m])
+
+					props = dict(boxstyle='round', facecolor='wheat', alpha=0.0)
+
+					ax[i,j].text(.6, .8+.1*(k), dist_labels[k], transform=ax[i,j].transAxes,  \
+								horizontalalignment='left', verticalalignment='top',\
+								fontsize=12, color=hist_colors[k], bbox=props)
+
+
+				ax[i,j].legend(fontsize=8)
+				ax[i,j].set_title(hist_col)
+
+				# textstr = '\n'.join((
+				#
+				# 	r'$\hat{L}: %.2f$' % (log_like),
+				# 	r'$BIC: %.2f$' % (bic)))
+				#
+				#
+				# props = dict(boxstyle='round', facecolor='wheat', alpha=0.0)
+				# ax[i,j].text(.7, .8, textstr, transform=ax[i,j].transAxes,  \
+				# 			horizontalalignment='left', verticalalignment='top',\
+				# 			fontsize=8, color='black', bbox=props)
+
+	plt.rcParams['agg.path.chunksize'] = 10000
+	plt.tight_layout()
+
+	if pltshow:
+		plt.show()
+
+	return g
