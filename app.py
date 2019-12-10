@@ -1,19 +1,19 @@
 from datetime import datetime
 from cellquantifier.util.pipeline import pipeline_control
 """Part I: CellQuantifier Sequence Control"""
-CF0 = 0         #load + regi
-CF1 = 1         #(load) + mask
+CF0 = 1         #load + regi
+CF1 = 0        #(load) + mask
 CF2 = 1         #deno
-CF3 = 1         #check
+CF3 = 0         #check
 CF4 = 1         #det_fit
-CF5 = 1         #filt_track
-CF6 = 1         #physics
-CF7 = 1         #sort_plot
+CF5 = 0         #filt_track
+CF6 = 0         #physics
+CF7 = 0         #sort_plot
 CF8 = 0         #merg_plot
 Auto = 0        #automate smt
 #                              load regi mask deno chk dt_ft fl_tk phys st_pt mg_pt video
-if CF0:        Control_Flow = [  1,   1,   0,   0,   0,   0,   0,   0,    0,   0,   0]
-if CF1:        Control_Flow = [  1,   0,   1,   0,   0,   0,   0,   0,    0,   0,   0]
+if CF0:        Control_Flow = [  1,   0,   0,   0,   0,   0,   0,   0,    0,   0,   0]
+if CF1:        Control_Flow = [  0,   0,   1,   0,   0,   0,   0,   0,    0,   0,   0]
 if CF2:        Control_Flow = [  0,   0,   0,   1,   0,   0,   0,   0,    0,   0,   0]
 if CF3:        Control_Flow = [  0,   0,   0,   0,   1,   0,   0,   0,    0,   0,   0]
 if CF4:        Control_Flow = [  0,   0,   0,   0,   0,   1,   0,   0,    0,   0,   1]
@@ -27,16 +27,16 @@ if Auto:       Control_Flow = [  1,   0,   1,   1,   1,   1,   1,   1,    1,   0
 settings = {
 
   #HEADER INFO
-  'Processed By:': 'Hua Lin',
+  'Processed By:': 'Clayton Seitz',
   'Date': datetime.now(),
-  'Raw data file': '190821_CtrBLM_BLM2-dutp.tif',
+  'Raw data file': 'simulated_cell.tif',
   'Start frame index': 0,
-  'End frame index': 200,
+  'End frame index': 10,
   'Check frame index': 0,
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/All-BLMCtr-regi-selected/',
-  'IO output_path': '/home/linhua/Desktop/temp/',
+  'IO input_path': 'cellquantifier/data/',
+  'IO output_path': '/home/cwseitz/Desktop/temp/',
 
   #REGISTRATION SETTINGS
   'Regi ref_ind_num': 100,
@@ -51,10 +51,10 @@ settings = {
   'Segm threshold': 'NA',
 
   #MASK SETTINGS
-  'Phys dist2boundary_mask file': '190821_CtrBLM_BLM2-53bp1.tif',
+  'Phys dist2boundary_mask file': 'x.tif',
   'Phys dist2boundary_mask sig': 3,
   'Phys dist2boundary_mask thres_rel': 0.08,
-  'Phys dist253bp1_mask file': '190821_CtrBLM_BLM2-53bp1.tif',
+  'Phys dist253bp1_mask file': 'x.tif',
   'Phys dist253bp1_mask sig': 1,
   'Phys dist253bp1_mask thres_rel': 0.35,
 
@@ -63,7 +63,7 @@ settings = {
   'Deno gaus_blur_sig': 0.5,
 
   #DETECTION SETTINGS
-  'Det blob_threshold': 0.003,
+  'Det blob_threshold': 0.05,
   'Det blob_min_sigma': 2,
   'Det blob_max_sigma': 4,
   'Det blob_num_sigma': 5,
