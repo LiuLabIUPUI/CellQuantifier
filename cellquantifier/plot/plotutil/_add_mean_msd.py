@@ -62,7 +62,7 @@ def add_mean_msd(ax, blobs_df, cat_col,
     blobs_dfs = [blobs_df.loc[blobs_df[cat_col] == cat] for cat in cats]
     colors = plt.cm.jet(np.linspace(0,1,len(cats)))
     colors[:, 3] = RGBA_alpha
-    
+
     cats_label = cats.copy()
     if 'sort_flag_' in cat_col:
         for m in range(len(cats_label)):
@@ -71,7 +71,7 @@ def add_mean_msd(ax, blobs_df, cat_col,
     for i, blobs_df in enumerate(blobs_dfs):
 
         # Calculate individual msd
-        im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
+        im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate, max_lagtime=np.inf)
 
         #cut the msd curves and convert units to nm
         n = int(round(len(im.index)/divide_num))
@@ -85,11 +85,10 @@ def add_mean_msd(ax, blobs_df, cat_col,
             # """
 
             imsd_mean = im.mean(axis=1)
-            imsd_std = im.std(axis=1, ddof=0)
+            imsd_std = im.sem(axis=1, ddof=0)
             x = imsd_mean.index.to_numpy()
             y = imsd_mean.to_numpy()
             yerr = imsd_std.to_numpy()
-            fit_msd(x, y, space='log')
             ax.errorbar(x, y, yerr=yerr, linestyle='None',
                 marker='o', color=colors[i])
 

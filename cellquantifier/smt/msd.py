@@ -239,7 +239,7 @@ def plot_msd(blobs_df,
 	# """
 
 		imsd_mean = im.mean(axis=1)
-		imsd_std = im.std(axis=1, ddof=0)
+		imsd_std = im.sem(axis=1, ddof=0)
 		# imsd_mean.to_csv(output_path + root_name + "-meanMSD.csv", header=True)
 
 		x = imsd_mean.index

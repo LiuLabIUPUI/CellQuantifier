@@ -49,7 +49,7 @@ def plot_msd_merged(blobs_df,
 			return
 
 		# Calculate individual msd
-		im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
+		im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate, max_lagtime=np.inf)
 
 		#Get the diffusion coefficient for each individual particle
 		D_ind = blobs_df.drop_duplicates('particle')['D'].mean()

@@ -141,7 +141,7 @@ def track_blobs(blobs_df,
 
 	blobs_df_cut = blobs_df[['frame', 'x', 'y', 'particle']]
 	blobs_df_cut = blobs_df_cut.apply(pd.to_numeric)
-	im = tp.imsd(blobs_df_cut, mpp=pixel_size, fps=frame_rate)
+	im = tp.imsd(blobs_df_cut, mpp=pixel_size, fps=frame_rate, max_lagtime=np.inf)
 
 	blobs_df = get_d_values(blobs_df, im, divide_num)
 	blobs_df = blobs_df.apply(pd.to_numeric)
