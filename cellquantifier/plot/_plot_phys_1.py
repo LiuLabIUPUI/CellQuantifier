@@ -1,13 +1,16 @@
 from .plotutil import *
+from datetime import date
 
 def plot_phys_1(blobs_df,
                 cat_col,
-
                 pixel_size,
                 frame_rate,
                 divide_num,
+                output_path,
+                root_name,
+                RGBA_alpha=0.5,
+                do_gmm=False):
 
-                RGBA_alpha=0.5):
     fig, ax = plt.subplots(1, 3, figsize=(18, 6))
 
     add_mean_msd(ax[0],
@@ -30,12 +33,13 @@ def plot_phys_1(blobs_df,
                 blobs_df=blobs_df,
                 cat_col=cat_col,
                 hist_col=['D'])
-    add_gmm(ax[1],
-                blobs_df=blobs_df,
-                cat_col=cat_col,
-                n_comp=3,
-                hist_col='D',
-                RGBA_alpha=RGBA_alpha)
+    if do_gmm:
+        add_gmm(ax[1],
+                    blobs_df=blobs_df,
+                    cat_col=cat_col,
+                    n_comp=3,
+                    hist_col='D',
+                    RGBA_alpha=RGBA_alpha)
     ax[1].legend(loc='upper right')
 
 
@@ -49,14 +53,24 @@ def plot_phys_1(blobs_df,
                 blobs_df=blobs_df,
                 cat_col=cat_col,
                 hist_col=['alpha'])
-    add_gmm(ax[2],
-                blobs_df=blobs_df,
-                cat_col=cat_col,
-                n_comp=1,
-                hist_col='alpha',
-                RGBA_alpha=RGBA_alpha)
+    if do_gmm:
+        add_gmm(ax[2],
+                    blobs_df=blobs_df,
+                    cat_col=cat_col,
+                    n_comp=1,
+                    hist_col='alpha',
+                    RGBA_alpha=RGBA_alpha)
     ax[2].legend(loc='upper right')
 
 
     plt.tight_layout()
+    # plt.show()
+
+    # """
+    # ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
+    # """
+    start_ind = root_name.find('_')
+    end_ind = root_name.find('_', start_ind+1)
+    today = str(date.today().strftime("%y%m%d"))
+    fig.savefig(output_path + today + root_name[start_ind:end_ind] + '-mergedResults.pdf')
     plt.show()

@@ -18,7 +18,7 @@ from ..smt.track import track_blobs
 from ..smt.msd import plot_msd_batch, get_sorter_list
 from ..phys import *
 from ..util.config import Config
-from ..plot import plot_msd_merged
+from ..plot import plot_phys_1 as plot_merged
 from ..phys.physutil import relabel_particles, merge_physdfs
 
 class Pipeline():
@@ -364,13 +364,14 @@ class Pipeline():
 
 
 		# phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
-		plot_msd_merged(phys_df, 'sort_flag_boundary',
-						output_path=self.config.OUTPUT_PATH,
-						root_name=self.config.ROOT_NAME,
+		plot_merged(phys_df, 'exp_label',
 						pixel_size=self.config.PIXEL_SIZE,
 						frame_rate=self.config.FRAME_RATE,
 						divide_num=self.config.DIVIDE_NUM,
-						pltshow=True)
+						output_path=self.config.OUTPUT_PATH,
+						root_name=self.config.ROOT_NAME,
+						RGBA_alpha=0.5,
+						do_gmm=True)
 
 
 def pipeline_control(settings_dict, control_dict):
