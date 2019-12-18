@@ -1,6 +1,7 @@
 import pims; import pandas as pd; import numpy as np
 import trackpy as tp
 import os.path as osp; import os
+from datetime import date
 from skimage.io import imread, imsave
 from skimage.util import img_as_ubyte
 from skimage.measure import regionprops
@@ -344,9 +345,13 @@ class Pipeline():
 		print("Merge and PlotMSD")
 		print("######################################")
 
+		start_ind = self.config.ROOT_NAME.find('_')
+		end_ind = self.config.ROOT_NAME.find('_', start_ind+1)
+		today = str(date.today().strftime("%y%m%d"))
+		merged_csv_name = today + self.config.ROOT_NAME[start_ind:end_ind] + '-physDataMerged.csv'
 
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physDataMerged.csv'):
-			phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physDataMerged.csv')
+		if osp.exists(self.config.OUTPUT_PATH + merged_csv_name):
+			phys_df = pd.read_csv(self.config.OUTPUT_PATH + merged_csv_name)
 
 		else:
 			phys_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')))
@@ -359,8 +364,7 @@ class Pipeline():
 			else:
 				phys_df = pd.read_csv(phys_files[0])
 
-			phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-						'-physDataMerged.csv', index=False)
+			phys_df.to_csv(self.config.OUTPUT_PATH + merged_csv_name, index=False)
 
 
 		# phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
