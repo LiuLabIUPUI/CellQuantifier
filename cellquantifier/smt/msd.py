@@ -205,7 +205,7 @@ def plot_msd(blobs_df,
 	# """
 
 	#cut the msd curves and convert units to nm
-	im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
+	im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate, max_lagtime=np.inf)
 	n = int(round(len(im.index)/divide_num))
 	im = im.head(n)
 	im = im*1e6

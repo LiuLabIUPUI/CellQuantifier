@@ -1,4 +1,5 @@
 import math
+import numpy as np
 from matplotlib import patches
 import matplotlib.pyplot as plt
 import trackpy as tp
@@ -166,7 +167,7 @@ def anno_traj(ax, blobs_df, image, pixel_size, frame_rate):
     	return
 
     # Calculate individual msd
-    im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
+    im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate, max_lagtime=np.inf)
 
     #Get the diffusion coefficient for each individual particle
     D_ind = blobs_df.drop_duplicates('particle')['D'].mean()
