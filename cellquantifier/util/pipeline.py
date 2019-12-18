@@ -345,13 +345,16 @@ class Pipeline():
 		print("Merge and PlotMSD")
 		print("######################################")
 
-		start_ind = self.config.ROOT_NAME.find('_')
-		end_ind = self.config.ROOT_NAME.find('_', start_ind+1)
-		today = str(date.today().strftime("%y%m%d"))
-		merged_csv_name = today + self.config.ROOT_NAME[start_ind:end_ind] + '-physDataMerged.csv'
+		merged_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
+		print(merged_files)
+		if len(merged_files) > 1:
+			print("######################################")
+			print("Found multiple physDataMerged file!!!")
+			print("######################################")
+			return
 
-		if osp.exists(self.config.OUTPUT_PATH + merged_csv_name):
-			phys_df = pd.read_csv(self.config.OUTPUT_PATH + merged_csv_name)
+		if len(merged_files) == 1:
+			phys_df = pd.read_csv(merged_files[0])
 
 		else:
 			phys_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')))
@@ -360,9 +363,13 @@ class Pipeline():
 			if len(phys_files) > 1:
 				phys_df = merge_physdfs(phys_files)
 				phys_df = relabel_particles(phys_df)
-
 			else:
 				phys_df = pd.read_csv(phys_files[0])
+
+			start_ind = self.config.ROOT_NAME.find('_')
+			end_ind = self.config.ROOT_NAME.find('_', start_ind+1)
+			today = str(date.today().strftime("%y%m%d"))
+			merged_csv_name = today + self.config.ROOT_NAME[start_ind:end_ind] + '-physDataMerged.csv'
 
 			phys_df.to_csv(self.config.OUTPUT_PATH + merged_csv_name, index=False)
 
