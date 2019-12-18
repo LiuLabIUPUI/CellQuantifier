@@ -72,10 +72,11 @@ def add_mean_msd(ax, blobs_df, cat_col,
 
         # Calculate individual msd
         im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate, max_lagtime=np.inf)
-
         #cut the msd curves and convert units to nm
-        n = int(round(len(im.index)/divide_num))
-        im = im.head(n)
+
+        n = len(im.index) #for use in stand err calculation
+        m = int(round(len(im.index)/divide_num))
+        im = im.head(m)
         im = im*1e6
 
         if len(im) > 1:
@@ -83,12 +84,14 @@ def add_mean_msd(ax, blobs_df, cat_col,
             # """
             # ~~~~~~~~~~~Plot the mean MSD data and error bar~~~~~~~~~~~~~~
             # """
-
             imsd_mean = im.mean(axis=1)
-            imsd_std = im.sem(axis=1, ddof=0)
+            imsd_std = im.std(axis=1, ddof=0)
+
+            #print(imsd_std)
             x = imsd_mean.index.to_numpy()
             y = imsd_mean.to_numpy()
-            yerr = imsd_std.to_numpy()
+            n_data_pts = np.sqrt(np.linspace(n-1, n-m, m))
+            yerr = np.divide(imsd_std.to_numpy(), n_data_pts)
             ax.errorbar(x, y, yerr=yerr, linestyle='None',
                 marker='o', color=colors[i])
 
