@@ -38,10 +38,7 @@ def track_blobs(blobs_df,
 				frame_rate=3.3,
 				divide_num=5,
 				filters=None,
-				do_filter=False,
-				output_path=None,
-				root_name=None,
-				save_csv=True):
+				do_filter=False):
 
 	"""
 	Wrapper for trackpy library functions (assign detection instances to particle trajectories)
@@ -51,17 +48,11 @@ def track_blobs(blobs_df,
 	blobs_df : DataFrame
 		DataFrame with column for frame number and x,y particle coordinates
 
-	filters: dict
-		dictionary of filters
-
 	search_range: int
 		the maximum distance a particle can move between frames and still be tracked
 
 	memory: int
 		the number of frames to remember a particle that has disappeared
-
-	min_traj_length: int
-		the minimum length a trajectory must be to be kept
 
 	filters: dict
 		a dictionary of filters to apply to the blob DataFrame
@@ -74,13 +65,6 @@ def track_blobs(blobs_df,
 
 	divide_num: int
 		The number used to divide the msd curves
-
-	output_path: string
-		The destination folder for fittData.csv to be written
-
-	root_name: string
-		The root file name for fittData.csv
-
 
 	Returns
 	-------
@@ -161,9 +145,5 @@ def track_blobs(blobs_df,
 
 	blobs_df = get_d_values(blobs_df, im, divide_num)
 	blobs_df = blobs_df.apply(pd.to_numeric)
-	if save_csv:
-		blobs_df.to_csv(output_path + root_name + "-fittData.csv", index=False)
-	if do_filter:
-		blobs_df.to_csv(output_path + root_name + "-physData.csv", index=False)
 
 	return blobs_df, im

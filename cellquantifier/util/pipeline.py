@@ -196,10 +196,8 @@ class Pipeline():
 									frame_rate=self.config.FRAME_RATE,
 									divide_num=self.config.DIVIDE_NUM,
 									filters=None,
-									do_filter=False,
-									output_path=self.config.OUTPUT_PATH,
-									root_name=self.config.ROOT_NAME,
-									save_csv=False)
+									do_filter=False)
+
 		traj_num_before = blobs_df['particle'].nunique()
 
 		if self.config.DO_FILTER:
@@ -210,12 +208,9 @@ class Pipeline():
 										frame_rate=self.config.FRAME_RATE,
 										divide_num=self.config.DIVIDE_NUM,
 										filters=self.config.FILTERS,
-										do_filter=True,
-										output_path=self.config.OUTPUT_PATH,
-										root_name=self.config.ROOT_NAME,
-										save_csv=False)
-		else:
-			blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+										do_filter=True)
+
+		blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
 		plot_msd_batch(blobs_df,
 					 image=frames[0],
