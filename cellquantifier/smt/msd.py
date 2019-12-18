@@ -192,64 +192,12 @@ def plot_msd(blobs_df,
 						 pixel_size=.1084,
 						 divide_num=5)
 		"""
-	# """
-	# ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
-	# """
-	if blobs_df.empty:
-		return
-
-	# Calculate individual msd
-	im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
-
-	#Get the diffusion coefficient for each individual particle
-	D_ind = blobs_df.drop_duplicates('particle')['D'].mean()
-
-	#Plot the image
-	ax[0].imshow(image, cmap='gray', aspect='equal')
-	ax[0].set_xlim((0, image.shape[1]))
-	ax[0].set_ylim((image.shape[0], 0))
 
 	# """
-	# ~~~~~~~~~~~Add D value scale bar to left plot~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Plot trajectory annotation~~~~~~~~~~~~~~
 	# """
 
-	scalebar = ScaleBar(pixel_size, 'um', location = 'upper right')
-	ax[0].add_artist(scalebar)
-
-	divider = make_axes_locatable(ax[0])
-	ax_cb = divider.new_horizontal(size="5%", pad=0.1)
-	norm = mpl.colors.Normalize(vmin = blobs_df['D'].min(), vmax = blobs_df['D'].max())
-	cb1 = mpl.colorbar.ColorbarBase(ax_cb, cmap=mpl.cm.jet, norm=norm, orientation='vertical')
-	cb1.set_label(r'$\mathbf{D (nm^{2}/s)}$')
-	fig = plt.gcf()
-	fig.add_axes(ax_cb)
-
-	colormap = plt.cm.get_cmap('jet')
-	blobs_df['D_norm'] = blobs_df['D']/(blobs_df['D'].max()) #normalize D column to maximum D value
-
-	# """
-	# ~~~~~~~~~~~Plot the color coded trajectories~~~~~~~~~~~~~~
-	# """
-	particles = blobs_df.particle.unique()
-	for i in range(len(particles)):
-		traj = blobs_df[blobs_df.particle == particles[i]]
-		traj = traj.sort_values(by='frame')
-		ax[0].plot(traj.y, traj.x, linewidth=0.3,
-					color=colormap(traj['D_norm'].mean()))
-
-	ax[0].set_aspect(1.0)
-	# ax[0].set(xlabel='y (pixel)'), ylabel='x (pixel)')
-
-	ax[0].text(0.95,
-            0.00,
-            """
-            Total trajectory number: %d
-            """ %(len(particles)),
-            horizontalalignment='right',
-            verticalalignment='bottom',
-            fontsize = 12,
-            color = (0.5, 0.5, 0.5, 0.5),
-            transform=ax[0].transAxes)
+	anno_traj(ax[0], blobs_df, image, pixel_size, frame_rate)
 
 
 	# """
@@ -257,6 +205,7 @@ def plot_msd(blobs_df,
 	# """
 
 	#cut the msd curves and convert units to nm
+	im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate)
 	n = int(round(len(im.index)/divide_num))
 	im = im.head(n)
 	im = im*1e6
