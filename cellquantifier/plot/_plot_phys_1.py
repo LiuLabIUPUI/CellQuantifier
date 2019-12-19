@@ -6,8 +6,6 @@ def plot_phys_1(blobs_df,
                 pixel_size,
                 frame_rate,
                 divide_num,
-                output_path,
-                root_name,
                 RGBA_alpha=0.5,
                 do_gmm=False):
 
@@ -64,13 +62,15 @@ def plot_phys_1(blobs_df,
 
 
     plt.tight_layout()
+    plt.show()
+
+    # # """
+    # # ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
+    # # """
+    # start_ind = root_name.find('_')
+    # end_ind = root_name.find('_', start_ind+1)
+    # today = str(date.today().strftime("%y%m%d"))
+    # fig.savefig(output_path + today + root_name[start_ind:end_ind] + '-mergedResults.pdf')
     # plt.show()
 
-    # """
-    # ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
-    # """
-    start_ind = root_name.find('_')
-    end_ind = root_name.find('_', start_ind+1)
-    today = str(date.today().strftime("%y%m%d"))
-    fig.savefig(output_path + today + root_name[start_ind:end_ind] + '-mergedResults.pdf')
-    plt.show()
+    return fig

@@ -341,6 +341,11 @@ class Pipeline():
 
 	def merge_and_plot(self):
 
+		start_ind = self.config.ROOT_NAME.find('_')
+		end_ind = self.config.ROOT_NAME.find('_', start_ind+1)
+		today = str(date.today().strftime("%y%m%d"))
+		merged_name = today + self.config.ROOT_NAME[start_ind:end_ind]
+
 		print("######################################")
 		print("Merge and PlotMSD")
 		print("######################################")
@@ -366,23 +371,18 @@ class Pipeline():
 			else:
 				phys_df = pd.read_csv(phys_files[0])
 
-			start_ind = self.config.ROOT_NAME.find('_')
-			end_ind = self.config.ROOT_NAME.find('_', start_ind+1)
-			today = str(date.today().strftime("%y%m%d"))
-			merged_csv_name = today + self.config.ROOT_NAME[start_ind:end_ind] + '-physDataMerged.csv'
-
-			phys_df.to_csv(self.config.OUTPUT_PATH + merged_csv_name, index=False)
-
+			phys_df.to_csv(self.config.OUTPUT_PATH + merged_name + \
+							'-physDataMerged.csv', index=False)
 
 		# phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
-		plot_merged(phys_df, 'exp_label',
+		fig = plot_merged(phys_df, 'exp_label',
 						pixel_size=self.config.PIXEL_SIZE,
 						frame_rate=self.config.FRAME_RATE,
 						divide_num=self.config.DIVIDE_NUM,
-						output_path=self.config.OUTPUT_PATH,
-						root_name=self.config.ROOT_NAME,
 						RGBA_alpha=0.5,
 						do_gmm=True)
+
+		fig.savefig(self.config.OUTPUT_PATH + merged_name + '-mergedResults.pdf')
 
 
 def pipeline_control(settings_dict, control_dict):
