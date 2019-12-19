@@ -382,7 +382,7 @@ class Pipeline():
 						output_path=self.config.OUTPUT_PATH,
 						root_name=self.config.ROOT_NAME,
 						RGBA_alpha=0.5,
-						do_gmm=True)
+						do_gmm=False)
 
 
 def pipeline_control(settings_dict, control_dict):

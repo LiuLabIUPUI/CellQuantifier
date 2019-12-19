@@ -21,7 +21,7 @@ def plot_phys_1(blobs_df,
                 divide_num=divide_num,
                 RGBA_alpha=RGBA_alpha
                 )
-    ax[0].legend(loc='upper right')
+    ax[0].legend(loc='upper left', frameon=False, fontsize=13)
 
 
 
@@ -40,7 +40,7 @@ def plot_phys_1(blobs_df,
                     n_comp=3,
                     hist_col='D',
                     RGBA_alpha=RGBA_alpha)
-    ax[1].legend(loc='upper right')
+    ax[1].legend(loc='upper right', frameon=False, fontsize=13)
 
 
 
@@ -60,7 +60,7 @@ def plot_phys_1(blobs_df,
                     n_comp=1,
                     hist_col='alpha',
                     RGBA_alpha=RGBA_alpha)
-    ax[2].legend(loc='upper right')
+    ax[2].legend(loc='upper right', frameon=False, fontsize=13)
 
 
     plt.tight_layout()

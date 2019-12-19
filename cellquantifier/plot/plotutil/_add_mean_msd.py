@@ -92,20 +92,26 @@ def add_mean_msd(ax, blobs_df, cat_col,
             y = imsd_mean.to_numpy()
             n_data_pts = np.sqrt(np.linspace(n-1, n-m, m))
             yerr = np.divide(imsd_std.to_numpy(), n_data_pts)
-            ax.errorbar(x, y, yerr=yerr, linestyle='None',
-                marker='o', color=colors[i])
 
             # # """
             # # ~~~~~~~~~~~Plot the fit of the average~~~~~~~~~~~~~~
             # # """
             popt_log = fit_msd(x, y, space='log')
             fit_of_mean_msd = msd(x, popt_log[0], popt_log[1])
-            ax.plot(x, fit_of_mean_msd, color=colors[i], label=cats_label[i])
+            ax.plot(x, fit_of_mean_msd, color=colors[i],
+                    label=cats_label[i], alpha=1, linewidth=3)
+            ax.errorbar(x, fit_of_mean_msd, yerr=yerr, linestyle='None',
+                marker='.', capsize=2, color=colors[i])
 
     # """
     # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~
     # """
 
-    ax.set_xlabel(r'$\tau  (\mathbf{s})$')
-    ax.set_ylabel(r'$\langle \Delta r^2 \rangle$ ($nm^2$)')
-    ax.legend()
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_linewidth(2)
+    ax.spines['bottom'].set_linewidth(2)
+    ax.tick_params(labelsize=13, width=2, length=5)
+
+    ax.set_xlabel(r'$\mathbf{Time (s)}$', fontsize=15)
+    ax.set_ylabel(r'$\mathbf{MSD(nm^2)}$', fontsize=15)

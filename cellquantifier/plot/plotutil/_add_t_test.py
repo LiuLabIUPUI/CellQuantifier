@@ -25,13 +25,13 @@ def add_t_test(ax, blobs_df, cat_col, hist_col):
         t_stats = t_test(blobs_dfs[0].drop_duplicates('particle')[hist_col],
                         blobs_dfs[1].drop_duplicates('particle')[hist_col])
 
-        t_test_str = 'p-value of t-test: \n%.5f' % (t_stats[1])
+        t_test_str = 'P = %.5f' % (t_stats[1])
 
         ax.text(0.95,
                 0.3,
                 t_test_str,
                 horizontalalignment='right',
                 verticalalignment='bottom',
-                fontsize = 10,
+                fontsize = 13,
                 color = (0, 0, 0, 1),
                 transform=ax.transAxes)

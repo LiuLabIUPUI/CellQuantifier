@@ -59,12 +59,21 @@ def add_alpha_hist(ax, blobs_df, cat_col,
 
     for i, blobs_df in enumerate(blobs_dfs):
         ax.hist(blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
-					bins=30, color=colors[i], density=True,
-                    label=cats_label[i] + ' (foci_num: %d)' % blobs_df['particle'].nunique())
+					bins=30, color=colors[i], density=True, ec='gray', linewidth=.5,
+                    label=cats_label[i] + (r' $\mathbf{(N_{foci} = %d)}$') % blobs_df['particle'].nunique())
 
     # """
     # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~
     # """
-    ax.set_ylabel('Frequency')
-    ax.set_xlabel('alpha')
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_linewidth(2)
+    ax.spines['bottom'].set_linewidth(2)
+    ax.tick_params(labelsize=13, width=2, length=5)
+
+    ax.get_yaxis().set_ticks([])
+    ax.set_ylabel(r'$\mathbf{PDF}$', fontsize=15)
+
+    ax.set_xlabel(r'$\mathbf{\alpha}$', fontsize=15)
     ax.legend()
