@@ -1,9 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 from ...math import t_test
 
 
-def add_t_test(ax, blobs_df, cat_col, hist_col):
+def add_t_test(ax, blobs_df, cat_col, hist_col,
+                drop_duplicates=True,
+                text_pos=[0.95, 0.3]):
 
     # """
     # ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
@@ -21,14 +24,20 @@ def add_t_test(ax, blobs_df, cat_col, hist_col):
     blobs_dfs = [blobs_df.loc[blobs_df[cat_col] == cat] for cat in cats]
 
     if len(cats) == 2:
+        if drop_duplicates:
+            t_stats = t_test(blobs_dfs[0].drop_duplicates('particle')[hist_col],
+                            blobs_dfs[1].drop_duplicates('particle')[hist_col])
+        else:
+            t_stats = t_test(blobs_dfs[0][hist_col],
+                            blobs_dfs[1][hist_col])
 
-        t_stats = t_test(blobs_dfs[0].drop_duplicates('particle')[hist_col],
-                        blobs_dfs[1].drop_duplicates('particle')[hist_col])
+        if t_stats[1] > 0.001:
+            t_test_str = 'P = %.3f' % (t_stats[1])
+        else:
+            t_test_str = 'P = %.2E' % (t_stats[1])
 
-        t_test_str = 'P = %.5f' % (t_stats[1])
-
-        ax.text(0.95,
-                0.3,
+        ax.text(text_pos[0],
+                text_pos[1],
                 t_test_str,
                 horizontalalignment='right',
                 verticalalignment='bottom',

@@ -5,4 +5,5 @@ from ._add_D_hist import *
 from ._add_alpha_hist import *
 from ._add_t_test import *
 from ._add_gmm import *
+from .add_violin import *
 from .anno import *
