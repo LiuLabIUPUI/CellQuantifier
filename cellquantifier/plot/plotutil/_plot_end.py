@@ -4,7 +4,6 @@ from ._plt2array import plt2array
 def plot_end(fig, pltshow=False):
     """
     Typical piece of code at the end of diagnostic.
-
     Parameters
     ----------
     fig : object
@@ -12,7 +11,6 @@ def plot_end(fig, pltshow=False):
     pltshow: bool, optional
         If True, show the fig.
         If False, clear and close the fig.
-
     Returns
     -------
     rgb_array_3d: ndarray

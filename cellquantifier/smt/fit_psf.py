@@ -3,15 +3,13 @@ import pandas as pd
 import math
 from cellquantifier.math.gaussian_2d import (gaussian_2d, get_moments,
                                             fit_gaussian_2d)
-from ..plot.plotutil import anno_scatter, anno_blob
-from ..plot.plotutil import plot_end
+from ..plot.plotutil import anno_scatter, anno_blob, plot_end, plt2array
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 
 
 def fit_psf(pims_frame,
             blobs_df,
-            diagnostic=True,
             pltshow=True,
             diag_max_dist_err=1,
             diag_max_sig_to_sigraw = 3,
@@ -145,7 +143,7 @@ def fit_psf(pims_frame,
     # """
 
     plt_array = []
-    if diagnostic:
+    if pltshow:
         # """
 	    # ~~~~~~~~~~~~~~~~~~~~~Print foci num after filters~~~~~~~~~~~~~~~~~~~~~
 	    # """
@@ -205,21 +203,24 @@ def fit_psf(pims_frame,
         ax.text(0.95,
                 0.00,
                 """
-                Predict good fitting foci num and ratio: %d, %.2f
+                Fitting stats: %d, %.2f
                 """ %(good_fitting_num, good_fitting_num/len(blobs_df)),
                 horizontalalignment='right',
                 verticalalignment='bottom',
-                fontsize = 12,
+                fontsize = 7,
                 color = (1, 1, 1, 0.8),
                 transform=ax.transAxes)
-        plt_array = plot_end(fig, pltshow)
+
+        plt.axis('off')
+        plt.tight_layout()
+
+        plt_array = plt2array(fig)
 
     return psf_df, plt_array
 
 
 def fit_psf_batch(pims_frames,
             blobs_df,
-            diagnostic=False,
             pltshow=False,
             diag_max_dist_err=1,
             diag_max_sig_to_sigraw = 3,
@@ -287,7 +288,6 @@ def fit_psf_batch(pims_frames,
                        blobs_df=current_blobs_df,
                        diag_max_dist_err=diag_max_dist_err,
                        diag_max_sig_to_sigraw = diag_max_sig_to_sigraw,
-                       diagnostic=diagnostic,
                        pltshow=pltshow,
                        truth_df=curr_truth_df,
                        segm_df=current_segm_df)

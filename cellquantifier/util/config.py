@@ -5,25 +5,26 @@ class Config():
 
 	def __init__(self, config):
 
-		#I/O
-		self.INPUT_PATH = config['IO input_path']
-		self.OUTPUT_PATH = config['IO output_path']
-		self.ROOT_NAME = config['Raw data file'][:config['Raw data file'].index('.')]
-		self.START_FRAME = config['Start frame index']
-		self.CHECK_FRAME = config['Check frame index']
-		self.TRANGE = range(config['Start frame index'], config['End frame index'])
+		self.INPUT_PATH = config['Meta input_path']
+		self.OUTPUT_PATH = config['Meta output_path']
+		self.ROOT_NAME = self.INPUT_PATH.split('/')[-1].split('.')[0]
+
+		self.START_FRAME = config['Meta start_frame']
+		self.CHECK_FRAME = config['Meta check_frame']
+		self.TRANGE = range(config['Meta start_frame'], config['Meta end_frame'])
 
 		#REGISTRATION SETTINGS
 		self.REF_IND_NUM = config['Regi ref_ind_num']
 		self.SIG_MASK = config['Regi sig_mask']
 		self.THRES_REL = config['Regi thres_rel']
 		self.POLY_DEG = config['Regi poly_deg']
-		self.ROTATION_MULTIPLIER = config['Regi rotation_multplier']
+		self.ROTATION_MULTIPLIER = config['Regi rotation_multiplier']
 		self.TRANSLATION_MULTIPLIER = config['Regi translation_multiplier']
 
 		#SEGMENTATION SETTINGS
-		self.MIN_SIZE = config['Segm min_size']
-		self.SEGM_THRESHOLD = config['Segm threshold']
+		self.MASK_SIG = config['Segm mask_sig']
+		self.MASK_THRES = config['Segm mask_thres']
+		self.MASK_MIN_SIZE = config['Segm min_size']
 
 		#DENOISE SETTINGS
 		self.BOXCAR_RADIUS = config['Deno boxcar_radius']
@@ -43,8 +44,8 @@ class Config():
 	    #TRACKING SETTINGS
 		self.SEARCH_RANGE = config['Trak search_range']
 		self.MEMORY = config['Trak memory']
-		self.FRAME_RATE = config['Trak frame_rate']
-		self.PIXEL_SIZE = config['Trak pixel_size']
+		self.FRAME_RATE = config['Meta frame_rate']
+		self.PIXEL_SIZE = config['Meta pixel_size']
 		self.DIVIDE_NUM = config['Trak divide_num']
 
 		#TRACKING FILTERING SETTINGS
@@ -58,14 +59,6 @@ class Config():
 
 		}
 
-		#PHYSICS SETTINGS
-		self.DIST2BOUNDARY_MASK_NAME = config['Phys dist2boundary_mask file']
-		self.MASK_SIG_BOUNDARY = config['Phys dist2boundary_mask sig']
-		self.MASK_THRES_BOUNDARY = config['Phys dist2boundary_mask thres_rel']
-		self.DIST253BP1_MASK_NAME = config['Phys dist253bp1_mask file']
-		self.MASK_SIG_53BP1 = config['Phys dist253bp1_mask sig']
-		self.MASK_THRES_53BP1 = config['Phys dist253bp1_mask thres_rel']
-
 
 		#SORTING SETTINGS
 		self.DO_SORT = config['Sort do_sort']
@@ -76,12 +69,13 @@ class Config():
 
 		}
 
-		#DIAGNOSTIC
-		self.DIAGNOSTIC = config['Diag diagnostic']
-		self.PLTSHOW = config['Diag pltshow']
-
 		self.DICT = config
 
+	def clean_dir(self):
+
+		flist = [f for f in os.listdir(self.OUTPUT_PATH)]
+		for f in flist:
+		    os.remove(os.path.join(self.OUTPUT_PATH, f))
 
 	def save_config(self):
 
@@ -91,9 +85,3 @@ class Config():
 		'Det plot_r', 'Filt do_filter', 'Diag diagnostic',
 		'Diag pltshow', 'Check frame index'])
 		config_df.to_csv(path, header=False)
-
-	def clean_dir(self):
-
-		flist = [f for f in os.listdir(self.OUTPUT_PATH)]
-		for f in flist:
-		    os.remove(os.path.join(self.OUTPUT_PATH, f))

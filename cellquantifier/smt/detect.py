@@ -1,10 +1,10 @@
 import numpy as np; import pandas as pd; import pims
-from ..plot.plotutil import anno_blob, anno_scatter
-from ..plot.plotutil import plot_end
-from matplotlib_scalebar.scalebar import ScaleBar
+from ..plot.plotutil import anno_blob, anno_scatter, plot_end, plt2array
+from ..plot import plot_engine
 from skimage.feature import blob_log
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
+from matplotlib_scalebar.scalebar import ScaleBar
 
 def detect_blobs(pims_frame,
 				min_sig=1,
@@ -14,10 +14,12 @@ def detect_blobs(pims_frame,
 				peak_thres_rel=0.1,
 				r_to_sigraw=3,
 				pixel_size = .1084,
-				diagnostic=True,
 				pltshow=True,
 				plot_r=True,
-				truth_df=None):
+				headless=False,
+				truth_df=None,
+				ax=None):
+
 	"""
 	Detect blobs for each frame.
 
@@ -126,8 +128,8 @@ def detect_blobs(pims_frame,
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Diagnostic~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	# """
 
-	plt_array = []
-	if diagnostic:
+	if pltshow:
+
 		fig, ax = plt.subplots(figsize=(9,9))
 
 		# """
@@ -151,12 +153,14 @@ def detect_blobs(pims_frame,
 			font_properties=font, box_color = 'black', color='white')
 		scalebar.length_fraction = .3
 		scalebar.height_fraction = .025
+
 		ax.add_artist(scalebar)
+		plt.axis('off')
+		plt.tight_layout()
 
-		plt_array = plot_end(fig, pltshow)
+		det_plt = plt2array(fig)
 
-	return blobs_df, plt_array
-
+	return blobs_df, det_plt
 
 def detect_blobs_batch(pims_frames,
 			min_sig=1,
@@ -198,9 +202,9 @@ def detect_blobs_batch(pims_frames,
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Prepare blobs_df~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	# """
 
+	det_plt_array = []
 	columns = ['frame', 'x', 'y', 'sig_raw', 'r', 'peak', 'mass', 'mean', 'std']
 	blobs_df = pd.DataFrame([], columns=columns)
-	plt_array = []
 
 	# """
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Update blobs_df~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,22 +218,22 @@ def detect_blobs_batch(pims_frames,
 		else:
 			current_truth_df = None
 
-		tmp, tmp_plt_array = detect_blobs(pims_frames[i],
-					   min_sig=min_sig,
-					   max_sig=max_sig,
-					   num_sig=num_sig,
-					   blob_thres=blob_thres,
-					   peak_thres_rel=peak_thres_rel,
-					   r_to_sigraw=r_to_sigraw,
-					   pixel_size=pixel_size,
-					   diagnostic=diagnostic,
-					   pltshow=pltshow,
-					   plot_r=plot_r,
-					   truth_df=current_truth_df)
+		tmp, det_plt = detect_blobs(pims_frames[i],
+						   min_sig=min_sig,
+						   max_sig=max_sig,
+						   num_sig=num_sig,
+						   blob_thres=blob_thres,
+						   peak_thres_rel=peak_thres_rel,
+						   r_to_sigraw=r_to_sigraw,
+						   pixel_size=pixel_size,
+						   pltshow=pltshow,
+						   plot_r=plot_r,
+						   truth_df=current_truth_df)
+
+		det_plt_array.append(det_plt)
 		blobs_df = pd.concat([blobs_df, tmp], sort=True)
-		plt_array.append(tmp_plt_array)
 
 	blobs_df.index = range(len(blobs_df))
-	plt_array = np.array(plt_array)
+	det_plt_array = np.array(det_plt_array)
 
-	return blobs_df, plt_array
+	return blobs_df, det_plt_array

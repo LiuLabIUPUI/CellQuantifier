@@ -53,7 +53,6 @@ def add_mean_msd(ax, blobs_df, cat_col,
     if blobs_df.empty:
     	return
 
-
     # """
     # ~~~~~~~~~~~Prepare the data, category, color~~~~~~~~~~~~~~
     # """
@@ -107,11 +106,8 @@ def add_mean_msd(ax, blobs_df, cat_col,
     # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~
     # """
 
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.spines['left'].set_linewidth(2)
-    ax.spines['bottom'].set_linewidth(2)
-    ax.tick_params(labelsize=13, width=2, length=5)
-
-    ax.set_xlabel(r'$\mathbf{Time (s)}$', fontsize=15)
-    ax.set_ylabel(r'$\mathbf{MSD(nm^2)}$', fontsize=15)
+    # ax.spines['right'].set_visible(False)
+    # ax.spines['top'].set_visible(False)
+    # ax.spines['left'].set_linewidth(2)
+    # ax.spines['bottom'].set_linewidth(2)
+    # ax.tick_params(labelsize=13, width=2, length=5)

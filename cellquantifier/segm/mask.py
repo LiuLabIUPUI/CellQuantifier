@@ -1,9 +1,12 @@
 from skimage.filters import gaussian
+from skimage.measure import label, regionprops
+from skimage.segmentation import clear_border
 import numpy as np
-from skimage.morphology import binary_dilation, binary_erosion, disk
+from skimage.morphology import binary_dilation, binary_erosion, disk, \
+                                remove_small_objects
 
 
-def get_thres_mask(img, sig=3, thres_rel=0.2):
+def get_thres_mask(img, sig=3, thres_rel=0.2, min_size=100):
     """
     Get a mask based on "gaussian blur" and "threshold".
 
@@ -21,15 +24,17 @@ def get_thres_mask(img, sig=3, thres_rel=0.2):
     mask_array_2d: ndarray
         2d ndarray of 0s and 1s
     """
-
     img = gaussian(img, sigma=sig)
     img = img > img.max()*thres_rel
     mask_array_2d = img.astype(np.uint8)
+    mask_array_2d = clear_border(mask_array_2d)
+    mask_array_2d = remove_small_objects(mask_array_2d, min_size=min_size)
+    mask_array_2d = label(mask_array_2d)
 
     return mask_array_2d
 
 
-def get_thres_mask_batch(tif, sig=3, thres_rel=0.2):
+def get_thres_mask_batch(tif, sig=3, thres_rel=0.2, min_size=100):
     """
     Get a mask stack based on "gaussian blur" and "threshold".
 
@@ -59,11 +64,31 @@ def get_thres_mask_batch(tif, sig=3, thres_rel=0.2):
 
     shape = (len(tif), tif[0].shape[0], tif[0].shape[1])
     masks_array_3d = np.zeros(shape, dtype=np.uint8)
+    dist_array_3d = np.zeros(shape, dtype=np.uint8)
+    px_array_3d = np.zeros(shape, dtype=np.uint8)
+
     for i in range(len(tif)):
-        masks_array_3d[i] = get_thres_mask(tif[i], sig=sig, thres_rel=thres_rel)
+
+        masks_array_3d[i] = get_thres_mask(tif[i], sig=sig, thres_rel=thres_rel, \
+                                            min_size=min_size)
+        dist_array_3d[i] = get_dist2boundary_mask(masks_array_3d[i])
+        px_array_3d[i] = get_pixel_mask(masks_array_3d[i])
+
         print("Get thres_mask NO.%d is done!" % i)
 
-    return masks_array_3d
+    return masks_array_3d, dist_array_3d, px_array_3d
+
+def get_pixel_mask(mask):
+
+    pixel_mask = np.zeros_like(mask)
+    props = regionprops(mask)
+
+    for prop in props:
+        x,y = prop.centroid
+        x,y = int(round(x)), int(round(y))
+        pixel_mask[x,y] = 255
+
+    return pixel_mask
 
 
 def get_dist2boundary_mask(mask, step_size=3):
@@ -122,19 +147,15 @@ def get_dist2boundary_mask(mask, step_size=3):
 
     return dist_mask
 
-
 def get_dist2boundary_mask_batch(masks, step_size=3):
     """
     Create dist2boundary mask via binary dilation and erosion
-
 	Parameters
 	----------
 	masks : 3D binary ndarray
-
 	Returns
 	-------
 	dist_masks : 3D int ndarray
-
     Examples
 	--------
     from skimage.io import imread

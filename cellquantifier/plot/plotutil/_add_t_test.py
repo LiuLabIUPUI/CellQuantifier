@@ -4,32 +4,23 @@ import pandas as pd
 from ...math import t_test
 
 
-def add_t_test(ax, blobs_df, cat_col, hist_col,
+def add_t_test(ax, df, cat_col, data_col,
                 drop_duplicates=True,
                 text_pos=[0.95, 0.3]):
-
-    # """
-    # ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
-    # """
-
-    if blobs_df.empty:
-    	return
-
 
     # """
     # ~~~~~~~~~~~Prepare the data, category, color~~~~~~~~~~~~~~
     # """
 
-    cats = sorted(blobs_df[cat_col].unique())
-    blobs_dfs = [blobs_df.loc[blobs_df[cat_col] == cat] for cat in cats]
+    cats = sorted(df[cat_col].unique())
+    dfs = [df.loc[df[cat_col] == cat] for cat in cats]
 
     if len(cats) == 2:
         if drop_duplicates:
-            t_stats = t_test(blobs_dfs[0].drop_duplicates('particle')[hist_col],
-                            blobs_dfs[1].drop_duplicates('particle')[hist_col])
+            t_stats = t_test(dfs[0].drop_duplicates('particle')[data_col],
+                            dfs[1].drop_duplicates('particle')[data_col])
         else:
-            t_stats = t_test(blobs_dfs[0][hist_col],
-                            blobs_dfs[1][hist_col])
+            t_stats = t_test(cat_col, data_col)
 
         if t_stats[1] > 0.001:
             t_test_str = 'P = %.3f' % (t_stats[1])
