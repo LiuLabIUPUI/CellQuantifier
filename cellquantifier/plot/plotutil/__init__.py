@@ -6,7 +6,7 @@ from ._add_alpha_hist import *
 from ._add_t_test import *
 from ._add_gmm import *
 from .add_violin import *
-from .add_scatter import *
-from .add_corr_coeff import *
-from .add_fitting import *
+from ._add_scatter import *
+from ._add_corr_coeff import *
+from ._add_fitting import *
 from .anno import *
