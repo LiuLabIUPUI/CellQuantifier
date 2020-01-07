@@ -70,7 +70,8 @@ def plot_msd_batch(phys_df,
 			 divide_num,
 			 plot_without_sorter=False,
 			 show_fig=False,
-			 show_pdf=False):
+			 save_pdf=False,
+			 open_pdf=False):
 
 	# """
 	# ~~~~~~~~~~~Prepare the input data~~~~~~~~~~~~~~
@@ -109,7 +110,7 @@ def plot_msd_batch(phys_df,
 	if show_fig:
 		plt.show()
 
-	if show_pdf:
+	if save_pdf:
 
 		# """
 		# ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
@@ -119,11 +120,12 @@ def plot_msd_batch(phys_df,
 		plt.clf()
 		plt.close()
 
-		fig, ax = plt.subplots(figsize=(6,6))
-		anno_traj(ax, phys_df, image, pixel_size, frame_rate)
-		import webbrowser
-		webbrowser.open_new(r'file://' + output_path + root_name + '-results.pdf')
-		plt.show()
+		if open_pdf:
+			fig, ax = plt.subplots(figsize=(6,6))
+			anno_traj(ax, phys_df, image, pixel_size, frame_rate)
+			import webbrowser
+			webbrowser.open_new(r'file://' + output_path + root_name + '-results.pdf')
+			plt.show()
 
 	else:
 		plt.clf()
