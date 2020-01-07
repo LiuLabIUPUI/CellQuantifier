@@ -45,7 +45,7 @@ def add_scatter(ax,
 		x = x/np.abs(x).max()
 		y = y/np.abs(y).max()
 
-	ax.scatter(x, y, c=color, s=10, label=label)
+	ax.scatter(x, y, c=color, s=10, label=label, alpha=.3)
 
 	# """
 	# ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~

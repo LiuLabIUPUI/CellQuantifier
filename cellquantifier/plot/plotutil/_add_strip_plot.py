@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as  np
 
+from distutils.util import strtobool
 from cellquantifier.plot.plotutil import *
 
 
@@ -52,15 +53,29 @@ def add_strip_plot(ax,
 	# """
 
 	median_width = 0.3
+	i = 0
+	labels = []
+
 	x = ax.get_xticklabels()
 
 	for tick, text in zip(ax.get_xticks(), x):
 
-		sample_name = text.get_text()
-		mean = df[df[cat_col]==sample_name][hist_col].mean()
+		if isinstance(text.get_text(), str):
+			sample_name = bool(strtobool(text.get_text()))
 
+		x = df[df[cat_col]==sample_name][hist_col]
+
+		if xlabels:
+			labels.append(xlabels[i] + " (" + str(len(x)) + ")")
+		else:
+			labels.append(new_label = text.get_text() + " (" + str(len(x)) + ")")
+
+		i+=1
+		mean = x.mean()
 		ax.plot([tick-median_width/2, tick+median_width/2], [mean, mean],
 				lw=3, color='black')
+
+	ax.set_xticklabels(labels)
 
 
 	# """
@@ -76,6 +91,3 @@ def add_strip_plot(ax,
 	ax.set_ylabel(r'$\mathbf{' + ylabel + '}$', fontsize=15)
 	ax.set_xlabel('', fontsize=15)
 	ax.set_xlim(-.5,1.5)
-
-	if xlabels:
-		ax.set_xticklabels(xlabels)

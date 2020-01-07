@@ -9,7 +9,9 @@ def add_corr_coeff(ax,
 				   col1,
 				   col2,
 				   corr_type='linear',
-				   norm=False):
+				   norm=False,
+				   color='black',
+				   text_pos=[.75,.8]):
 
 
 	"""Add pearson correlation coefficient to axis
@@ -47,9 +49,9 @@ def add_corr_coeff(ax,
 
 		r,p = spearmanr(x,y)
 
-	ax.text(0.9,
-			0.9,
+	ax.text(text_pos[0],
+			text_pos[1],
 			r'$\mathbf{\rho}$' + """: % .2f""" %(r),
 			fontsize = 12,
-			color = 'black',
+			color = color,
 			transform=ax.transAxes)
