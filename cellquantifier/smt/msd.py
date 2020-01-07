@@ -68,8 +68,9 @@ def plot_msd_batch(phys_df,
 			 pixel_size,
 			 frame_rate,
 			 divide_num,
-			 pltshow=False,
-			 check_traj_msd=False):
+			 plot_without_sorter=False,
+			 show_fig=False,
+			 show_pdf=False):
 
 	# """
 	# ~~~~~~~~~~~Prepare the input data~~~~~~~~~~~~~~
@@ -96,19 +97,19 @@ def plot_msd_batch(phys_df,
 
 		plot_msd(gooddf_list[i], baddf_list[i], image, output_path,
 					 root_name, pixel_size, frame_rate,divide_num,
-					 ax=ax, check_traj_msd=check_traj_msd)
+					 ax=ax, plot_without_sorter=plot_without_sorter)
 
 		ax0.set_xticks([])
 		ax0.set_yticks([])
-		if not check_traj_msd:
+		if not plot_without_sorter:
 			ax0.set_ylabel(sorter, labelpad=50, fontsize=20)
 
 	plt.tight_layout()
 
-	if check_traj_msd:
+	if show_fig:
 		plt.show()
 
-	else:
+	if show_pdf:
 
 		# """
 		# ~~~~~~~~~~~Save the plot as pdf, and open the pdf in browser~~~~~~~~~~~~~~
@@ -122,11 +123,11 @@ def plot_msd_batch(phys_df,
 		anno_traj(ax, phys_df, image, pixel_size, frame_rate)
 		import webbrowser
 		webbrowser.open_new(r'file://' + output_path + root_name + '-results.pdf')
-		if pltshow:
-			plt.show()
-		else:
-			plt.clf()
-			plt.close()
+		plt.show()
+
+	else:
+		plt.clf()
+		plt.close()
 
 
 def plot_msd(blobs_df,
@@ -138,7 +139,7 @@ def plot_msd(blobs_df,
 			 frame_rate,
 			 divide_num,
 			 ax=None,
-			 check_traj_msd=False):
+			 plot_without_sorter=False):
 
 	"""
 	Generates the 3 panel msd figure with color-coded trajectories, msd curves, and a histogram of d values
@@ -287,7 +288,7 @@ def plot_msd(blobs_df,
 	# """
 	# ~~~~~~~~~~~Add D value histogram~~~~~~~~~~~~~~
 	# """
-	if check_traj_msd:
+	if plot_without_sorter:
 		ax[2].hist(blobs_df.drop_duplicates(subset='particle')['D'].to_numpy(),
 					bins=30, color=(0,0,0,0.5))
 	else:
@@ -305,7 +306,7 @@ def plot_msd(blobs_df,
 	# """
 	# ~~~~~~~~~~~Add alpha value histogram~~~~~~~~~~~~~~
 	# """
-	if check_traj_msd:
+	if plot_without_sorter:
 		ax[3].hist(blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
 					bins=30, color=(0,0,0,0.5))
 	else:
