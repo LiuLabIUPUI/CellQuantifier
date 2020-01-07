@@ -7,7 +7,6 @@ from ._add_t_test import *
 from ._add_gmm import *
 from .add_violin import *
 from ._add_scatter import *
-from ._add_mean_plt import *
 from ._add_corr_coeff import *
 from ._add_fitting import *
 from ._add_strip_plot import *

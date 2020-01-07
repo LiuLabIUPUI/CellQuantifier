@@ -12,26 +12,26 @@ def add_fitting(ax,
 				color='lime',
 				label=None):
 
-   	"""Add linear fitting to axis
+	"""Add linear fitting to axis
 
-   	Parameters
-   	----------
+	Parameters
+	----------
 
-    Parameters
-    ----------
-    ax : object
-        matplotlib axis
+	Parameters
+	----------
+	ax : object
+		matplotlib axis
 
-    df : DataFrame
+	df : DataFrame
 		DataFrame containing hist_col, cat_col
 
-    col1,col2 : str
+	col1,col2 : str
 		Column names that contain the data
 
-    norm : bool
+	norm : bool
 		Transform data to arbitrary units
 
-   	"""
+	"""
 
 	x,y = df[col1], df[col2]
 

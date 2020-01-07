@@ -15,29 +15,29 @@ def add_scatter(ax,
 				color='blue'):
 
 
-   	"""Generate scatter plot of two variables
+	"""Generate scatter plot of two variables
 
-   	Parameters
-   	----------
+	Parameters
+	----------
 
-    Parameters
-    ----------
-    ax : object
-        matplotlib axis
+	Parameters
+	----------
+	ax : object
+		matplotlib axis
 
-    df : DataFrame
+	df : DataFrame
 		DataFrame containing hist_col, cat_col
 
-    col1,col2 : str
+	col1,col2 : str
 		Column names that contain the data
 
-    col1_alias,col2_alias : str
+	col1_alias,col2_alias : str
 		Alias for each column axis label
 
-    norm : bool
+	norm : bool
 		Transform data to arbitrary units
 
-   	"""
+	"""
 
 	x,y = df[col1], df[col2]
 
