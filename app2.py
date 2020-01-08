@@ -2,22 +2,22 @@ from datetime import datetime
 from cellquantifier.util.pipeline2 import *
 """Part I: CellQuantifier Sequence Control"""
 
-control = ['clean_dir', 'load', 'mask', 'deno_box', 'deno_gaus', 'detect_fit',
-            'filt_track', 'phys', 'sort_plot']
+control = ['load', 'deno_box', 'deno_gaus', 'detect_fit',
+            'filt_track', 'sort_plot']
 
 """Part II: CellQuantifier Parameter Settings"""
 settings = {
 
   #HEADER INFO
-  'Processed By:': 'Clayton Seitz',
+  'Processed By:': 'Hua Lin',
   'Date': datetime.now(),
-  'Raw data file': 'simulated_cell.tif',
+  'Raw data file': 'simulated_cell2.tif',
   'Start frame index': 0,
   'End frame index': 10,
   'Check frame index': 0,
 
   #IO
-  'IO input_path': 'cellquantifier/data/',
+  'IO input_path': '/home/linhua/Desktop/input/',
   'IO output_path': '/home/linhua/Desktop/temp/',
 
   #REGISTRATION SETTINGS
@@ -33,10 +33,10 @@ settings = {
   'Segm threshold': 'NA',
 
   #MASK SETTINGS
-  'Phys dist2boundary_mask file': 'simulated_cell.tif',
+  'Phys dist2boundary_mask file': 'simulated_cell2.tif',
   'Phys dist2boundary_mask sig': 3,
   'Phys dist2boundary_mask thres_rel': 0.08,
-  'Phys dist253bp1_mask file': 'simulated_cell.tif',
+  'Phys dist253bp1_mask file': 'simulated_cell2.tif',
   'Phys dist253bp1_mask sig': 1,
   'Phys dist253bp1_mask thres_rel': 0.35,
 
@@ -84,4 +84,4 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-pipeline_control2(settings, control)
+pipeline_batch(settings, control)
