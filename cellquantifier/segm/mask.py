@@ -154,6 +154,6 @@ def get_dist2boundary_mask_batch(masks, step_size=3):
     dist_masks = np.zeros(shape, dtype=int)
     for i in range(len(masks)):
         dist_masks[i] = get_dist2boundary_mask(masks[i], step_size=step_size)
-        print("Get dist2boundary_mask NO.%d is done!" % i)
+        print("Get distance_mask NO.%d is done!" % i)
 
     return dist_masks
