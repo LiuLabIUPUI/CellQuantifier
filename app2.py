@@ -2,8 +2,8 @@ from datetime import datetime
 from cellquantifier.util.pipeline2 import *
 """Part I: CellQuantifier Sequence Control"""
 
-control = ['load', 'deno_box', 'deno_gaus', 'detect_fit',
-            'filt_track', 'sort_plot']
+control = ['clean_dir', 'load', 'regi', 'mask', 'deno_box', 'deno_gaus',
+            'detect_fit', 'filt_track', 'phys', 'sort_plot']
 
 """Part II: CellQuantifier Parameter Settings"""
 settings = {
@@ -11,7 +11,6 @@ settings = {
   #HEADER INFO
   'Processed By:': 'Hua Lin',
   'Date': datetime.now(),
-  'Raw data file': 'simulated_cell2.tif',
   'Start frame index': 0,
   'End frame index': 10,
   'Check frame index': 0,
@@ -21,6 +20,7 @@ settings = {
   'IO output_path': '/home/linhua/Desktop/temp/',
 
   #REGISTRATION SETTINGS
+  'Regi reference file label': '',
   'Regi ref_ind_num': 0,
   'Regi sig_mask': 3,
   'Regi thres_rel': .1,
@@ -33,12 +33,12 @@ settings = {
   'Segm threshold': 'NA',
 
   #MASK SETTINGS
-  'Phys dist2boundary_mask file': 'simulated_cell2.tif',
-  'Phys dist2boundary_mask sig': 3,
-  'Phys dist2boundary_mask thres_rel': 0.08,
-  'Phys dist253bp1_mask file': 'simulated_cell2.tif',
-  'Phys dist253bp1_mask sig': 1,
-  'Phys dist253bp1_mask thres_rel': 0.35,
+  'Phys boundary_mask file label': '',
+  'Phys boundary_mask sig': 3,
+  'Phys boundary_mask thres_rel': 0.08,
+  'Phys 53bp1_mask file label': '',
+  'Phys 53bp1_mask sig': 1,
+  'Phys 53bp1_mask thres_rel': 0.35,
 
   #DENOISE SETTINGS
   'Deno boxcar_radius': 10,
@@ -73,7 +73,7 @@ settings = {
 
 
   #SORTING SETTINGS
-  'Sort do_sort': False,
+  'Sort do_sort': True,
   'Sort dist_to_boundary': [-150, 0],
   'Sort dist_to_53bp1': [-50, 10],
 

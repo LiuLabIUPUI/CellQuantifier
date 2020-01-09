@@ -18,7 +18,7 @@ from ..smt.fit_psf import fit_psf, fit_psf_batch
 from ..smt.track import track_blobs
 from ..smt.msd import plot_msd_batch, get_sorter_list
 from ..phys import *
-from ..util.config import Config
+from ..util.config2 import Config
 from ..plot import plot_phys_1 as plot_merged
 from ..phys.physutil import relabel_particles, merge_physdfs
 
@@ -42,12 +42,51 @@ class Pipeline2():
 		frames = frames[list(self.config.TRANGE),:,:]
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
 
+		# copy reference files if needed
+		if self.config.REF_FILE_NAME: # if not empty, find the file
+			if osp.exists(self.config.INPUT_PATH + self.config.REF_FILE_NAME):
+				ref_regi = imread(self.config.INPUT_PATH + self.config.REF_FILE_NAME)
+				imsave(self.config.OUTPUT_PATH + self.config.REF_FILE_NAME, ref_regi)
+		if self.config.DIST2BOUNDARY_MASK_NAME: # if not empty, find the file
+			if osp.exists(self.config.INPUT_PATH + self.config.DIST2BOUNDARY_MASK_NAME):
+				ref_boundary = imread(self.config.INPUT_PATH + self.config.DIST2BOUNDARY_MASK_NAME)
+				imsave(self.config.OUTPUT_PATH + self.config.DIST2BOUNDARY_MASK_NAME, ref_boundary)
+		if self.config.DIST2BOUNDARY_MASK_NAME: # if not empty, find the file
+			if osp.exists(self.config.INPUT_PATH + self.config.DIST253BP1_MASK_NAME):
+				ref_53bp1 = imread(self.config.INPUT_PATH + self.config.DIST253BP1_MASK_NAME)
+				imsave(self.config.OUTPUT_PATH + self.config.DIST253BP1_MASK_NAME, ref_53bp1)
+
+
+	def regi(self):
+
+		print("######################################")
+		print("Registering Image Stack")
+		print("######################################")
+
+		ref_im = imread(self.config.OUTPUT_PATH + self.config.REF_FILE_NAME)[list(self.config.TRANGE),:,:]
+		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+
+		regi_params_array_2d = get_regi_params(ref_im,
+		              ref_ind_num=self.config.REF_IND_NUM,
+		              sig_mask=self.config.SIG_MASK,
+		              thres_rel=self.config.THRES_REL,
+		              poly_deg=self.config.POLY_DEG,
+		              rotation_multplier=self.config.ROTATION_MULTIPLIER,
+		              translation_multiplier=self.config.TRANSLATION_MULTIPLIER,
+		              diagnostic=False)
+
+		registered = apply_regi_params(im, regi_params_array_2d)
+
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif', registered)
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', registered)
+
 
 	def mask(self):
 
 		print("######################################")
 		print("Generate dist2boundary_thres_masks")
 		print("######################################")
+
 		dist2boundary_tif = imread(self.config.INPUT_PATH + \
 							self.config.DIST2BOUNDARY_MASK_NAME) \
 							[list(self.config.TRANGE),:,:]
@@ -62,6 +101,7 @@ class Pipeline2():
 		print("######################################")
 		print("Generate dist253bp1_thres_masks")
 		print("######################################")
+
 		dist253bp1_tif = imread(self.config.INPUT_PATH + \
 							self.config.DIST253BP1_MASK_NAME) \
 							[list(self.config.TRANGE),:,:]
@@ -91,29 +131,6 @@ class Pipeline2():
 		return centroid
 
 
-	def regi(self):
-
-		print("######################################")
-		print("Registering Image Stack")
-		print("######################################")
-
-		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
-
-		regi_params_array_2d = get_regi_params(im,
-		              ref_ind_num=self.config.REF_IND_NUM,
-		              sig_mask=self.config.SIG_MASK,
-		              thres_rel=self.config.THRES_REL,
-		              poly_deg=self.config.POLY_DEG,
-		              rotation_multplier=self.config.ROTATION_MULTIPLIER,
-		              translation_multiplier=self.config.TRANSLATION_MULTIPLIER,
-		              diagnostic=False)
-
-		registered = apply_regi_params(im, regi_params_array_2d)
-
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif', registered)
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', registered)
-
-
 	def deno_gaus(self):
 
 		print("######################################")
@@ -127,6 +144,7 @@ class Pipeline2():
 
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', filtered)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif', filtered)
+
 
 	def deno_box(self):
 
@@ -387,33 +405,93 @@ def pipeline_control2(settings_dict, control_list):
 
 
 def get_root_name_list(settings_dict):
+	# Make a copy of settings_dict
+	# Use '*%#@)9_@*#@_@' to substitute if the labels are empty
+	settings = settings_dict.copy()
+	if settings['Regi reference file label'] == '':
+		settings['Regi reference file label'] = '*%#@)9_@*#@_@'
+	if settings['Phys boundary_mask file label'] == '':
+		settings['Phys boundary_mask file label'] = '*%#@)9_@*#@_@'
+	if settings['Phys 53bp1_mask file label'] == '':
+		settings['Phys 53bp1_mask file label'] = '*%#@)9_@*#@_@'
+
 	root_name_list = []
 
-	path_list = glob.glob(settings_dict['IO input_path'] + '/*-raw.tif')
+	path_list = glob.glob(settings['IO input_path'] + '/*-raw.tif')
 	if len(path_list) != 0:
 		for path in path_list:
 			temp = path.split('/')[-1]
 			temp = temp[:temp.index('.') - len('-raw')]
 			root_name_list.append(temp)
 	else:
-		path_list = glob.glob(settings_dict['IO input_path'] + '/*.tif')
+		path_list = glob.glob(settings['IO input_path'] + '/*.tif')
+		print(path_list)
 		for path in path_list:
 			temp = path.split('/')[-1]
 			temp = temp[:temp.index('.')]
-			root_name_list.append(temp)
+			if (settings['Phys boundary_mask file label'] not in temp+'.tif') & \
+				(settings['Phys 53bp1_mask file label'] not in temp+'.tif') & \
+				(settings['Regi reference file label'] not in temp+'.tif'):
+				root_name_list.append(temp)
 
 	return np.array(sorted(root_name_list))
 
 
 def pipeline_batch(settings_dict, control_list):
+
+	# """
+	# ~~~~~~~~~~~~~~~~~1. Get root_name_list~~~~~~~~~~~~~~~~~
+	# """
 	root_name_list = get_root_name_list(settings_dict)
+
+	print("######################################")
+	print("Data to be processed")
+	print("######################################")
 	print(root_name_list)
 
 	for root_name in root_name_list:
+
+		# """
+		# ~~~~~~~~~~~~~~~~~2. Update config~~~~~~~~~~~~~~~~~
+		# """
+
 		config = Config(settings_dict)
+
+		# 2.1. Update config.ROOT_NAME and config.DICT['Raw data file']
 		config.ROOT_NAME = root_name
 		config.DICT['Raw data file'] = root_name + '.tif'
-		pipe = Pipeline2(config)
 
+		# 2.2. Update config.REF_FILE_NAME
+		if settings_dict['Regi reference file label']:# if label is not empty, find file_list
+			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
+					'*' + settings_dict['Regi reference file label'] + '*')))
+			if len(file_list) == 1: # there should be only 1 file targeted
+				config.REF_FILE_NAME = file_list[0].split('/')[-1]
+		else:
+			config.REF_FILE_NAME = config.DICT['Raw data file']
+
+		# 2.3. Update config.DIST2BOUNDARY_MASK_NAME
+		if settings_dict['Phys boundary_mask file label']:# if label is not empty, find file_list
+			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
+					'*' + settings_dict['Phys boundary_mask file label'] + '*')))
+			if len(file_list) == 1: # there should be only 1 file targeted
+				config.DIST2BOUNDARY_MASK_NAME = file_list[0].split('/')[-1]
+		else:
+			config.DIST2BOUNDARY_MASK_NAME = config.DICT['Raw data file']
+
+		# 2.4. Update config.DIST253BP1_MASK_NAME
+		if settings_dict['Phys 53bp1_mask file label']:# if label is not empty, find file_list
+			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
+					'*' + settings_dict['Phys 53bp1_mask file label'] + '*')))
+			if len(file_list) == 1: # there should be only 1 file targeted
+				config.DIST253BP1_MASK_NAME = file_list[0].split('/')[-1]
+		else:
+			config.DIST253BP1_MASK_NAME = config.DICT['Raw data file']
+
+		# """
+		# ~~~~~~~~~~~~~~~~~3. Setup pipe and run~~~~~~~~~~~~~~~~~
+		# """
+
+		pipe = Pipeline2(config)
 		for func in control_list:
 			getattr(pipe, func)()
