@@ -33,9 +33,13 @@ class Pipeline2():
 
 
 	def load(self):
-		frames = imread(self.config.INPUT_PATH + self.config.DICT['Raw data file'])
-		frames = frames[list(self.config.TRANGE),:,:]
+		if osp.exists(self.config.INPUT_PATH + self.config.ROOT_NAME + '.tif'):
+			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '.tif')
+		else:
+			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
+
+		frames = frames[list(self.config.TRANGE),:,:]
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
 
 
@@ -380,3 +384,36 @@ def pipeline_control2(settings_dict, control_list):
 
 	for func in control_list:
 		getattr(pipe, func)()
+
+
+def get_root_name_list(settings_dict):
+	root_name_list = []
+
+	path_list = glob.glob(settings_dict['IO input_path'] + '/*-raw.tif')
+	if len(path_list) != 0:
+		for path in path_list:
+			temp = path.split('/')[-1]
+			temp = temp[:temp.index('.') - len('-raw')]
+			root_name_list.append(temp)
+	else:
+		path_list = glob.glob(settings_dict['IO input_path'] + '/*.tif')
+		for path in path_list:
+			temp = path.split('/')[-1]
+			temp = temp[:temp.index('.')]
+			root_name_list.append(temp)
+
+	return np.array(sorted(root_name_list))
+
+
+def pipeline_batch(settings_dict, control_list):
+	root_name_list = get_root_name_list(settings_dict)
+	print(root_name_list)
+
+	for root_name in root_name_list:
+		config = Config(settings_dict)
+		config.ROOT_NAME = root_name
+		config.DICT['Raw data file'] = root_name + '.tif'
+		pipe = Pipeline2(config)
+
+		for func in control_list:
+			getattr(pipe, func)()
