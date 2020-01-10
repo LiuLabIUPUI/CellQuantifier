@@ -22,6 +22,30 @@ from ..util.config2 import Config
 from ..plot import plot_phys_1 as plot_merged
 from ..phys.physutil import relabel_particles, merge_physdfs
 
+
+def file1_exists_or_pimsopen_file2(head_str, tail_str1, tail_str2):
+	if osp.exists(head_str + tail_str1):
+		frames = pims.open(head_str + tail_str1)
+	else:
+		frames = pims.open(head_str + tail_str2)
+	return frames
+
+
+def nonempty_exists_then_copy(input_path, output_path, filename):
+	if filename: # if not empty, find the file
+		if osp.exists(input_path + filename):
+			frames = imread(input_path + filename)
+			imsave(output_path + filename, frames)
+
+
+def nonempty_openfile1_or_openfile2(path, filename1, filename2):
+	if filename1: # if not empty
+		frames = imread(path + filename1)
+	else:
+		frames = imread(path + filename2)
+	return frames
+
+
 class Pipeline2():
 
 	def __init__(self, config):
@@ -44,18 +68,9 @@ class Pipeline2():
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
 
 		# load reference files
-		if self.config.REF_FILE_NAME: # if not empty, find the file
-			if osp.exists(self.config.INPUT_PATH + self.config.REF_FILE_NAME):
-				ref_regi = imread(self.config.INPUT_PATH + self.config.REF_FILE_NAME)
-				imsave(self.config.OUTPUT_PATH + self.config.REF_FILE_NAME, ref_regi)
-		if self.config.DIST2BOUNDARY_MASK_NAME: # if not empty, find the file
-			if osp.exists(self.config.INPUT_PATH + self.config.DIST2BOUNDARY_MASK_NAME):
-				ref_boundary = imread(self.config.INPUT_PATH + self.config.DIST2BOUNDARY_MASK_NAME)
-				imsave(self.config.OUTPUT_PATH + self.config.DIST2BOUNDARY_MASK_NAME, ref_boundary)
-		if self.config.DIST2BOUNDARY_MASK_NAME: # if not empty, find the file
-			if osp.exists(self.config.INPUT_PATH + self.config.DIST253BP1_MASK_NAME):
-				ref_53bp1 = imread(self.config.INPUT_PATH + self.config.DIST253BP1_MASK_NAME)
-				imsave(self.config.OUTPUT_PATH + self.config.DIST253BP1_MASK_NAME, ref_53bp1)
+		nonempty_exists_then_copy(self.config.INPUT_PATH, self.config.OUTPUT_PATH, self.config.REF_FILE_NAME)
+		nonempty_exists_then_copy(self.config.INPUT_PATH, self.config.OUTPUT_PATH, self.config.DIST2BOUNDARY_MASK_NAME)
+		nonempty_exists_then_copy(self.config.INPUT_PATH, self.config.OUTPUT_PATH, self.config.DIST253BP1_MASK_NAME)
 
 
 	def check_regi(self):
@@ -64,13 +79,10 @@ class Pipeline2():
 		print("Check regi parameters")
 		print("######################################")
 
-		# If no regi ref file, use data file automatically
-		if self.config.REF_FILE_NAME:
-			ref_im = imread(self.config.OUTPUT_PATH +
-						self.config.REF_FILE_NAME)[list(self.config.TRANGE),:,:]
-		else:
-			ref_im = imread(self.config.OUTPUT_PATH +
-						self.config.ROOT_NAME + '-raw.tif')[list(self.config.TRANGE),:,:]
+		# If no regi ref file, use raw file automatically
+		ref_im = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+					self.config.REF_FILE_NAME,
+					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
 		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
@@ -103,7 +115,6 @@ class Pipeline2():
 									+ str(self.config.ROTATION_MULTIPLIER[n]) + '-'
 									+ str(self.config.TRANSLATION_MULTIPLIER[o])
 									+ '.tif', registered)
-
 		return
 
 
@@ -113,13 +124,10 @@ class Pipeline2():
 		print("Registering Image Stack")
 		print("######################################")
 
-		# If no regi ref file, use data file automatically
-		if self.config.REF_FILE_NAME:
-			ref_im = imread(self.config.OUTPUT_PATH +
-						self.config.REF_FILE_NAME)[list(self.config.TRANGE),:,:]
-		else:
-			ref_im = imread(self.config.OUTPUT_PATH +
-						self.config.ROOT_NAME + '-raw.tif')[list(self.config.TRANGE),:,:]
+		# If no regi ref file, use raw file automatically
+		ref_im = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+					self.config.REF_FILE_NAME,
+					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
 		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
@@ -139,7 +147,6 @@ class Pipeline2():
 
 		# Apply the regi params, save the registered file
 		registered = apply_regi_params(im, regi_params_array_2d)
-
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif', registered)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', registered)
 
@@ -150,15 +157,10 @@ class Pipeline2():
 		print("Generate dist2boundary_thres_masks")
 		print("######################################")
 
-		# If no mask ref file, use data file automatically
-		if self.config.DIST2BOUNDARY_MASK_NAME:
-			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
-								self.config.DIST2BOUNDARY_MASK_NAME) \
-								[list(self.config.TRANGE),:,:]
-		else:
-			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
-								self.config.ROOT_NAME + '-raw.tif') \
-								[list(self.config.TRANGE),:,:]
+		# If no mask ref file, use raw file automatically
+		dist2boundary_tif = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+					self.config.DIST2BOUNDARY_MASK_NAME,
+					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
 		# If regi params csv file exsits, load it and do the registration.
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
@@ -178,15 +180,10 @@ class Pipeline2():
 		print("Generate dist253bp1_thres_masks")
 		print("######################################")
 
-		# If no mask ref file, use data file automatically
-		if self.config.DIST253BP1_MASK_NAME:
-			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
-								self.config.DIST253BP1_MASK_NAME) \
-								[list(self.config.TRANGE),:,:]
-		else:
-			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
-								self.config.ROOT_NAME + '-raw.tif') \
-								[list(self.config.TRANGE),:,:]
+		# If no mask ref file, use raw file automatically
+		dist253bp1_tif = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+					self.config.DIST253BP1_MASK_NAME,
+					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
 		# If regi params csv file exsits, load it and do the registration.
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
@@ -252,10 +249,8 @@ class Pipeline2():
 		print("Check detection and fitting")
 		print("######################################")
 
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
-			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif')
-		else:
-			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
 
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
@@ -288,10 +283,8 @@ class Pipeline2():
 		print("Detect, Fit")
 		print("######################################")
 
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
-			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif')
-		else:
-			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
 
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
@@ -327,10 +320,8 @@ class Pipeline2():
 		print("Filter and Linking")
 		print("######################################")
 
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
-			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif')
-		else:
-			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
 
 		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
 
@@ -376,15 +367,10 @@ class Pipeline2():
 		print("Add 'dist_to_boundary'")
 		print("######################################")
 
-		# If no mask ref file, use data file automatically
-		if self.config.DIST2BOUNDARY_MASK_NAME:
-			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
-								self.config.DIST2BOUNDARY_MASK_NAME) \
-								[list(self.config.TRANGE),:,:]
-		else:
-			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
-								self.config.ROOT_NAME + '-raw.tif') \
-								[list(self.config.TRANGE),:,:]
+		# If no mask ref file, use raw file automatically
+		dist2boundary_tif = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+					self.config.DIST2BOUNDARY_MASK_NAME,
+					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
 		# If regi params csv file exsits, load it and do the registration.
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
@@ -402,15 +388,10 @@ class Pipeline2():
 		print("Add 'dist_to_53bp1'")
 		print("######################################")
 
-		# If no mask ref file, use data file automatically
-		if self.config.DIST253BP1_MASK_NAME:
-			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
-								self.config.DIST253BP1_MASK_NAME) \
-								[list(self.config.TRANGE),:,:]
-		else:
-			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
-								self.config.ROOT_NAME + '-raw.tif') \
-								[list(self.config.TRANGE),:,:]
+		# If no mask ref file, use raw file automatically
+		dist253bp1_tif = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+					self.config.DIST253BP1_MASK_NAME,
+					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
 		# If regi params csv file exsits, load it and do the registration.
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
@@ -434,10 +415,8 @@ class Pipeline2():
 		print("Sort and PlotMSD")
 		print("######################################")
 
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif'):
-			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif')
-		else:
-			frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
 
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
