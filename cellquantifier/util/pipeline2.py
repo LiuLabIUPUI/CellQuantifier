@@ -33,6 +33,7 @@ class Pipeline2():
 
 
 	def load(self):
+		# load data file
 		if osp.exists(self.config.INPUT_PATH + self.config.ROOT_NAME + '.tif'):
 			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '.tif')
 		else:
@@ -42,7 +43,7 @@ class Pipeline2():
 		frames = frames[list(self.config.TRANGE),:,:]
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
 
-		# copy reference files if needed
+		# load reference files
 		if self.config.REF_FILE_NAME: # if not empty, find the file
 			if osp.exists(self.config.INPUT_PATH + self.config.REF_FILE_NAME):
 				ref_regi = imread(self.config.INPUT_PATH + self.config.REF_FILE_NAME)
@@ -57,15 +58,72 @@ class Pipeline2():
 				imsave(self.config.OUTPUT_PATH + self.config.DIST253BP1_MASK_NAME, ref_53bp1)
 
 
+	def check_regi(self):
+
+		print("######################################")
+		print("Check regi parameters")
+		print("######################################")
+
+		# If no regi ref file, use data file automatically
+		if self.config.REF_FILE_NAME:
+			ref_im = imread(self.config.OUTPUT_PATH +
+						self.config.REF_FILE_NAME)[list(self.config.TRANGE),:,:]
+		else:
+			ref_im = imread(self.config.OUTPUT_PATH +
+						self.config.ROOT_NAME + '-raw.tif')[list(self.config.TRANGE),:,:]
+
+		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+
+
+		for j in range(len(self.config.REF_IND_NUM)):
+			for k in range(len(self.config.SIG_MASK)):
+				for l in range(len(self.config.THRES_REL)):
+					for m in range(len(self.config.POLY_DEG)):
+						for n in range(len(self.config.ROTATION_MULTIPLIER)):
+							for o in range(len(self.config.TRANSLATION_MULTIPLIER)):
+
+								# Get regi parameters from ref file, save the regi params in csv file
+								regi_params_array_2d = get_regi_params(ref_im,
+								              ref_ind_num=self.config.REF_IND_NUM[j],
+								              sig_mask=self.config.SIG_MASK[k],
+								              thres_rel=self.config.THRES_REL[l],
+								              poly_deg=self.config.POLY_DEG[m],
+								              rotation_multplier=self.config.ROTATION_MULTIPLIER[n],
+								              translation_multiplier=self.config.TRANSLATION_MULTIPLIER[o],
+								              diagnostic=False)
+
+								# Apply the regi params, save the registered file
+								registered = apply_regi_params(im, regi_params_array_2d)
+
+								imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-'
+									+ str(self.config.REF_IND_NUM[j]) + '-'
+									+ str(self.config.SIG_MASK[k]) + '-'
+									+ str(self.config.THRES_REL[l]) + '-'
+									+ str(self.config.POLY_DEG[m]) + '-'
+									+ str(self.config.ROTATION_MULTIPLIER[n]) + '-'
+									+ str(self.config.TRANSLATION_MULTIPLIER[o])
+									+ '.tif', registered)
+
+		return
+
+
 	def regi(self):
 
 		print("######################################")
 		print("Registering Image Stack")
 		print("######################################")
 
-		ref_im = imread(self.config.OUTPUT_PATH + self.config.REF_FILE_NAME)[list(self.config.TRANGE),:,:]
+		# If no regi ref file, use data file automatically
+		if self.config.REF_FILE_NAME:
+			ref_im = imread(self.config.OUTPUT_PATH +
+						self.config.REF_FILE_NAME)[list(self.config.TRANGE),:,:]
+		else:
+			ref_im = imread(self.config.OUTPUT_PATH +
+						self.config.ROOT_NAME + '-raw.tif')[list(self.config.TRANGE),:,:]
+
 		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
+		# Get regi parameters from ref file, save the regi params in csv file
 		regi_params_array_2d = get_regi_params(ref_im,
 		              ref_ind_num=self.config.REF_IND_NUM,
 		              sig_mask=self.config.SIG_MASK,
@@ -74,7 +132,12 @@ class Pipeline2():
 		              rotation_multplier=self.config.ROTATION_MULTIPLIER,
 		              translation_multiplier=self.config.TRANSLATION_MULTIPLIER,
 		              diagnostic=False)
+		regi_data = pd.DataFrame(regi_params_array_2d,
+				columns=['x_center', 'y_center', 'angle', 'delta_x', 'delta_y' ])
+		regi_data.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME +
+		 				'-regiData.csv', index=False)
 
+		# Apply the regi params, save the registered file
 		registered = apply_regi_params(im, regi_params_array_2d)
 
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif', registered)
@@ -87,10 +150,23 @@ class Pipeline2():
 		print("Generate dist2boundary_thres_masks")
 		print("######################################")
 
-		dist2boundary_tif = imread(self.config.INPUT_PATH + \
-							self.config.DIST2BOUNDARY_MASK_NAME) \
-							[list(self.config.TRANGE),:,:]
+		# If no mask ref file, use data file automatically
+		if self.config.DIST2BOUNDARY_MASK_NAME:
+			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
+								self.config.DIST2BOUNDARY_MASK_NAME) \
+								[list(self.config.TRANGE),:,:]
+		else:
+			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
+								self.config.ROOT_NAME + '-raw.tif') \
+								[list(self.config.TRANGE),:,:]
 
+		# If regi params csv file exsits, load it and do the registration.
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
+			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
+			 				self.config.ROOT_NAME + '-regiData.csv').to_numpy()
+			dist2boundary_tif = apply_regi_params(dist2boundary_tif, regi_params_array_2d)
+
+		# Get mask file and save it using 255 and 0
 		dist2boundary_thres_masks = get_thres_mask_batch(dist2boundary_tif,
 							self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
 		dist2boundary_thres_masks = np.rint(dist2boundary_thres_masks / \
@@ -102,20 +178,29 @@ class Pipeline2():
 		print("Generate dist253bp1_thres_masks")
 		print("######################################")
 
-		dist253bp1_tif = imread(self.config.INPUT_PATH + \
-							self.config.DIST253BP1_MASK_NAME) \
-							[list(self.config.TRANGE),:,:]
+		# If no mask ref file, use data file automatically
+		if self.config.DIST253BP1_MASK_NAME:
+			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
+								self.config.DIST253BP1_MASK_NAME) \
+								[list(self.config.TRANGE),:,:]
+		else:
+			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
+								self.config.ROOT_NAME + '-raw.tif') \
+								[list(self.config.TRANGE),:,:]
 
+		# If regi params csv file exsits, load it and do the registration.
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
+			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
+							self.config.ROOT_NAME + '-regiData.csv').to_numpy()
+			dist253bp1_tif = apply_regi_params(dist253bp1_tif, regi_params_array_2d)
+
+		# Get mask file and save it using 255 and 0
 		dist253bp1_thres_masks = get_thres_mask_batch(dist253bp1_tif,
 							self.config.MASK_SIG_53BP1, self.config.MASK_THRES_53BP1)
 		dist253bp1_thres_masks = np.rint(dist253bp1_thres_masks / \
 							dist253bp1_thres_masks.max() * 255).astype(np.uint8)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif',
 				dist253bp1_thres_masks)
-
-		print("######################################")
-		print("Mask generation are done!")
-		print("######################################")
 
 
 	def segmentation(self, method):
@@ -161,7 +246,7 @@ class Pipeline2():
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif', filtered)
 
 
-	def check(self):
+	def check_detect_fit(self):
 
 		print("######################################")
 		print("Check detection and fitting")
@@ -270,7 +355,7 @@ class Pipeline2():
 										filters=self.config.FILTERS,
 										do_filter=True)
 
-		blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+		blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv', index=False)
 
 		print("######################################")
 		print("Trajectory number before filters: \t%d" % traj_num_before)
@@ -290,10 +375,24 @@ class Pipeline2():
 		print("######################################")
 		print("Add 'dist_to_boundary'")
 		print("######################################")
-		dist2boundary_tif = imread(self.config.INPUT_PATH + \
-							self.config.DIST2BOUNDARY_MASK_NAME) \
-							[list(self.config.TRANGE),:,:]
 
+		# If no mask ref file, use data file automatically
+		if self.config.DIST2BOUNDARY_MASK_NAME:
+			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
+								self.config.DIST2BOUNDARY_MASK_NAME) \
+								[list(self.config.TRANGE),:,:]
+		else:
+			dist2boundary_tif = imread(self.config.OUTPUT_PATH + \
+								self.config.ROOT_NAME + '-raw.tif') \
+								[list(self.config.TRANGE),:,:]
+
+		# If regi params csv file exsits, load it and do the registration.
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
+			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
+			 				self.config.ROOT_NAME + '-regiData.csv').to_numpy()
+			dist2boundary_tif = apply_regi_params(dist2boundary_tif, regi_params_array_2d)
+
+		# Get mask file, add phys parameters
 		dist2boundary_thres_masks = get_thres_mask_batch(dist2boundary_tif,
 							self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
 		phys_df = add_dist_to_boundary_batch(blobs_df, dist2boundary_thres_masks)
@@ -302,10 +401,24 @@ class Pipeline2():
 		print("######################################")
 		print("Add 'dist_to_53bp1'")
 		print("######################################")
-		dist253bp1_tif = imread(self.config.INPUT_PATH + \
-							self.config.DIST253BP1_MASK_NAME) \
-							[list(self.config.TRANGE),:,:]
 
+		# If no mask ref file, use data file automatically
+		if self.config.DIST253BP1_MASK_NAME:
+			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
+								self.config.DIST253BP1_MASK_NAME) \
+								[list(self.config.TRANGE),:,:]
+		else:
+			dist253bp1_tif = imread(self.config.OUTPUT_PATH + \
+								self.config.ROOT_NAME + '-raw.tif') \
+								[list(self.config.TRANGE),:,:]
+
+		# If regi params csv file exsits, load it and do the registration.
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
+			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
+							self.config.ROOT_NAME + '-regiData.csv').to_numpy()
+			dist253bp1_tif = apply_regi_params(dist253bp1_tif, regi_params_array_2d)
+
+		# Get mask file, add phys parameters
 		dist253bp1_thres_masks = get_thres_mask_batch(dist253bp1_tif,
 							self.config.MASK_SIG_53BP1, self.config.MASK_THRES_53BP1)
 		phys_df = add_dist_to_53bp1_batch(blobs_df, dist253bp1_thres_masks)
@@ -396,14 +509,6 @@ class Pipeline2():
 		fig.savefig(self.config.OUTPUT_PATH + merged_name + '-mergedResults.pdf')
 
 
-def pipeline_control2(settings_dict, control_list):
-	config = Config(settings_dict)
-	pipe = Pipeline2(config)
-
-	for func in control_list:
-		getattr(pipe, func)()
-
-
 def get_root_name_list(settings_dict):
 	# Make a copy of settings_dict
 	# Use '*%#@)9_@*#@_@' to substitute if the labels are empty
@@ -467,8 +572,8 @@ def pipeline_batch(settings_dict, control_list):
 					'*' + settings_dict['Regi reference file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.REF_FILE_NAME = file_list[0].split('/')[-1]
-		else:
-			config.REF_FILE_NAME = config.DICT['Raw data file']
+			else:
+				config.DICT['Regi reference file label'] = ''
 
 		# 2.3. Update config.DIST2BOUNDARY_MASK_NAME
 		if settings_dict['Phys boundary_mask file label']:# if label is not empty, find file_list
@@ -476,8 +581,8 @@ def pipeline_batch(settings_dict, control_list):
 					'*' + settings_dict['Phys boundary_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST2BOUNDARY_MASK_NAME = file_list[0].split('/')[-1]
-		else:
-			config.DIST2BOUNDARY_MASK_NAME = config.DICT['Raw data file']
+			else:
+				config.DICT['Phys boundary_mask file label'] = ''
 
 		# 2.4. Update config.DIST253BP1_MASK_NAME
 		if settings_dict['Phys 53bp1_mask file label']:# if label is not empty, find file_list
@@ -485,8 +590,8 @@ def pipeline_batch(settings_dict, control_list):
 					'*' + settings_dict['Phys 53bp1_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST253BP1_MASK_NAME = file_list[0].split('/')[-1]
-		else:
-			config.DIST253BP1_MASK_NAME = config.DICT['Raw data file']
+			else:
+				config.DICT['Phys 53bp1_mask file label'] = ''
 
 		# """
 		# ~~~~~~~~~~~~~~~~~3. Setup pipe and run~~~~~~~~~~~~~~~~~

@@ -20,10 +20,10 @@ settings = {
   'IO output_path': '/home/linhua/Desktop/temp/',
 
   #REGISTRATION SETTINGS
-  'Regi reference file label': '',
+  'Regi reference file label': 'dutp',
   'Regi ref_ind_num': 0,
   'Regi sig_mask': 3,
-  'Regi thres_rel': .1,
+  'Regi thres_rel': 0.1,
   'Regi poly_deg': 2,
   'Regi rotation_multplier': 1,
   'Regi translation_multiplier': 1,
