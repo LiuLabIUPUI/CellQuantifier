@@ -1,7 +1,7 @@
 import pims; import pandas as pd; import numpy as np
 import trackpy as tp
-import os.path as osp; import os
-from datetime import date
+import os.path as osp; import os; import ast
+from datetime import date, datetime
 from skimage.io import imread, imsave
 from skimage.util import img_as_ubyte
 from skimage.measure import regionprops
@@ -51,10 +51,8 @@ class Pipeline2():
 	def __init__(self, config):
 		self.config = config
 
-
 	def clean_dir(self):
 		self.config.clean_dir()
-
 
 	def load(self):
 		# load data file
@@ -254,20 +252,20 @@ class Pipeline2():
 
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
-		blobs_df, det_plt_array = detect_blobs(frames[self.config.CHECK_FRAME],
+		blobs_df, det_plt_array = detect_blobs(frames[0],
 									min_sig=self.config.MIN_SIGMA,
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
 									blob_thres=self.config.THRESHOLD,
 									peak_thres_rel=self.config.PEAK_THRESH_REL,
-									r_to_sigraw=self.config.PATCH_SIZE,
-									pixel_size = self.config.PIXEL_SIZE,
+									r_to_sigraw=1,
+									pixel_size=self.config.PIXEL_SIZE,
 									diagnostic=True,
 									pltshow=True,
-									plot_r=self.config.PLOT_R,
+									plot_r=False,
 									truth_df=None)
 
-		psf_df, fit_plt_array = fit_psf(frames_deno[self.config.CHECK_FRAME],
+		psf_df, fit_plt_array = fit_psf(frames_deno[0],
 		            blobs_df,
 		            diagnostic=True,
 		            pltshow=True,
@@ -294,8 +292,8 @@ class Pipeline2():
 									num_sig=self.config.NUM_SIGMA,
 									blob_thres=self.config.THRESHOLD,
 									peak_thres_rel=self.config.PEAK_THRESH_REL,
-									r_to_sigraw=self.config.PATCH_SIZE,
-									pixel_size = self.config.PIXEL_SIZE,
+									r_to_sigraw=1,
+									pixel_size=self.config.PIXEL_SIZE,
 									diagnostic=True,
 									pltshow=False,
 									plot_r=False,
@@ -494,10 +492,10 @@ def get_root_name_list(settings_dict):
 	settings = settings_dict.copy()
 	if settings['Regi reference file label'] == '':
 		settings['Regi reference file label'] = '*%#@)9_@*#@_@'
-	if settings['Phys boundary_mask file label'] == '':
-		settings['Phys boundary_mask file label'] = '*%#@)9_@*#@_@'
-	if settings['Phys 53bp1_mask file label'] == '':
-		settings['Phys 53bp1_mask file label'] = '*%#@)9_@*#@_@'
+	if settings['Mask boundary_mask file label'] == '':
+		settings['Mask boundary_mask file label'] = '*%#@)9_@*#@_@'
+	if settings['Mask 53bp1_mask file label'] == '':
+		settings['Mask 53bp1_mask file label'] = '*%#@)9_@*#@_@'
 
 	root_name_list = []
 
@@ -513,12 +511,24 @@ def get_root_name_list(settings_dict):
 		for path in path_list:
 			temp = path.split('/')[-1]
 			temp = temp[:temp.index('.')]
-			if (settings['Phys boundary_mask file label'] not in temp+'.tif') & \
-				(settings['Phys 53bp1_mask file label'] not in temp+'.tif') & \
+			if (settings['Mask boundary_mask file label'] not in temp+'.tif') & \
+				(settings['Mask 53bp1_mask file label'] not in temp+'.tif') & \
 				(settings['Regi reference file label'] not in temp+'.tif'):
 				root_name_list.append(temp)
 
 	return np.array(sorted(root_name_list))
+
+
+def analMeta_to_dict(analMeta_path):
+	df = pd.read_csv(analMeta_path, header=None, index_col=0, na_filter=False)
+	df = df.rename(columns={1:'value'})
+	srs = df['value']
+
+	dict = {}
+	for key in srs.index:
+		try: dict[key] = ast.literal_eval(srs[key])
+		except: dict[key] = srs[key]
+	return dict
 
 
 def pipeline_batch(settings_dict, control_list):
@@ -541,9 +551,21 @@ def pipeline_batch(settings_dict, control_list):
 
 		config = Config(settings_dict)
 
-		# 2.1. Update config.ROOT_NAME and config.DICT['Raw data file']
+		# 2.0. load existing analMeta file, if there is one
+		if osp.exists(settings_dict['IO input_path'] + root_name + '-analMeta.csv'):
+			existing_settings = analMeta_to_dict(settings_dict['IO input_path'] + root_name + '-analMeta.csv')
+			existing_settings['IO input_path']= settings_dict['IO input_path']
+			existing_settings['IO output_path'] = settings_dict['IO output_path']
+			existing_settings['Processed By:'] = settings_dict['Processed By:']
+			existing_settings.pop('Processed by:', None)
+			settings_dict = existing_settings
+			config = Config(settings_dict)
+
+		# 2.1. Update config.ROOT_NAME and config.DICT
 		config.ROOT_NAME = root_name
 		config.DICT['Raw data file'] = root_name + '.tif'
+		config.DICT['Processed date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+		config.DICT['Processed by:'] = settings_dict['Processed By:']
 
 		# 2.2. Update config.REF_FILE_NAME
 		if settings_dict['Regi reference file label']:# if label is not empty, find file_list
@@ -555,27 +577,26 @@ def pipeline_batch(settings_dict, control_list):
 				config.DICT['Regi reference file label'] = ''
 
 		# 2.3. Update config.DIST2BOUNDARY_MASK_NAME
-		if settings_dict['Phys boundary_mask file label']:# if label is not empty, find file_list
+		if settings_dict['Mask boundary_mask file label']:# if label is not empty, find file_list
 			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
-					'*' + settings_dict['Phys boundary_mask file label'] + '*')))
+					'*' + settings_dict['Mask boundary_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST2BOUNDARY_MASK_NAME = file_list[0].split('/')[-1]
 			else:
-				config.DICT['Phys boundary_mask file label'] = ''
+				config.DICT['Mask boundary_mask file label'] = ''
 
 		# 2.4. Update config.DIST253BP1_MASK_NAME
-		if settings_dict['Phys 53bp1_mask file label']:# if label is not empty, find file_list
+		if settings_dict['Mask 53bp1_mask file label']:# if label is not empty, find file_list
 			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
-					'*' + settings_dict['Phys 53bp1_mask file label'] + '*')))
+					'*' + settings_dict['Mask 53bp1_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST253BP1_MASK_NAME = file_list[0].split('/')[-1]
 			else:
-				config.DICT['Phys 53bp1_mask file label'] = ''
+				config.DICT['Mask 53bp1_mask file label'] = ''
 
 		# """
 		# ~~~~~~~~~~~~~~~~~3. Setup pipe and run~~~~~~~~~~~~~~~~~
 		# """
-
 		pipe = Pipeline2(config)
 		for func in control_list:
 			getattr(pipe, func)()
