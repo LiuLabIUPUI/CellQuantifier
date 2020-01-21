@@ -68,6 +68,12 @@ class Config():
 		self.DIST253BP1_MASK_NAME = ''
 		self.MASK_SIG_53BP1 = config['Mask 53bp1_mask sig']
 		self.MASK_THRES_53BP1 = config['Mask 53bp1_mask thres_rel']
+		self.MASK_53BP1_BLOB_NAME = ''
+		self.MASK_53BP1_BLOB_THRES = config['Mask 53bp1_blob_threshold']
+		self.MASK_53BP1_BLOB_MINSIG = config['Mask 53bp1_blob_min_sigma']
+		self.MASK_53BP1_BLOB_MAXSIG = config['Mask 53bp1_blob_max_sigma']
+		self.MASK_53BP1_BLOB_NUMSIG = config['Mask 53bp1_blob_num_sigma']
+		self.MASK_53BP1_BLOB_PKTHRES_REL = config['Mask 53bp1_pk_thresh_rel']
 
 		#SORTING SETTINGS
 		if (config['Sort dist_to_boundary']=='') & \
