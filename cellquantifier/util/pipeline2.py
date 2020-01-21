@@ -9,8 +9,7 @@ import warnings
 import glob
 
 from ..deno import filter_batch
-from ..segm import get_mask_batch
-from ..segm import get_thres_mask_batch
+from ..segm import *
 from ..regi import get_regi_params, apply_regi_params
 
 from ..smt.detect import detect_blobs, detect_blobs_batch
@@ -149,14 +148,9 @@ class Pipeline2():
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', registered)
 
 
-	def mask(self):
-
-		print("######################################")
-		print("Generate dist2boundary_thres_masks")
-		print("######################################")
-
+	def get_boundary_mask(self):
 		# If no mask ref file, use raw file automatically
-		dist2boundary_tif = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+		frames = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
 					self.config.DIST2BOUNDARY_MASK_NAME,
 					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
@@ -164,22 +158,17 @@ class Pipeline2():
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
 			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
 			 				self.config.ROOT_NAME + '-regiData.csv').to_numpy()
-			dist2boundary_tif = apply_regi_params(dist2boundary_tif, regi_params_array_2d)
+			frames = apply_regi_params(frames, regi_params_array_2d)
 
-		# Get mask file and save it using 255 and 0
-		dist2boundary_thres_masks = get_thres_mask_batch(dist2boundary_tif,
-							self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
-		dist2boundary_thres_masks = np.rint(dist2boundary_thres_masks / \
-							dist2boundary_thres_masks.max() * 255).astype(np.uint8)
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif',
-				dist2boundary_thres_masks)
+		boundary_masks = get_thres_mask_batch(frames,
+					self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
 
-		print("######################################")
-		print("Generate dist253bp1_thres_masks")
-		print("######################################")
+		return boundary_masks
 
+
+	def get_53bp1_mask(self):
 		# If no mask ref file, use raw file automatically
-		dist253bp1_tif = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+		frames = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
 					self.config.DIST253BP1_MASK_NAME,
 					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
@@ -187,15 +176,90 @@ class Pipeline2():
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
 			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
 							self.config.ROOT_NAME + '-regiData.csv').to_numpy()
-			dist253bp1_tif = apply_regi_params(dist253bp1_tif, regi_params_array_2d)
+			frames = apply_regi_params(frames, regi_params_array_2d)
 
 		# Get mask file and save it using 255 and 0
-		dist253bp1_thres_masks = get_thres_mask_batch(dist253bp1_tif,
+		masks_53bp1 = get_thres_mask_batch(frames,
 							self.config.MASK_SIG_53BP1, self.config.MASK_THRES_53BP1)
-		dist253bp1_thres_masks = np.rint(dist253bp1_thres_masks / \
-							dist253bp1_thres_masks.max() * 255).astype(np.uint8)
+
+		return masks_53bp1
+
+
+	def get_53bp1_blob_mask(self):
+		# If no mask ref file, use raw file automatically
+		frames = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+					self.config.MASK_53BP1_BLOB_NAME,
+					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
+
+		# If regi params csv file exsits, load it and do the registration.
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
+			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
+							self.config.ROOT_NAME + '-regiData.csv').to_numpy()
+			frames = apply_regi_params(frames, regi_params_array_2d)
+
+		# Get mask file and save it using 255 and 0
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-tempFile.tif',
+				frames)
+		pims_frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME +
+								'-tempFile.tif')
+		os.remove(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-tempFile.tif')
+
+		blobs_df, det_plt_array = detect_blobs_batch(pims_frames,
+									min_sig=self.config.MASK_53BP1_BLOB_MINSIG,
+									max_sig=self.config.MASK_53BP1_BLOB_MAXSIG,
+									num_sig=self.config.MASK_53BP1_BLOB_NUMSIG,
+									blob_thres=self.config.MASK_53BP1_BLOB_THRES,
+									peak_thres_rel=self.config.MASK_53BP1_BLOB_PKTHRES_REL,
+									r_to_sigraw=1.4,
+									pixel_size=self.config.PIXEL_SIZE,
+									diagnostic=False,
+									pltshow=False,
+									plot_r=False,
+									truth_df=None)
+
+		masks_53bp1_blob = blobs_df_to_mask(frames, blobs_df)
+
+		return masks_53bp1_blob
+
+
+	def mask_boundary(self):
+		print("######################################")
+		print("Generate mask_boundary")
+		print("######################################")
+		boundary_masks = self.get_boundary_mask()
+
+		# Save it using 255 and 0
+		boundary_masks = np.rint(boundary_masks / \
+							boundary_masks.max() * 255).astype(np.uint8)
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif',
+				boundary_masks)
+
+
+	def mask_53bp1(self):
+		print("######################################")
+		print("Generate mask_53bp1")
+		print("######################################")
+		masks_53bp1 = self.get_53bp1_mask()
+
+		# Save it using 255 and 0
+		masks_53bp1 = np.rint(masks_53bp1 / \
+							masks_53bp1.max() * 255).astype(np.uint8)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif',
-				dist253bp1_thres_masks)
+				masks_53bp1)
+
+
+	def mask_53bp1_blob(self):
+		print("######################################")
+		print("Generate mask_53bp1_blob")
+		print("######################################")
+
+		masks_53bp1_blob = self.get_53bp1_blob_mask()
+
+		# Save it using 255 and 0
+		masks_53bp1_blob = np.rint(masks_53bp1_blob / \
+							masks_53bp1_blob.max() * 255).astype(np.uint8)
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1BlobMask.tif',
+				masks_53bp1_blob)
 
 
 	def segmentation(self, method):
@@ -357,52 +421,56 @@ class Pipeline2():
 		print("######################################")
 		print("Add Physics Parameters")
 		print("######################################")
-
 		blobs_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
 		# add 'dist_to_boundary' column
 		print("######################################")
 		print("Add 'dist_to_boundary'")
 		print("######################################")
+		boundary_masks = self.get_boundary_mask()
+		phys_df = add_dist_to_boundary_batch(blobs_df, boundary_masks)
 
-		# If no mask ref file, use raw file automatically
-		dist2boundary_tif = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
-					self.config.DIST2BOUNDARY_MASK_NAME,
-					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
-
-		# If regi params csv file exsits, load it and do the registration.
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
-			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
-			 				self.config.ROOT_NAME + '-regiData.csv').to_numpy()
-			dist2boundary_tif = apply_regi_params(dist2boundary_tif, regi_params_array_2d)
-
-		# Get mask file, add phys parameters
-		dist2boundary_thres_masks = get_thres_mask_batch(dist2boundary_tif,
-							self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
-		phys_df = add_dist_to_boundary_batch(blobs_df, dist2boundary_thres_masks)
-
-		# add 'dist_to_boundary' column
+		# add 'dist_to_53bp1' column
 		print("######################################")
 		print("Add 'dist_to_53bp1'")
 		print("######################################")
-
-		# If no mask ref file, use raw file automatically
-		dist253bp1_tif = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
-					self.config.DIST253BP1_MASK_NAME,
-					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
-
-		# If regi params csv file exsits, load it and do the registration.
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
-			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
-							self.config.ROOT_NAME + '-regiData.csv').to_numpy()
-			dist253bp1_tif = apply_regi_params(dist253bp1_tif, regi_params_array_2d)
-
-		# Get mask file, add phys parameters
-		dist253bp1_thres_masks = get_thres_mask_batch(dist253bp1_tif,
-							self.config.MASK_SIG_53BP1, self.config.MASK_THRES_53BP1)
-		phys_df = add_dist_to_53bp1_batch(blobs_df, dist253bp1_thres_masks)
+		masks_53bp1 = self.get_53bp1_mask()
+		phys_df = add_dist_to_53bp1_batch(blobs_df, masks_53bp1)
 
 		# Save '-physData.csv'
+		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physData.csv', index=False)
+
+
+	def phys_dist2boundary(self):
+		print("######################################")
+		print("Add Physics Param: dist_to_boundary")
+		print("######################################")
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+		boundary_masks = self.get_boundary_mask()
+		phys_df = add_dist_to_boundary_batch(phys_df, boundary_masks)
+		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physData.csv', index=False)
+
+
+	def phys_dist253bp1(self):
+		print("######################################")
+		print("Add Physics Param: dist_to_53bp1")
+		print("######################################")
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+		masks_53bp1 = self.get_53bp1_mask()
+		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1)
+		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physData.csv', index=False)
+
+
+	def phys_dist253bp1_blob(self):
+		print("######################################")
+		print("Add Physics Param: dist_to_53bp1_blob")
+		print("######################################")
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+		masks_53bp1_blob = self.get_53bp1_blob_mask()
+		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1_blob)
 		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
@@ -593,6 +661,15 @@ def pipeline_batch(settings_dict, control_list):
 				config.DIST253BP1_MASK_NAME = file_list[0].split('/')[-1]
 			else:
 				config.DICT['Mask 53bp1_mask file label'] = ''
+
+		# 2.5. Update config.MASK_53BP1_BLOB_NAME
+		if settings_dict['Mask 53bp1_blob_mask file label']:# if label is not empty, find file_list
+			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
+					'*' + settings_dict['Mask 53bp1_blob_mask file label'] + '*')))
+			if len(file_list) == 1: # there should be only 1 file targeted
+				config.MASK_53BP1_BLOB_NAME = file_list[0].split('/')[-1]
+			else:
+				config.DICT['Mask 53bp1_blob_mask file label'] = ''
 
 		# """
 		# ~~~~~~~~~~~~~~~~~3. Setup pipe and run~~~~~~~~~~~~~~~~~

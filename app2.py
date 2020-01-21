@@ -1,10 +1,20 @@
 from cellquantifier.util.pipeline2 import *
 """Part I: CellQuantifier Sequence Control"""
 
-control = ['clean_dir', 'load', 'regi', 'mask', 'deno_box', 'deno_gaus',
-            'detect_fit', 'filt_track', 'phys', 'sort_plot']
+control = [
+'clean_dir',
+'load',
+'regi',
+'mask_boundary', 'mask_53bp1', 'mask_53bp1_blob',
+'deno_box', 'deno_gaus',
+'detect_fit',
+'filt_track',
+'phys_dist2boundary', 'phys_dist253bp1_blob',
+'sort_plot'
+]
 
 """Part II: CellQuantifier Parameter Settings"""
+
 settings = {
 
   #HEADER INFO
@@ -29,13 +39,21 @@ settings = {
   'Segm min_size': 'NA',
   'Segm threshold': 'NA',
 
-  #MASK SETTINGS
+  #MASK_BOUNDARY SETTINGS
   'Mask boundary_mask file label': '',
   'Mask boundary_mask sig': 3,
   'Mask boundary_mask thres_rel': 0.08,
+  #MASK_53BP1 SETTINGS
   'Mask 53bp1_mask file label': '',
   'Mask 53bp1_mask sig': 1,
   'Mask 53bp1_mask thres_rel': 0.35,
+  #MASK_53BP1_BLOB SETTINGS
+  'Mask 53bp1_blob_mask file label': '',
+  'Mask 53bp1_blob_threshold': 0.08,
+  'Mask 53bp1_blob_min_sigma': 2,
+  'Mask 53bp1_blob_max_sigma': 4,
+  'Mask 53bp1_blob_num_sigma': 5,
+  'Mask 53bp1_pk_thresh_rel': 0.15,
 
   #DENOISE SETTINGS
   'Deno boxcar_radius': 10,
