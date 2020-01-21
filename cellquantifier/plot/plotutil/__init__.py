@@ -10,4 +10,5 @@ from ._add_scatter import *
 from ._add_corr_coeff import *
 from ._add_fitting import *
 from ._add_strip_plot import *
+from ._add_heat_map import *
 from .anno import *

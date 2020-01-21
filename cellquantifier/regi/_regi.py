@@ -1,11 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.measure import regionprops
+from skimage.segmentation import mark_boundaries
+from skimage.filters import gaussian
 from skimage.transform import rotate
+from skimage.exposure import adjust_gamma
 from skimage.transform import SimilarityTransform, warp
 from ..math.ransac import ransac_polyfit
 from ..plot.plotutil import anno_ellipse
 from ..segm.mask import get_thres_mask as get_mask
+
 
 def get_regi_params(array_3d,
               ref_ind_num=0,
@@ -91,7 +95,7 @@ def get_regi_params(array_3d,
     p1 = np.poly1d(poly_params1)
     p2 = np.poly1d(poly_params2)
     angle_fit1 = p1(index)
-    angle_fit2 = p2(index) * rotation_multplier
+    angle_fit2 = p1(index) * rotation_multplier
     regi_params_array_2d[:, 2] = np.array(angle_fit2)
 
     regi_params_array_2d[:, 3] = regi_params_array_2d[:,3] * translation_multiplier
@@ -109,7 +113,9 @@ def get_regi_params(array_3d,
         ax[0].plot(index, angle_fit2, '-b', label='ransac fitting')
         ax[0].legend(loc='lower left')
 
-        ax[1].imshow(Reg_mask, cmap='gray')
+        Ref = adjust_gamma(Ref, gain=6)
+        trace = mark_boundaries(Ref, Reg_mask)
+        ax[1].imshow(trace, cmap='gray')
         anno_ellipse(ax[1], Ref_props)
         anno_ellipse(ax[1], Reg_props)
 

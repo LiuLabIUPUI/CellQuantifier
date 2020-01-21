@@ -21,7 +21,7 @@ def set_ylim_reverse(ax):
     if top > bottom:
         ax.set_ylim(top, bottom)
 
-def anno_ellipse(ax, regionprops, linewidth=2.5, color=(1,0,0,0.8)):
+def anno_ellipse(ax, regionprops, linewidth=1, color=(1,0,0,0.8)):
     """
     Annotate ellipse in matplotlib axis.
     The ellipse parameters are obtained from regionprops object of skimage.
