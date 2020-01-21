@@ -224,10 +224,7 @@ def fit_psf_batch(pims_frames,
             diag_max_dist_err=1,
             diag_max_sig_to_sigraw = 3,
             truth_df=None,
-            segm_df=None,
-            output_path=None,
-            root_name=None,
-            save_csv=False):
+            segm_df=None):
     """
     Point spread function fitting for the whole movie.
 
@@ -296,8 +293,5 @@ def fit_psf_batch(pims_frames,
 
     psf_df = df
     plt_array = np.array(plt_array)
-
-    if save_csv:
-        psf_df.to_csv(output_path + root_name + "-fittData.csv", index=False)
 
     return psf_df, plt_array

@@ -371,10 +371,11 @@ class Pipeline2():
 		            diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
 		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
 		            truth_df=None,
-		            segm_df=None,
-					output_path=self.config.OUTPUT_PATH,
-					root_name=self.config.ROOT_NAME,
-					save_csv=True)
+		            segm_df=None)
+		psf_df = psf_df.apply(pd.to_numeric)
+		psf_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-fittData.csv', index=False)
+
 
 	def filt_track(self):
 
@@ -408,7 +409,7 @@ class Pipeline2():
 										filters=self.config.FILTERS,
 										do_filter=True)
 
-		blobs_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv', index=False)
+		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv', index=False)
 
 		print("######################################")
 		print("Trajectory number before filters: \t%d" % traj_num_before)
@@ -438,7 +439,7 @@ class Pipeline2():
 		phys_df = add_dist_to_53bp1_batch(blobs_df, masks_53bp1)
 
 		# Save '-physData.csv'
-		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
 
@@ -449,7 +450,7 @@ class Pipeline2():
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 		boundary_masks = self.get_boundary_mask()
 		phys_df = add_dist_to_boundary_batch(phys_df, boundary_masks)
-		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
 
@@ -460,7 +461,7 @@ class Pipeline2():
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 		masks_53bp1 = self.get_53bp1_mask()
 		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1)
-		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
 
@@ -471,7 +472,7 @@ class Pipeline2():
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 		masks_53bp1_blob = self.get_53bp1_blob_mask()
 		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1_blob)
-		phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
 
@@ -488,7 +489,7 @@ class Pipeline2():
 
 		if self.config.DO_SORT:
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
-			phys_df.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+			phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 		else:
 			sorter_list = get_sorter_list(phys_df)
@@ -540,7 +541,7 @@ class Pipeline2():
 			else:
 				phys_df = pd.read_csv(phys_files[0])
 
-			phys_df.to_csv(self.config.OUTPUT_PATH + merged_name + \
+			phys_df.round(6).to_csv(self.config.OUTPUT_PATH + merged_name + \
 							'-physDataMerged.csv', index=False)
 
 		# phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
