@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import trackpy as tp
+import sys
 
 from ..math import fit_msd
 
@@ -129,6 +130,13 @@ def track_blobs(blobs_df,
 		blobs_df = tp.link_df(blobs_df, search_range=search_range, memory=memory)
 		blobs_df = blobs_df.reset_index(drop=True)
 
+	# """
+	# ~~~~~~~~~~~Check if DataFrame is empty~~~~~~~~~~~~~
+	# """
+
+	if blobs_df.empty:
+		print('\n***ERROR: No Trajectories Exist!!!***\n')
+		sys.exit()
 
 	# """
 	# ~~~~~~~~~~~Get dA/A~~~~~~~~~~~~~
