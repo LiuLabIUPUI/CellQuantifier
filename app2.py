@@ -10,7 +10,7 @@ control = [
 'deno_box', 'deno_gaus',
 'detect_fit',
 'filt_track',
-'phys_dist2boundary', 'phys_dist253bp1',
+# 'phys_dist2boundary', 'phys_dist253bp1',
 'sort_plot'
 ]
 
@@ -22,6 +22,7 @@ settings = {
   'Processed By:': 'Hua Lin',
   'Start frame index': 0,
   'End frame index': 10,
+  'Load existing analMeta': False,
 
   #IO
   'IO input_path': '/home/linhua/Desktop/input/',
@@ -79,7 +80,7 @@ settings = {
   'Filt max_dist_err': 10,
   'Filt max_sig_to_sigraw': 10,
   'Filt max_delta_area': 10,
-  'Filt traj_length_thres': 3,
+  'Filt traj_length_thres': 9,
 
   #SORTING SETTINGS
   'Sort dist_to_boundary': [-150, 0],

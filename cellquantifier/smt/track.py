@@ -123,7 +123,7 @@ def track_blobs(blobs_df,
 		blobs_df = blobs_df[blobs_df['sigx_to_sigraw'] < filters['SIG_TO_SIGRAW']]
 		blobs_df = blobs_df[blobs_df['sigy_to_sigraw'] < filters['SIG_TO_SIGRAW']]
 		blobs_df = tp.link_df(blobs_df, search_range=search_range, memory=memory)
-		blobs_df = tp.filter_stubs(blobs_df, filters['TRAJ_LEN_THRES'])
+		blobs_df = tp.filter_stubs(blobs_df, 5)
 		blobs_df = blobs_df.reset_index(drop=True)
 
 	else:

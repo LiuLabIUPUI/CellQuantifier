@@ -11,6 +11,7 @@ class Config():
 		self.ROOT_NAME = ''
 		self.START_FRAME = config['Start frame index']
 		self.TRANGE = range(config['Start frame index'], config['End frame index'])
+		self.LOAD_ANALMETA = config['Load existing analMeta']
 
 		#REGISTRATION SETTINGS
 		self.REF_FILE_NAME = ''

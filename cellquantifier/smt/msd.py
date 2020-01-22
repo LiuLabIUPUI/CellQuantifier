@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib as mpl
 import trackpy as tp
 import pandas as pd
+import sys
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
@@ -195,6 +196,10 @@ def plot_msd(blobs_df,
 						 pixel_size=.1084,
 						 divide_num=5)
 		"""
+
+	if blobs_df.empty:
+		print('\n***ERROR: No Trajectories Exist!!!***\n')
+		sys.exit()
 
 	# """
 	# ~~~~~~~~~~~Plot trajectory annotation~~~~~~~~~~~~~~

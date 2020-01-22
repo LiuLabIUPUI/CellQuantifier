@@ -34,6 +34,8 @@ def nonempty_exists_then_copy(input_path, output_path, filename):
 	if filename: # if not empty, find the file
 		if osp.exists(input_path + filename):
 			frames = imread(input_path + filename)
+			frames = frames / frames.max()
+			frames = img_as_ubyte(frames)
 			imsave(output_path + filename, frames)
 
 
@@ -59,6 +61,9 @@ class Pipeline2():
 			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '.tif')
 		else:
 			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+
+		frames = frames / frames.max()
+		frames = img_as_ubyte(frames)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
 
 		frames = frames[list(self.config.TRANGE),:,:]
@@ -410,11 +415,15 @@ class Pipeline2():
 										filters=self.config.FILTERS,
 										do_filter=True)
 
-		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv', index=False)
+		# Add 'traj_length' column and save physData before traj_length_thres filter
+		blobs_df = add_traj_length(blobs_df)
+		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+									'-physData.csv', index=False)
 
+		after_filter_df = blobs_df [blobs_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES']]
 		print("######################################")
 		print("Trajectory number before filters: \t%d" % traj_num_before)
-		print("Trajectory number after filters: \t%d" % blobs_df['particle'].nunique())
+		print("Trajectory number after filters: \t%d" % after_filter_df['particle'].nunique())
 		print("######################################")
 
 
@@ -488,13 +497,18 @@ class Pipeline2():
 
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
-		if self.config.DO_SORT:
+		if self.config.DO_SORT & \
+			('dist_to_53bp1' in phys_df.columns) & \
+			('dist_to_boundary' in phys_df):
 			phys_df = sort_phys(phys_df, self.config.SORTERS)
 			phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 		else:
 			sorter_list = get_sorter_list(phys_df)
 			phys_df = phys_df.drop(columns=sorter_list[1:-1])
+
+		# Apply traj_length_thres filter
+		phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
 
 		plot_msd_batch(phys_df,
 					 image=frames[0],
@@ -508,6 +522,7 @@ class Pipeline2():
 					 save_pdf=True,
 					 open_pdf=False)
 
+		self.config.DICT['Load existing analMeta'] = True
 		self.config.save_config()
 
 	def merge_plot(self):
@@ -523,6 +538,7 @@ class Pipeline2():
 
 		merged_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
 		print(merged_files)
+
 		if len(merged_files) > 1:
 			print("######################################")
 			print("Found multiple physDataMerged file!!!")
@@ -544,6 +560,9 @@ class Pipeline2():
 
 			phys_df.round(6).to_csv(self.config.OUTPUT_PATH + merged_name + \
 							'-physDataMerged.csv', index=False)
+
+		# Apply traj_length_thres filter
+		phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
 
 		# phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
 		fig = plot_merged(phys_df, 'exp_label',
@@ -621,8 +640,9 @@ def pipeline_batch(settings_dict, control_list):
 
 		config = Config(settings_dict)
 
-		# 2.0. load existing analMeta file, if there is one
-		if osp.exists(settings_dict['IO input_path'] + root_name + '-analMeta.csv'):
+		# 2.0. If LOAD_ANALMETA==True, then load existing analMeta file, if there is one
+		if config.DICT['Load existing analMeta'] & \
+		osp.exists(settings_dict['IO input_path'] + root_name + '-analMeta.csv'):
 			existing_settings = analMeta_to_dict(settings_dict['IO input_path'] + root_name + '-analMeta.csv')
 			existing_settings['IO input_path']= settings_dict['IO input_path']
 			existing_settings['IO output_path'] = settings_dict['IO output_path']
