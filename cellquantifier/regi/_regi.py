@@ -18,7 +18,8 @@ def get_regi_params(array_3d,
               poly_deg=2,
               rotation_multplier=1,
               translation_multiplier=1,
-              diagnostic=False):
+              diagnostic=False,
+              use_ransac=False):
     """
     Get the rigid registration parameters.
 
@@ -94,9 +95,12 @@ def get_regi_params(array_3d,
                 max_trials=300)
     p1 = np.poly1d(poly_params1)
     p2 = np.poly1d(poly_params2)
-    angle_fit1 = p1(index)
-    angle_fit2 = p1(index) * rotation_multplier
-    regi_params_array_2d[:, 2] = np.array(angle_fit2)
+    angle_fit1 = p1(index) * rotation_multplier
+    angle_fit2 = p2(index) * rotation_multplier
+    if use_ransac:
+        regi_params_array_2d[:, 2] = np.array(angle_fit2)
+    else:
+        regi_params_array_2d[:, 2] = np.array(angle_fit1)
 
     regi_params_array_2d[:, 3] = regi_params_array_2d[:,3] * translation_multiplier
     regi_params_array_2d[:, 4] = regi_params_array_2d[:,4] * translation_multiplier

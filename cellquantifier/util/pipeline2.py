@@ -136,7 +136,8 @@ class Pipeline2():
 		              poly_deg=self.config.POLY_DEG,
 		              rotation_multplier=self.config.ROTATION_MULTIPLIER,
 		              translation_multiplier=self.config.TRANSLATION_MULTIPLIER,
-		              diagnostic=False)
+		              diagnostic=False,
+					  use_ransac=self.config.USE_RANSAC)
 		regi_data = pd.DataFrame(regi_params_array_2d,
 				columns=['x_center', 'y_center', 'angle', 'delta_x', 'delta_y' ])
 		regi_data.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME +

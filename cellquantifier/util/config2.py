@@ -20,6 +20,7 @@ class Config():
 		self.POLY_DEG = config['Regi poly_deg']
 		self.ROTATION_MULTIPLIER = config['Regi rotation_multplier']
 		self.TRANSLATION_MULTIPLIER = config['Regi translation_multiplier']
+		self.USE_RANSAC = config['Regi use_ransac']
 
 		#SEGMENTATION SETTINGS
 		self.MIN_SIZE = config['Segm min_size']

@@ -1,4 +1,5 @@
 from cellquantifier.util.pipeline2 import *
+import numpy as np
 """Part I: CellQuantifier Sequence Control"""
 
 control = [
@@ -9,7 +10,7 @@ control = [
 'deno_box', 'deno_gaus',
 'detect_fit',
 'filt_track',
-'phys_dist2boundary', 'phys_dist253bp1_blob',
+'phys_dist2boundary', 'phys_dist253bp1',
 'sort_plot'
 ]
 
@@ -34,6 +35,7 @@ settings = {
   'Regi poly_deg': 2,
   'Regi rotation_multplier': 1,
   'Regi translation_multiplier': 1,
+  'Regi use_ransac': True,
 
   #SEGMENTATION SETTINGS
   'Segm min_size': 'NA',
