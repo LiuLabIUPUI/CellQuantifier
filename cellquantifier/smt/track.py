@@ -28,6 +28,13 @@ def get_d_values(traj_df, im, divide_num):
 			traj_df.loc[traj_df['particle'] == particle, 'D'] = popt[0]
 			traj_df.loc[traj_df['particle'] == particle, 'alpha'] = popt[1]
 
+			# temp_df = traj_df[ traj_df['particle']==particle ]
+			# temp_df = temp_df.sort_values(by=['frame'], ascending=True)
+			# target_index = temp_df.index[0]
+			#
+			# traj_df.loc[target_index, 'D'] = popt[0]
+			# traj_df.loc[target_index, 'alpha'] = popt[1]
+
 	return traj_df
 
 
