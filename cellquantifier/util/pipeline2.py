@@ -9,6 +9,7 @@ import warnings
 import glob
 
 from ..deno import filter_batch
+from ..io import *
 from ..segm import *
 from ..regi import get_regi_params, apply_regi_params
 
@@ -73,6 +74,10 @@ class Pipeline2():
 		nonempty_exists_then_copy(self.config.INPUT_PATH, self.config.OUTPUT_PATH, self.config.REF_FILE_NAME)
 		nonempty_exists_then_copy(self.config.INPUT_PATH, self.config.OUTPUT_PATH, self.config.DIST2BOUNDARY_MASK_NAME)
 		nonempty_exists_then_copy(self.config.INPUT_PATH, self.config.OUTPUT_PATH, self.config.DIST253BP1_MASK_NAME)
+
+
+	def split(self):
+		split_tif(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', 100)
 
 
 	def check_regi(self):
