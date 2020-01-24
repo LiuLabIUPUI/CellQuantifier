@@ -67,7 +67,8 @@ class Pipeline2():
 		frames = img_as_ubyte(frames)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
 
-		frames = frames[list(self.config.TRANGE),:,:]
+		if frames.ndim == 3 & self.config.DICT['End frame index'] <= len(frames):
+			frames = frames[list(self.config.TRANGE),:,:]
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
 
 		# load reference files
@@ -638,6 +639,8 @@ def pipeline_batch(settings_dict, control_list):
 	print(root_name_list)
 
 	for root_name in root_name_list:
+
+		print("Processing: %s" % root_name)
 
 		# """
 		# ~~~~~~~~~~~~~~~~~2. Update config~~~~~~~~~~~~~~~~~
