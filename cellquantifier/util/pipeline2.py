@@ -81,6 +81,10 @@ class Pipeline2():
 		split_tif(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', 100)
 
 
+	def rename(self):
+		rename_01(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '.tif')
+
+
 	def check_regi(self):
 
 		print("######################################")
