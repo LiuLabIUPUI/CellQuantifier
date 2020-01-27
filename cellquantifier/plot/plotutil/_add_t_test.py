@@ -14,8 +14,7 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
 
     if blobs_df.empty:
     	return
-
-
+        
     # """
     # ~~~~~~~~~~~Prepare the data, category, color~~~~~~~~~~~~~~
     # """
@@ -31,16 +30,22 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
             t_stats = t_test(blobs_dfs[0][hist_col],
                             blobs_dfs[1][hist_col])
 
-        if t_stats[1] > 0.001:
-            t_test_str = 'P = %.3f' % (t_stats[1])
-        else:
-            t_test_str = 'P = %.2E' % (t_stats[1])
+        if t_stats[1] < .0001:
+            t_test_str = 'P < .0001'
+        elif t_stats[1] >= .0001 and t_stats[1] < .001:
+            t_test_str = 'P < .001'
+        elif t_stats[1] >= .001 and t_stats[1] < .01:
+            t_test_str = 'P < .01'
+        elif t_stats[1] >= .01 and t_stats[1] < .05:
+            t_test_str = 'P < .05'
+        elif t_stats[1] >= .05:
+            t_test_str = 'P = %.2F' % (t_stats[1])
 
         ax.text(text_pos[0],
                 text_pos[1],
                 t_test_str,
                 horizontalalignment='right',
                 verticalalignment='bottom',
-                fontsize = 13,
+                fontsize = 8,
                 color = (0, 0, 0, 1),
                 transform=ax.transAxes)

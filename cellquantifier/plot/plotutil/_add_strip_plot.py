@@ -13,7 +13,11 @@ def add_strip_plot(ax,
 				   cat_col,
 				   xlabels=None,
 				   ylabel=None,
-				   palette=None):
+				   palette=None,
+				   counts=False,
+				   x_labelsize=10,
+				   y_labelsize=10,
+				   drop_duplicates=False):
 
 	"""Generate strip plot
 
@@ -39,14 +43,18 @@ def add_strip_plot(ax,
 
 	"""
 
+	if drop_duplicates:
+		df = df.drop_duplicates('particle')
+
 	pal = sns.color_palette(palette)
 
-	ax = sns.stripplot(x=cat_col,
-					   y=hist_col,
-					   data=df,
-					   palette=pal,
-					   s=3,
-					   alpha=.65)
+	sns.stripplot(x=cat_col,
+				   y=hist_col,
+				   data=df,
+				   palette=pal,
+				   s=3,
+				   alpha=.65,
+				   ax=ax)
 
 	# """
 	# ~~~~~~~~~~~Add the mean bars~~~~~~~~~~~~~~
@@ -66,9 +74,14 @@ def add_strip_plot(ax,
 		x = df[df[cat_col]==sample_name][hist_col]
 
 		if xlabels:
-			labels.append(xlabels[i] + " (" + str(len(x)) + ")")
+			label = xlabels[i]
 		else:
-			labels.append(new_label = text.get_text() + " (" + str(len(x)) + ")")
+			label = text.get_text()
+
+		if counts:
+			label += " (" + str(len(x)) + ")"
+
+		labels.append(label)
 
 		i+=1
 		mean = x.mean()
@@ -86,8 +99,8 @@ def add_strip_plot(ax,
 	ax.spines['top'].set_visible(False)
 	ax.spines['left'].set_linewidth(2)
 	ax.spines['bottom'].set_linewidth(2)
-	ax.tick_params(labelsize=13, width=2, length=5, labelrotation=45.0, axis='x')
+	ax.tick_params(labelsize=x_labelsize, width=2, length=5, labelrotation=20.0, axis='x')
 
-	ax.set_ylabel(r'$\mathbf{' + ylabel + '}$', fontsize=15)
-	ax.set_xlabel('', fontsize=15)
+	ax.set_ylabel(r'$\mathbf{' + ylabel + '}$', fontsize=y_labelsize)
+	ax.set_xlabel('')
 	ax.set_xlim(-.5,1.5)
