@@ -1,22 +1,17 @@
-from cellquantifier.plot.plotutil import add_t_test, add_strip_plot
-import matplotlib.pyplot as plt
-import sys
-import re
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 def add_heat_map(ax,
-				 df,
-				 mean_col,
-				 bin_col,
-				 cat_col,
-				 xlabel=None,
+				 r_discrete,
+				 r_cont,
+				 f_cont,
 				 ylabel=None,
 				 nbins=8,
-				 inter_pts=100,
-				 hole_size = 10,
+				 hole_size=10,
 				 edge_ring=False,
-				 pixel_size=.1083):
+				 pixel_size=.1083,
+				 range=None):
 
 
 	"""Add heat maps to the axis
@@ -26,119 +21,88 @@ def add_heat_map(ax,
 	ax: object
 		matplotlib axis to annotate
 
-	df: DataFrame
+	r_discrete: 1d ndarray
+		discrete domain before interpolation
 
-	mean_col: str
-		Column color coded by the heat map e.g. diffusion coefficient
+	r_cont: str
+		'continuous' domain after interpolation
 
-	bin_col: str
-		Column to use to bin the data e.g. avg_dist_bound
-
-	cat_col: str
-		Column to use for categorical sorting
-
-	nbins: int
-		Number of bins to create from bin_col, used for interolation
-
-	inter_pts: int
-		Number of data points after interolation
+	f_cont: str
+		'continuous' function after interpolation, f_cont = F(r_cont)
 
 	"""
 
-	# """
-	# ~~~~~~~~~~~Bin data~~~~~~~~~~~~~~
-	# """
-
-	df['category'] = pd.cut(df[bin_col], nbins, labels=False)
+	ring_radius = np.abs(r_cont.min())
 
 	# """
-	# ~~~~~~~~~~~Separate data by category~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Generate cartesian heat map~~~~~~~~~~~~~~
 	# """
 
-	cats = df[cat_col].unique()
-	dfs = [df.loc[df[cat_col] == cat] for cat in cats]
+	ntheta = 100
+	theta = np.linspace(0,2*np.pi,ntheta)
+	r_cont, theta = np.meshgrid(r_cont, theta)
+	_r = np.tile(f_cont, (ntheta, 1))
+	_r[_r == 0] = None
+
+	local_range = (f_cont[f_cont != 0].min(), f_cont[f_cont != 0].max())
 
 	# """
-	# ~~~~~~~~~~~Compute means, std errors~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Plot the heat map as polar~~~~~~~~~~~~~~
 	# """
 
-	grouped_dfs = [df.groupby('category') for df in dfs]
-	means = [df[mean_col].mean().to_numpy() for df in grouped_dfs]
-	stds = [np.divide(df[mean_col].std().to_numpy(),\
-			np.sqrt(df[mean_col].count().to_numpy())) for df in grouped_dfs]
+	ax.set_yticks(r_discrete)
+	ax.set_xticklabels([])
+	ax.set_yticklabels([])
+
+	if range:
+		cb = ax.pcolormesh(theta, r_cont, _r, \
+						   cmap='coolwarm',
+						   vmin=range[0],
+						   vmax=range[1])
+	else:
+		cb = ax.pcolormesh(theta, r_cont, _r, \
+						   cmap='coolwarm',
+						   vmin=local_range[0],
+						   vmax=local_range[1])
 
 	# """
-	# ~~~~~~~~~~~Get radial domain~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Color Bar~~~~~~~~~~~~~~
 	# """
 
-	#ensure the radial domain is the same for every category
-	r_min = df[bin_col].to_numpy().min()
-	r_max = df[bin_col].to_numpy().max()
-	bin_size = (r_max-r_min)/nbins
-	hist, r = np.histogram(df[bin_col], nbins) #get bin edges
+	cb = plt.colorbar(cb, ax=ax)
+	cb.set_label(ylabel)
+	ax.grid(True, axis='y', color='black', linewidth=.5)
 
 	# """
-	# ~~~~~~~~~Ensure data was found in all bins for all categories~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Hole~~~~~~~~~~~~~~
 	# """
 
-	x = lambda means: all([len(mean) == nbins for mean in means])
-	if not x(means):
-		print("One or more bins are empty!")
-		sys.exit()
+	hole = plt.Circle((0, 0), radius=hole_size, \
+						 transform=ax.transData._b, color='black')
+	ax.add_artist(hole)
 
 	# """
-	# ~~~~~~~~~~~Interpolate the data~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Edge Ring~~~~~~~~~~~~~~
 	# """
 
-	r_discrete = 0.5*(r[1:] + r[:-1]) #get bin centers
-	min_center, max_center = r_discrete[0], r_discrete[-1]
-	r_cont = np.linspace(min_center, max_center, inter_pts)
-
-	inter = [np.interp(r_cont, r_discrete, mean) for mean in means]
-	min = np.concatenate(inter).min()
-	max = np.concatenate(inter).max()
+	if edge_ring:
+		edge = plt.Circle((0, 0), radius=hole_size+ring_radius,\
+						  transform=ax.transData._b, \
+					      color='yellow', fill=False, linewidth=1)
+		ax.add_artist(edge)
 
 	# """
-	# ~~~~~~~~~~~Pad r_cont and interpolated data~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Bin Size Text~~~~~~~~~~~~~
 	# """
 
-	pad_size = 20
-	r_pad = np.linspace(min_center-hole_size, min_center, pad_size)
-	inter_pad = np.full(pad_size, 0)
-	r_cont = np.concatenate((r_pad, r_cont), axis=0)
-	inter = [np.concatenate((inter_pad, _inter), axis=0) for _inter in inter]
+	bin_size = round(pixel_size*(r_discrete[1]-r_discrete[0]), 2)
+	bin_sz_str = r'$\mathbf{Bin Size: %s\mu m}$' % str(bin_size)
 
-	# """
-	# ~~~~~~~~~~~Find where to put the second ring (53bp1 boundary)~~~~~~~~~~~~~~
-	# """
-
-	idx = np.abs(r_cont).argmin()
-
-	# """
-	# ~~~~~~~~~~~Generate polar plot~~~~~~~~~~~~~~
-	# """
-
-	theta = np.linspace(0,2*np.pi,100)
-	r, theta = np.meshgrid(r_cont, theta)
-	tmp = (r ** 2.0) / 4.0 #placeholder function
-
-	r_arr = [np.zeros_like(tmp) for i in range(len(means))]
-
-	for i, r_i in enumerate(r_arr):
-		for j in range(r_arr[0].shape[0]):
-			inter[i][inter[i] == 0] = None
-			if edge_ring:
-				inter[i][idx:idx+3] = None
-			r_i[j,:] = inter[i]
-
-		ax[i].set_yticks(r_discrete)
-		ax[i].set_xticklabels([])
-		ax[i].set_yticklabels([])
-		cb = ax[i].pcolormesh(theta, r, r_i, cmap='coolwarm', vmin=min, vmax=max)
-		cb = plt.colorbar(cb, ax=ax[i])
-		cb.set_label(ylabel)
-		ax[i].grid(True, axis='y', color='black', linewidth=1)
-
-		# ax_labels = [re.sub("[^0-9]", "", item.get_text()) \
-		# 		  for item in ax[i].get_yticklabels()]
-		# ax[i].set_yticklabels(ax_labels)
+	ax.text(.2,
+		    1,
+		    bin_sz_str,
+		    horizontalalignment='right',
+		    verticalalignment='bottom',
+		    fontsize = 10,
+		    color = (0, 0, 0, 1),
+		    transform=ax.transAxes)

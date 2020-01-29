@@ -221,3 +221,34 @@ def fit_sigmoid(x,y):
 	popt, pcov = op.curve_fit(sigmoid, x, y)
 
 	return popt, pcov
+
+
+def interpolate_lin(x_discrete, f_discrete, resolution=100, pad_size=0):
+
+	"""Numpy wrapper for performing linear interpolation
+
+	Parameters
+	----------
+	x_discrete: 1d ndarray
+		discrete domain
+
+	y: 1d ndarray
+		discrete function of x_discrete
+
+	Returns
+	-------
+
+	"""
+
+	min_center, max_center = x_discrete[0], x_discrete[-1]
+	x_cont = np.linspace(min_center, max_center, resolution)
+
+	f_cont = np.interp(x_cont, x_discrete, f_discrete)
+	if pad_size > 0:
+
+		x_pad = np.linspace(min_center-pad_size, min_center, pad_size)
+		f_cont_pad = np.full(pad_size, 0)
+		x_cont = np.concatenate((x_pad, x_cont), axis=0)
+		f_cont = np.concatenate((f_cont_pad, f_cont), axis=0)
+
+	return x_cont, f_cont
