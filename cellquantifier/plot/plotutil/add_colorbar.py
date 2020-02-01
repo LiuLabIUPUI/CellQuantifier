@@ -76,6 +76,7 @@ def add_outside_colorbar(ax, df, data_col='D',
     Returns
     -------
     Annotate colorbar outside of the ax.
+    df, colormap returned.
     """
 
 
@@ -132,4 +133,4 @@ def add_outside_colorbar(ax, df, data_col='D',
         ax_cb.yaxis.set_major_locator(ticker.MultipleLocator(cb_major_ticker))
         ax_cb.yaxis.set_minor_locator(ticker.MultipleLocator(cb_minor_ticker))
 
-    return colormap, norm
+    return df, colormap

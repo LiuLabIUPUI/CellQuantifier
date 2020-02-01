@@ -1,6 +1,6 @@
 from matplotlib_scalebar.scalebar import ScaleBar
 
-def add_scalebar(ax, pixel_size, units,
+def add_scalebar(ax, pixel_size, units='um',
                 sb_color=(0.5, 0.5, 0.5),
                 sb_pos='upper right',
                 length_fraction=None,
@@ -20,7 +20,10 @@ def add_scalebar(ax, pixel_size, units,
         matplotlib axis to add colorbar.
 
     pixel_size : float
-		Pixel size in um.
+		Pixel size.
+
+    units : string
+        Pixel unit. eg. 'um'
 
     sb_color : tuple
         RGB or RGBA tuple to define the scalebar color

@@ -39,7 +39,7 @@ def detect_blobs(pims_frame,
 	r_to_sigraw : float, optional
 		Multiplier to sigraw to decide the fitting patch radius.
 	pixel_size : float, optional
-		Pixel size in nm. Used for the scale bar.
+		Pixel size in um. Used for the scale bar.
 	diagnostic : bool, optional
 		If true, run the diagnostic.
 	pltshow : bool, optional

@@ -123,7 +123,7 @@ def plot_msd_batch(phys_df,
 
 		if open_pdf:
 			fig, ax = plt.subplots(figsize=(6,6))
-			anno_traj(ax, phys_df, image, pixel_size, frame_rate)
+			anno_traj(ax, phys_df, image, pixel_size)
 			import webbrowser
 			webbrowser.open_new(r'file://' + output_path + root_name + '-results.pdf')
 			plt.show()
@@ -205,7 +205,7 @@ def plot_msd(blobs_df,
 	# ~~~~~~~~~~~Plot trajectory annotation~~~~~~~~~~~~~~
 	# """
 
-	anno_traj(ax[0], blobs_df, image, pixel_size, frame_rate)
+	anno_traj(ax[0], blobs_df, image, pixel_size)
 
 
 	# """
