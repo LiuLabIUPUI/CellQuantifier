@@ -11,5 +11,6 @@ from ._add_corr_coeff import *
 from ._add_fitting import *
 from ._add_strip_plot import *
 from ._add_heat_map import *
+from ._add_scalebar import *
 from .anno import *
 from .add_colorbar import *
