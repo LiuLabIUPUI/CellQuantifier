@@ -32,12 +32,15 @@ def file1_exists_or_pimsopen_file2(head_str, tail_str1, tail_str2):
 
 
 def nonempty_exists_then_copy(input_path, output_path, filename):
-	if filename: # if not empty, find the file
-		if osp.exists(input_path + filename):
-			frames = imread(input_path + filename)
-			frames = frames / frames.max()
-			frames = img_as_ubyte(frames)
-			imsave(output_path + filename, frames)
+	not_empty = len(filename)!=0
+	exists_in_input = osp.exists(input_path + filename)
+	not_exists_in_output = not osp.exists(output_path + filename)
+
+	if not_empty and exists_in_input and not_exists_in_output:
+		frames = imread(input_path + filename)
+		frames = frames / frames.max()
+		frames = img_as_ubyte(frames)
+		imsave(output_path + filename, frames)
 
 
 def nonempty_openfile1_or_openfile2(path, filename1, filename2):
@@ -71,6 +74,9 @@ class Pipeline2():
 			frames = frames[list(self.config.TRANGE),:,:]
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
 
+		print('\tRegi_ref_file: [%s]' % self.config.REF_FILE_NAME)
+		print('\tMask_dist2boundary_file: [%s]' % self.config.DIST2BOUNDARY_MASK_NAME)
+		print('\tMask_dist253bp1_file: [%s]' % self.config.DIST253BP1_MASK_NAME)
 		# load reference files
 		nonempty_exists_then_copy(self.config.INPUT_PATH, self.config.OUTPUT_PATH, self.config.REF_FILE_NAME)
 		nonempty_exists_then_copy(self.config.INPUT_PATH, self.config.OUTPUT_PATH, self.config.DIST2BOUNDARY_MASK_NAME)
@@ -606,7 +612,6 @@ def get_root_name_list(settings_dict):
 			root_name_list.append(temp)
 	else:
 		path_list = glob.glob(settings['IO input_path'] + '/*.tif')
-		print(path_list)
 		for path in path_list:
 			temp = path.split('/')[-1]
 			temp = temp[:temp.index('.')]
@@ -670,8 +675,11 @@ def pipeline_batch(settings_dict, control_list):
 		config.DICT['Processed by:'] = settings_dict['Processed By:']
 
 		# 2.2. Update config.REF_FILE_NAME
+		if '-' in root_name and root_name.find('-')>0:
+			key = root_name[0:root_name.find('-')]
+
 		if settings_dict['Regi reference file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
+			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Regi reference file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.REF_FILE_NAME = file_list[0].split('/')[-1]
@@ -680,7 +688,7 @@ def pipeline_batch(settings_dict, control_list):
 
 		# 2.3. Update config.DIST2BOUNDARY_MASK_NAME
 		if settings_dict['Mask boundary_mask file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
+			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask boundary_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST2BOUNDARY_MASK_NAME = file_list[0].split('/')[-1]
@@ -689,7 +697,7 @@ def pipeline_batch(settings_dict, control_list):
 
 		# 2.4. Update config.DIST253BP1_MASK_NAME
 		if settings_dict['Mask 53bp1_mask file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
+			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask 53bp1_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST253BP1_MASK_NAME = file_list[0].split('/')[-1]
@@ -698,7 +706,7 @@ def pipeline_batch(settings_dict, control_list):
 
 		# 2.5. Update config.MASK_53BP1_BLOB_NAME
 		if settings_dict['Mask 53bp1_blob_mask file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + root_name +
+			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask 53bp1_blob_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.MASK_53BP1_BLOB_NAME = file_list[0].split('/')[-1]
