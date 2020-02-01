@@ -1,11 +1,12 @@
 import math
 import numpy as np
+import matplotlib as mpl
 from matplotlib import patches
 import matplotlib.pyplot as plt
 import trackpy as tp
-from matplotlib_scalebar.scalebar import ScaleBar
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib as mpl
+from .add_colorbar import add_outside_colorbar
+from ._add_scalebar import add_scalebar
+
 
 def set_ylim_reverse(ax):
     """
@@ -131,17 +132,27 @@ def anno_scatter(ax, scatter_df, marker = 'o', color=(0,1,0,0.8)):
                     c=[color])
 
 
-def anno_traj(ax, blobs_df, image, pixel_size, frame_rate):
+def anno_traj(ax, df,
+            image=np.array([]),
+            pixel_size=1,
+            scalebar_pos='upper right',
+            show_traj_num=True,
+            fontname='Arial',
+            cb_min=None,
+            cb_max=None,
+            cb_major_ticker=None,
+            cb_minor_ticker=None):
     """
     Annotate trajectories in matplotlib axis.
     The trajectories parameters are obtained from blob_df.
+    The colorbar locates "outside" of the traj figure.
 
     Parameters
     ----------
     ax : object
-        matplotlib axis to annotate ellipse.
+        matplotlib axis to annotate trajectories.
 
-    blobs_df : DataFrame
+    df : DataFrame
 		DataFrame containing 'D', 'frame', 'x', and 'y' columns
 
 	image: 2D ndarray
@@ -150,70 +161,93 @@ def anno_traj(ax, blobs_df, image, pixel_size, frame_rate):
     pixel_size: float
 		The pixel_size of the images in microns/pixel
 
-    frame_rate: float
-		Frames per second (fps) of the video
+    scalebar_pos: string
+        string for scalebar position. like 'upper right', 'lower right' ...
+
+    show_traj_num: bool
+        If true, show a text with trajectory number
+
+    fontname: string
+        Font used in the figure. Default is 'Arial'
+
+    cb_min, cb_max: float
+        [cb_min, cb_max] is the color bar range.
+
+    cb_major_ticker, cb_minor_ticker: float
+        Major and minor setting for the color bar
 
     Returns
     -------
     Annotate trajectories in the ax.
     """
 
-    set_ylim_reverse(ax)
-
     # """
-    # ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~Check if df is empty. Plot the image if True~~~~~~~~~~~~~~
     # """
-    if blobs_df.empty:
+    if df.empty:
     	return
 
-    # Calculate individual msd
-    im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate, max_lagtime=np.inf)
+    if image.size != 0:
+        ax.imshow(image, cmap='gray', aspect='equal')
+        ax.set_xlim((0, image.shape[1]))
+        ax.set_ylim((image.shape[0], 0))
+        plt.box(False)
 
-    #Get the diffusion coefficient for each individual particle
-    D_ind = blobs_df.drop_duplicates('particle')['D'].mean()
-
-    #Plot the image
-    ax.imshow(image, cmap='gray', aspect='equal')
-    ax.set_xlim((0, image.shape[1]))
-    ax.set_ylim((image.shape[0], 0))
 
     # """
-    # ~~~~~~~~~~~Add D value scale bar to left plot~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~Add pixel size scale bar~~~~~~~~~~~~~~
     # """
+    add_scalebar(ax, pixel_size=pixel_size, units='um',
+                sb_color=(1,1,1),
+                sb_pos='upper right',
+                length_fraction=0.3,
+                height_fraction=0.02,
+                box_color=(1,1,1),
+                box_alpha=0,
+                fontname='Arial',
+                fontsize='large')
 
-    scalebar = ScaleBar(pixel_size, 'um', location = 'upper right')
-    ax.add_artist(scalebar)
-
-    divider = make_axes_locatable(ax)
-    ax_cb = divider.new_horizontal(size="5%", pad=0.1)
-    norm = mpl.colors.Normalize(vmin = blobs_df['D'].min(), vmax = blobs_df['D'].max())
-    cb1 = mpl.colorbar.ColorbarBase(ax_cb, cmap=mpl.cm.jet, norm=norm, orientation='vertical')
-    cb1.set_label(r'$\mathbf{D (nm^{2}/s)}$')
-    fig = plt.gcf()
-    fig.add_axes(ax_cb)
-
-    colormap = plt.cm.get_cmap('jet')
-    blobs_df['D_norm'] = blobs_df['D']/(blobs_df['D'].max()) #normalize D column to maximum D value
 
     # """
-    # ~~~~~~~~~~~Plot the color coded trajectories~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~customized the colorbar, then add it~~~~~~~~~~~~~~
     # """
-    particles = blobs_df.particle.unique()
+    df, colormap = add_outside_colorbar(ax, df,
+                        label_font_size='large',
+                        cb_min=cb_min,
+                        cb_max=cb_max,
+                        cb_major_ticker=cb_major_ticker,
+                        cb_minor_ticker=cb_minor_ticker)
+
+
+    # """
+    # ~~~~~~~~~~~Plot the color coded trajectories using colorbar norm~~~~~~~~~~~~~~
+    # """
+    ax.set_aspect(1.0)
+    particles = df.particle.unique()
     for i in range(len(particles)):
-    	traj = blobs_df[blobs_df.particle == particles[i]]
+    	traj = df[df.particle == particles[i]]
     	traj = traj.sort_values(by='frame')
     	ax.plot(traj.y, traj.x, linewidth=1,
     				color=colormap(traj['D_norm'].mean()))
 
-    ax.set_aspect(1.0)
+    if show_traj_num:
+        ax.text(0.95,
+                0.00,
+                """
+                Density Total trajectory number: %d
+                """ %(len(particles)),
+                horizontalalignment='right',
+                verticalalignment='bottom',
+                fontsize = 12,
+                color = (0.5, 0.5, 0.5, 0.5),
+                transform=ax.transAxes,
+                weight = 'bold',
+                fontname = fontname)
 
-    ax.text(0.95,
-            0.00,
-            """
-            Total trajectory number: %d
-            """ %(len(particles)),
-            horizontalalignment='right',
-            verticalalignment='bottom',
-            fontsize = 12,
-            color = (0.5, 0.5, 0.5, 0.5),
-            transform=ax.transAxes)
+
+    # """
+    # ~~~~~~~~~~~Set ax format~~~~~~~~~~~~~~
+    # """
+    set_ylim_reverse(ax)
+    ax.set_xticks([])
+    ax.set_yticks([])
