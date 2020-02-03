@@ -4,24 +4,25 @@ import trackpy as tp
 
 from ...math import msd, fit_msd
 
-def add_mean_msd(ax, blobs_df, cat_col,
+def add_mean_msd(ax, df,
                 pixel_size,
                 frame_rate,
                 divide_num,
+                cat_col=None,
                 RGBA_alpha=0.5):
     """
     Add mean MSD curve in matplotlib axis.
-    The MSD data are obtained from blobs_df.
+    The MSD data are obtained from df.
 
     Parameters
     ----------
     ax : object
         matplotlib axis to annotate ellipse.
 
-    blobs_df : DataFrame
+    df : DataFrame
 		DataFrame containing 'particle', 'frame', 'x', and 'y' columns
 
-    cat_col : str
+    cat_col : None or str
 		Column to use for categorical sorting
 
 
@@ -47,31 +48,35 @@ def add_mean_msd(ax, blobs_df, cat_col,
 
 
     # """
-    # ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~Check if df is empty~~~~~~~~~~~~~~
     # """
 
-    if blobs_df.empty:
+    if df.empty:
     	return
 
 
     # """
     # ~~~~~~~~~~~Prepare the data, category, color~~~~~~~~~~~~~~
     # """
+    if cat_col:
+        cats = sorted(df[cat_col].unique())
+        dfs = [df.loc[df[cat_col] == cat] for cat in cats]
+        colors = plt.cm.coolwarm(np.linspace(0,1,len(cats)))
+        colors[:, 3] = RGBA_alpha
 
-    cats = sorted(blobs_df[cat_col].unique())
-    blobs_dfs = [blobs_df.loc[blobs_df[cat_col] == cat] for cat in cats]
-    colors = plt.cm.jet(np.linspace(0,1,len(cats)))
-    colors[:, 3] = RGBA_alpha
+        cats_label = cats.copy()
+        if 'sort_flag_' in cat_col:
+            for m in range(len(cats_label)):
+                cats_label[m] = cat_col[len('sort_flag_'):] + ': ' + str(cats[m])
+    else:
+        dfs = [df]
+        cats_label = ['MSD']
+        colors = [(0, 0, 0, RGBA_alpha)]
 
-    cats_label = cats.copy()
-    if 'sort_flag_' in cat_col:
-        for m in range(len(cats_label)):
-            cats_label[m] = cat_col[len('sort_flag_'):] + ': ' + str(cats[m])
-
-    for i, blobs_df in enumerate(blobs_dfs):
+    for i, df in enumerate(dfs):
 
         # Calculate individual msd
-        im = tp.imsd(blobs_df, mpp=pixel_size, fps=frame_rate, max_lagtime=np.inf)
+        im = tp.imsd(df, mpp=pixel_size, fps=frame_rate, max_lagtime=np.inf)
         #cut the msd curves and convert units to nm
 
         n = len(im.index) #for use in stand err calculation
@@ -99,7 +104,7 @@ def add_mean_msd(ax, blobs_df, cat_col,
             popt_log = fit_msd(x, y, space='log')
             fit_of_mean_msd = msd(x, popt_log[0], popt_log[1])
             ax.plot(x, fit_of_mean_msd, color=colors[i],
-                    label=cats_label[i], alpha=1, linewidth=3)
+                    label=cats_label[i], linewidth=3)
             ax.errorbar(x, fit_of_mean_msd, yerr=yerr, linestyle='None',
                 marker='.', capsize=2, color=colors[i])
 
