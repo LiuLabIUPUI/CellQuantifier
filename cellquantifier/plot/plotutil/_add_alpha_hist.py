@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def add_alpha_hist(ax, blobs_df, cat_col,
+def add_alpha_hist(ax, df,
+                cat_col=None,
                 RGBA_alpha=0.5):
     """
     Add histogram in matplotlib axis.
@@ -11,7 +12,7 @@ def add_alpha_hist(ax, blobs_df, cat_col,
     ax : object
         matplotlib axis to annotate ellipse.
 
-    blobs_df : DataFrame
+    df : DataFrame
 		DataFrame containing 'particle', 'alpha' columns
 
     cat_col : str
@@ -36,31 +37,35 @@ def add_alpha_hist(ax, blobs_df, cat_col,
 
 
     # """
-    # ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~Check if df is empty~~~~~~~~~~~~~~
     # """
 
-    if blobs_df.empty:
+    if df.empty:
     	return
 
 
     # """
     # ~~~~~~~~~~~Prepare the data, category, color~~~~~~~~~~~~~~
     # """
+    if cat_col:
+        cats = sorted(df[cat_col].unique())
+        dfs = [df.loc[df[cat_col] == cat] for cat in cats]
+        colors = plt.cm.jet(np.linspace(0,1,len(cats)))
+        colors[:, 3] = RGBA_alpha
 
-    cats = sorted(blobs_df[cat_col].unique())
-    blobs_dfs = [blobs_df.loc[blobs_df[cat_col] == cat] for cat in cats]
-    colors = plt.cm.jet(np.linspace(0,1,len(cats)))
-    colors[:, 3] = RGBA_alpha
+        cats_label = cats.copy()
+        if 'sort_flag_' in cat_col:
+            for m in range(len(cats_label)):
+                cats_label[m] = cat_col[len('sort_flag_'):] + ': ' + str(cats[m])
+    else:
+        dfs = [df]
+        cats_label = ['alpha']
+        colors = [(0, 0, 0, RGBA_alpha)]
 
-    cats_label = cats.copy()
-    if 'sort_flag_' in cat_col:
-        for m in range(len(cats_label)):
-            cats_label[m] = cat_col[len('sort_flag_'):] + ': ' + str(cats[m])
-
-    for i, blobs_df in enumerate(blobs_dfs):
-        ax.hist(blobs_df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
+    for i, df in enumerate(dfs):
+        ax.hist(df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
 					bins=30, color=colors[i], density=True, ec='gray', linewidth=.5,
-                    label=cats_label[i] + (r' $\mathbf{(N_{foci} = %d)}$') % blobs_df['particle'].nunique())
+                    label=cats_label[i] + (r' $\mathbf{(N_{foci} = %d)}$') % df['particle'].nunique())
 
     # """
     # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~

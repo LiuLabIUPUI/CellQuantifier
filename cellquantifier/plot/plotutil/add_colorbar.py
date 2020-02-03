@@ -5,11 +5,6 @@ import matplotlib.ticker as ticker
 
 
 def add_outside_colorbar(ax, df, data_col='D',
-                        label_str=r'D (nm$^2$/s)',
-                        label_font_size=20,
-                        label_color=(0.3, 0.3, 0.3),
-                        label_font='Arial',
-                        label_weight='bold',
                         cb_pos='right',
                         cb_size='5%',
                         cb_pad=0.1,
@@ -19,7 +14,14 @@ def add_outside_colorbar(ax, df, data_col='D',
                         cb_min=None,
                         cb_max=None,
                         cb_major_ticker=None,
-                        cb_minor_ticker=None):
+                        cb_minor_ticker=None,
+                        show_colorbar=True,
+                        label_str=r'D (nm$^2$/s)',
+                        label_font_size=20,
+                        label_color=(0, 0, 0),
+                        label_font='Arial',
+                        label_weight='bold',
+                        ):
     """
     Add colorbar outside of the ax.
     Colorbar data are contained in the df.
@@ -73,6 +75,9 @@ def add_outside_colorbar(ax, df, data_col='D',
     cb_major_ticker, cb_minor_ticker: float
         Major and minor setting for the color bar
 
+    show_colorbar : bool
+        If False, only return colormap and df, no colorbar added.
+
     Returns
     -------
     Annotate colorbar outside of the ax.
@@ -96,41 +101,42 @@ def add_outside_colorbar(ax, df, data_col='D',
         norm = mpl.colors.Normalize(vmin = df[data_col].min(),
                                     vmax = df[data_col].max())
 
-    # """
-    # ~~~~~~~~~~~Add D value scale bar to left plot~~~~~~~~~~~~~~
-    # """
-    # backup code for add_inside_colorbar()
-    #ax_cb = ax.inset_axes([0.1, 0.85, 0.4, 0.03])
+    if show_colorbar:
+        # """
+        # ~~~~~~~~~~~Add D value scale bar to left plot~~~~~~~~~~~~~~
+        # """
+        # backup code for add_inside_colorbar()
+        #ax_cb = ax.inset_axes([0.1, 0.85, 0.4, 0.03])
 
-    # Create an axes (ax_cb) on the right side
-    divider = make_axes_locatable(ax)
-    ax_cb = divider.append_axes(cb_pos, size=cb_size, pad=cb_pad)
+        # Create an axes (ax_cb) on the right side
+        divider = make_axes_locatable(ax)
+        ax_cb = divider.append_axes(cb_pos, size=cb_size, pad=cb_pad)
 
 
-    cb1 = mpl.colorbar.ColorbarBase(ax_cb,
-                            cmap=colormap,
-                            norm=norm,
-                            orientation=cb_orientation,
-                            extend=cb_extend)
+        cb1 = mpl.colorbar.ColorbarBase(ax_cb,
+                                cmap=colormap,
+                                norm=norm,
+                                orientation=cb_orientation,
+                                extend=cb_extend)
 
-    # Setup colorbar format
-    cb1.outline.set_visible(False)
-    plt.yticks(fontname=label_font,
-                weight=label_weight,
-                color=label_color,
-                size=label_font_size)
-
-    # Setup colorbar label
-    ax_cb.set_ylabel(label_str,
-                    fontname=label_font,
-                    color=label_color,
+        # Setup colorbar format
+        cb1.outline.set_visible(False)
+        plt.yticks(fontname=label_font,
                     weight=label_weight,
+                    color=label_color,
                     size=label_font_size)
 
-    # customize colorbar scale if needed
-    if cb_max!=None and cb_min!=None \
-    and cb_major_ticker!=None and cb_minor_ticker!=None:
-        ax_cb.yaxis.set_major_locator(ticker.MultipleLocator(cb_major_ticker))
-        ax_cb.yaxis.set_minor_locator(ticker.MultipleLocator(cb_minor_ticker))
+        # Setup colorbar label
+        ax_cb.set_ylabel(label_str,
+                        fontname=label_font,
+                        color=label_color,
+                        weight=label_weight,
+                        size=label_font_size)
+
+        # customize colorbar scale if needed
+        if cb_max!=None and cb_min!=None \
+        and cb_major_ticker!=None and cb_minor_ticker!=None:
+            ax_cb.yaxis.set_major_locator(ticker.MultipleLocator(cb_major_ticker))
+            ax_cb.yaxis.set_minor_locator(ticker.MultipleLocator(cb_minor_ticker))
 
     return df, colormap

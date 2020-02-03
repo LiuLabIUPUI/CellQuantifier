@@ -136,6 +136,7 @@ def anno_traj(ax, df,
             image=np.array([]),
             pixel_size=1,
             scalebar_pos='upper right',
+            scalebar_fontsize='large',
             show_traj_num=True,
             fontname='Arial',
             cb_min=None,
@@ -143,7 +144,8 @@ def anno_traj(ax, df,
             cb_major_ticker=None,
             cb_minor_ticker=None,
             show_particle_label=False,
-            choose_particle=None):
+            choose_particle=None,
+            show_colorbar=True):
     """
     Annotate trajectories in matplotlib axis.
     The trajectories parameters are obtained from blob_df.
@@ -235,7 +237,7 @@ def anno_traj(ax, df,
                 box_color=(1,1,1),
                 box_alpha=0,
                 fontname='Arial',
-                fontsize='large')
+                fontsize=scalebar_fontsize)
 
 
     # """
@@ -246,7 +248,8 @@ def anno_traj(ax, df,
                         cb_min=cb_min,
                         cb_max=cb_max,
                         cb_major_ticker=cb_major_ticker,
-                        cb_minor_ticker=cb_minor_ticker)
+                        cb_minor_ticker=cb_minor_ticker,
+                        show_colorbar=show_colorbar)
 
 
     # """
