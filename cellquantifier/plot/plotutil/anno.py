@@ -141,7 +141,9 @@ def anno_traj(ax, df,
             cb_min=None,
             cb_max=None,
             cb_major_ticker=None,
-            cb_minor_ticker=None):
+            cb_minor_ticker=None,
+            show_particle_label=False,
+            choose_particle=None):
     """
     Annotate trajectories in matplotlib axis.
     The trajectories parameters are obtained from blob_df.
@@ -176,11 +178,41 @@ def anno_traj(ax, df,
     cb_major_ticker, cb_minor_ticker: float
         Major and minor setting for the color bar
 
+    show_particle_label : bool
+        If true, add particle label in the figure.
+
+    choose_particle : None or integer
+        If particle number specifier, only plot that partcle.
+
     Returns
     -------
     Annotate trajectories in the ax.
     """
+    # """
+    # ~~~~~~~~~~~If choose_particle is True, prepare df and image~~~~~~~~~~~~~~
+    # """
+    original_df = df.copy()
+    if choose_particle != None:
+        df = df[ df['particle']==choose_particle ]
 
+        r_min = int(round(df['x'].min()))
+        c_min = int(round(df['y'].min()))
+        delta_x = int(round(df['x'].max()) - round(df['x'].min()))
+        delta_y = int(round(df['y'].max()) - round(df['y'].min()))
+        delta = int(max(delta_x, delta_y))
+        if delta < 1:
+            delta = 1
+        r_max = r_min + delta_x
+        c_max = c_min + delta_y
+
+        df['x'] = df['x'] - r_min
+        df['y'] = df['y'] - c_min
+        # print('#############################')
+        # print(df['x'].min(), df['y'].min())
+        # print(df['x'].max(), df['y'].max())
+        # print('#############################')
+
+        image = image[r_min:r_max+1, c_min:c_max+1]
     # """
     # ~~~~~~~~~~~Check if df is empty. Plot the image if True~~~~~~~~~~~~~~
     # """
@@ -189,8 +221,6 @@ def anno_traj(ax, df,
 
     if image.size != 0:
         ax.imshow(image, cmap='gray', aspect='equal')
-        ax.set_xlim((0, image.shape[1]))
-        ax.set_ylim((image.shape[0], 0))
         plt.box(False)
 
 
@@ -211,7 +241,7 @@ def anno_traj(ax, df,
     # """
     # ~~~~~~~~~~~customized the colorbar, then add it~~~~~~~~~~~~~~
     # """
-    df, colormap = add_outside_colorbar(ax, df,
+    modified_df, colormap = add_outside_colorbar(ax, original_df,
                         label_font_size='large',
                         cb_min=cb_min,
                         cb_max=cb_max,
@@ -222,13 +252,21 @@ def anno_traj(ax, df,
     # """
     # ~~~~~~~~~~~Plot the color coded trajectories using colorbar norm~~~~~~~~~~~~~~
     # """
+    if choose_particle:
+        df['D_norm'] = modified_df[ modified_df['particle']== choose_particle ]['D_norm']
+    else:
+        df = modified_df
+
     ax.set_aspect(1.0)
     particles = df.particle.unique()
-    for i in range(len(particles)):
-    	traj = df[df.particle == particles[i]]
-    	traj = traj.sort_values(by='frame')
-    	ax.plot(traj.y, traj.x, linewidth=1,
-    				color=colormap(traj['D_norm'].mean()))
+    for particle_num in particles:
+        traj = df[df.particle == particle_num] # traj = df[df.particle == particles[i]]
+        traj = traj.sort_values(by='frame')
+        ax.plot(traj['y'], traj['x'], linewidth=1,
+        			color=colormap(traj['D_norm'].mean()))
+        if show_particle_label:
+            ax.text(traj['y'].mean(), traj['x'].mean(),
+                    particle_num, color=(0, 1, 0))
 
     if show_traj_num:
         ax.text(0.95,
