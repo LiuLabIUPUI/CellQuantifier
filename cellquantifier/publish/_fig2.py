@@ -2,10 +2,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from copy import deepcopy
+from matplotlib.gridspec import GridSpec
 from cellquantifier.math import interpolate_lin
 from cellquantifier.phys.physutil import bin_df
 from cellquantifier.plot.plotutil import *
 
+from cellquantifier.segm import get_thres_mask, get_dist2boundary_mask
+from cellquantifier.plot.plotutil import anno_traj
+from skimage.io import imread
+from skimage.color import gray2rgb
 
 def plot_fig_2(df,
 			   hole_size=10,
@@ -61,25 +66,36 @@ def plot_fig_2(df,
 	plot_fig_2(df)
 	"""
 
-	fig = plt.figure(figsize=(14,12))
-	shape = (16,12)
+	fig = plt.figure(figsize=(10,10))
 
 	# """
 	# ~~~~~~~~~~~Initialize Grid~~~~~~~~~~~~~~
 	# """
 
-	ax1 = plt.subplot2grid(shape, (0, 0), rowspan=3, colspan=3, projection='polar') #heat maps
-	ax2 = plt.subplot2grid(shape, (0, 3), rowspan=3, colspan=3, projection='polar') #heat maps
-	ax3 = plt.subplot2grid(shape, (3, 0), rowspan=3, colspan=3, projection='polar') #heat maps
-	ax4 = plt.subplot2grid(shape, (3, 3), rowspan=3, colspan=3, projection='polar') #heat maps
-	# ax5 = plt.subplot2grid(shape, (0, 4), rowspan=2, colspan=4) #mask fig
-	ax6 = plt.subplot2grid(shape, (6, 0), rowspan=8, colspan=4) #ctrl msd curve
-	ax7 = plt.subplot2grid(shape, (6, 4), rowspan=4, colspan=2) #ctrl up sp
-	ax8 = plt.subplot2grid(shape, (10, 4), rowspan=4, colspan=2) #ctrl down sp
-	ax9 = plt.subplot2grid(shape, (6, 6), rowspan=8, colspan=4) #blm msd curve
-	ax10 = plt.subplot2grid(shape, (6, 10), rowspan=4, colspan=2) #blm up sp
-	ax11 = plt.subplot2grid(shape, (10, 10), rowspan=4, colspan=2) #blm down sp
+	gs2 = GridSpec(6, 6)
+	gs2.update(left=0.15, right=0.55, bottom=.55, top=.95, wspace=0, hspace=0)
+	ax5 = plt.subplot(gs2[0:4, :3])
+	ax6 = plt.subplot(gs2[0:2, 3:])
+	ax7 = plt.subplot(gs2[2:4, 3:])
 
+	gs1 = GridSpec(6, 6)
+	gs1.update(left=0.6, right=0.98, bottom=.05, top=.95, wspace=1, hspace=1)
+	ax1 = plt.subplot(gs1[0, :3], projection='polar')
+	ax2 = plt.subplot(gs1[1, 3:], projection='polar')
+	ax3 = plt.subplot(gs1[0, 3:], projection='polar')
+	ax4 = plt.subplot(gs1[1, :3], projection='polar')
+
+	gs3 = GridSpec(6, 6)
+	gs3.update(left=0.15, right=0.48, bottom=.05, top=.6, wspace=40, hspace=30)
+	ax8 = plt.subplot(gs3[0:4, :4])
+	ax9 = plt.subplot(gs3[0:2, 4:])
+	ax10 = plt.subplot(gs3[2:4, 4:])
+
+	gs4 = GridSpec(6, 6)
+	gs4.update(left=0.6, right=0.98, bottom=.05, top=.6, wspace=100, hspace=30)
+	ax11 = plt.subplot(gs4[0:4, :4])
+	ax12 = plt.subplot(gs4[0:2, 4:])
+	ax13 = plt.subplot(gs4[2:4, 4:])
 	df_cpy = deepcopy(df)
 
 	# """
@@ -180,29 +196,29 @@ def plot_fig_2(df,
 				 nbins=nbins,
 				 hole_size=hole_size,
 				 range=(min,max))
-
-	ax1.set_title(r'$\mathbf{CTRL}$')
-	ax2.set_title(r'$\mathbf{BLM}$')
+	#
+	# ax1.set_title(r'$\mathbf{CTRL}$')
+	# ax2.set_title(r'$\mathbf{BLM}$')
 
 	# """
 	# ~~~~~~~~~~~CTRL MSD Curve~~~~~~~~~~~~~~
 	# """
 
 	ctrl_df_cpy = df_cpy.loc[df_cpy['exp_label'] == 'Ctr']
-	add_mean_msd(ax6,
+	add_mean_msd(ax8,
 				 ctrl_df_cpy,
 				 'sort_flag_boundary',
 				 pixel_size,
 				 frame_rate,
 				 divide_num)
 
-	ax6.set_title(r'$\mathbf{CTRL}$')
+	ax8.set_title(r'$\mathbf{CTRL}$')
 
 	# """
 	# ~~~~~~~~~~~CTRL Strip Plots~~~~~~~~~~~~~~
 	# """
 
-	add_strip_plot(ax7,
+	add_strip_plot(ax9,
 				   ctrl_df,
 				   'D',
 				   'sort_flag_boundary',
@@ -212,13 +228,13 @@ def plot_fig_2(df,
 				   x_labelsize=8,
 				   drop_duplicates=True)
 
-	add_t_test(ax7,
+	add_t_test(ax9,
 			   ctrl_df,
 			   cat_col='sort_flag_boundary',
 			   hist_col='D',
 			   text_pos=[0.9, 0.9])
 
-	ax = add_strip_plot(ax8,
+	ax = add_strip_plot(ax10,
 						ctrl_df,
 						'alpha',
 						'sort_flag_boundary',
@@ -228,7 +244,7 @@ def plot_fig_2(df,
 						x_labelsize=8,
 						drop_duplicates=True)
 
-	add_t_test(ax8,
+	add_t_test(ax10,
 			   ctrl_df,
 			   cat_col='sort_flag_boundary',
 			   hist_col='alpha',
@@ -240,20 +256,20 @@ def plot_fig_2(df,
 	# """
 
 	blm_df_cpy = df_cpy.loc[df_cpy['exp_label'] == 'BLM']
-	add_mean_msd(ax9,
+	add_mean_msd(ax11,
 				 blm_df_cpy,
 				 'sort_flag_boundary',
 				 pixel_size,
 				 frame_rate,
 				 divide_num)
 
-	ax9.set_title(r'$\mathbf{BLM}$')
+	ax11.set_title(r'$\mathbf{BLM}$')
 
 	# """
 	# ~~~~~~~~~~~BLM Strip Plot~~~~~~~~~~~~~~
 	# """
 
-	add_strip_plot(ax10,
+	add_strip_plot(ax12,
 				   blm_df,
 				   'D',
 				   'sort_flag_boundary',
@@ -263,13 +279,13 @@ def plot_fig_2(df,
 				   x_labelsize=8,
 				   drop_duplicates=True)
 
-	add_t_test(ax10,
+	add_t_test(ax12,
 			   blm_df,
 			   cat_col='sort_flag_boundary',
 			   hist_col='D',
 			   text_pos=[0.9, 0.9])
 
-	add_strip_plot(ax11,
+	add_strip_plot(ax13,
 				   blm_df,
 				   'alpha',
 				   'sort_flag_boundary',
@@ -279,11 +295,55 @@ def plot_fig_2(df,
 				   x_labelsize=8,
 				   drop_duplicates=True)
 
-	add_t_test(ax11,
+	add_t_test(ax13,
 			   blm_df,
 			   cat_col='sort_flag_boundary',
 			   hist_col='alpha',
 			   text_pos=[0.9, 0.9])
 
-	plt.subplots_adjust(wspace=100, hspace=100)
+   	# """
+   	# ~~~~~~~~~~~Data Selection Figure~~~~~~~~~~~~~
+   	# """
+
+	df_path = '/home/cwseitz/Desktop/190821_CtrBLM_BLM10-dutp-physData.csv'
+	im_path = '/home/cwseitz/Desktop/190821_CtrBLM_BLM10-dutp-raw.tif'
+
+	df = pd.read_csv(df_path)
+	im = imread(im_path)[0]
+	mask = get_thres_mask(im, sig=3, thres_rel=.01)
+	mask = get_dist2boundary_mask(mask)
+
+	thres = 20
+
+	im = gray2rgb(im, alpha=True)
+	im_cpy = deepcopy(im)
+	im[(mask <= 0) & (mask <= -thres)] = [0, 0, 50, 255]
+	im[(mask < 0) & (mask > -thres)] = [50, 0, 0, 255]
+
+	out = np.ubyte(0.7*im + 0.3*im_cpy)
+
+	ax5.imshow(out)
+
+	anno_traj(ax5,
+			  df,
+			  show_traj_num=False)
+	ax5.set_aspect('auto')
+
+	anno_traj(ax6,
+	          df,
+	          image=im,
+	          choose_particle=5,
+	          show_traj_num=False,
+			  show_colorbar=False)
+	ax6.set_aspect('auto')
+
+	anno_traj(ax7,
+	          df,
+	          image=im,
+	          choose_particle=59,
+	          show_traj_num=False,
+			  show_colorbar=False)
+	ax7.set_aspect('auto')
+
+	plt.tight_layout()
 	plt.show()
