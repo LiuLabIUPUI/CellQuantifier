@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 def add_alpha_hist(ax, df,
                 cat_col=None,
-                RGBA_alpha=0.5):
+                RGBA_alpha=0.5,
+                set_format=True):
     """
     Add histogram in matplotlib axis.
 
@@ -70,15 +71,15 @@ def add_alpha_hist(ax, df,
     # """
     # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~
     # """
+    if set_format:
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.spines['left'].set_linewidth(2)
+        ax.spines['bottom'].set_linewidth(2)
+        ax.tick_params(labelsize=13, width=2, length=5)
 
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.spines['left'].set_linewidth(2)
-    ax.spines['bottom'].set_linewidth(2)
-    ax.tick_params(labelsize=13, width=2, length=5)
+        ax.get_yaxis().set_ticks([])
+        ax.set_ylabel(r'$\mathbf{PDF}$', fontsize=15)
 
-    ax.get_yaxis().set_ticks([])
-    ax.set_ylabel(r'$\mathbf{PDF}$', fontsize=15)
-
-    ax.set_xlabel(r'$\mathbf{\alpha}$', fontsize=15)
-    ax.legend()
+        ax.set_xlabel(r'$\mathbf{\alpha}$', fontsize=15)
+        ax.legend()

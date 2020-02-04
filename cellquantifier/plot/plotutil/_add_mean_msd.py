@@ -9,7 +9,8 @@ def add_mean_msd(ax, df,
                 frame_rate,
                 divide_num,
                 cat_col=None,
-                RGBA_alpha=0.5):
+                RGBA_alpha=0.5,
+                set_format=True):
     """
     Add mean MSD curve in matplotlib axis.
     The MSD data are obtained from df.
@@ -111,12 +112,12 @@ def add_mean_msd(ax, df,
     # """
     # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~
     # """
+    if set_format:
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.spines['left'].set_linewidth(2)
+        ax.spines['bottom'].set_linewidth(2)
+        ax.tick_params(labelsize=13, width=2, length=5)
 
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.spines['left'].set_linewidth(2)
-    ax.spines['bottom'].set_linewidth(2)
-    ax.tick_params(labelsize=13, width=2, length=5)
-
-    ax.set_xlabel(r'$\mathbf{Time (s)}$', fontsize=15)
-    ax.set_ylabel(r'$\mathbf{MSD(nm^2)}$', fontsize=15)
+        ax.set_xlabel(r'$\mathbf{Time (s)}$', fontsize=15)
+        ax.set_ylabel(r'$\mathbf{MSD(nm^2)}$', fontsize=15)
