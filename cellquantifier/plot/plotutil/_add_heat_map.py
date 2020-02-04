@@ -11,7 +11,8 @@ def add_heat_map(ax,
 				 hole_size=10,
 				 edge_ring=False,
 				 pixel_size=.1083,
-				 range=None):
+				 range=None,
+				 show_colorbar=True):
 
 
 	"""Add heat maps to the axis
@@ -69,8 +70,11 @@ def add_heat_map(ax,
 	# ~~~~~~~~~~~Color Bar~~~~~~~~~~~~~~
 	# """
 
-	cb = plt.colorbar(cb, ax=ax)
-	cb.set_label(ylabel)
+	if show_colorbar:
+		cb = plt.colorbar(cb, ax=ax, extend='both')
+		cb.outline.set_visible(False)
+		cb.set_label(ylabel)
+		
 	ax.grid(True, axis='y', color='black', linewidth=.5)
 
 	# """
@@ -98,11 +102,11 @@ def add_heat_map(ax,
 	bin_size = round(pixel_size*(r_discrete[1]-r_discrete[0]), 2)
 	bin_sz_str = r'$\mathbf{Bin Size: %s\mu m}$' % str(bin_size)
 
-	ax.text(.2,
-		    1,
-		    bin_sz_str,
-		    horizontalalignment='right',
-		    verticalalignment='bottom',
-		    fontsize = 10,
-		    color = (0, 0, 0, 1),
-		    transform=ax.transAxes)
+	# ax.text(.2,
+	# 	    1,
+	# 	    bin_sz_str,
+	# 	    horizontalalignment='right',
+	# 	    verticalalignment='bottom',
+	# 	    fontsize = 10,
+	# 	    color = (0, 0, 0, 1),
+	# 	    transform=ax.transAxes)

@@ -143,6 +143,8 @@ def anno_traj(ax, df,
             cb_max=None,
             cb_major_ticker=None,
             cb_minor_ticker=None,
+            cb_pos='right',
+            cb_tick_loc='right',
             show_particle_label=False,
             choose_particle=None,
             show_colorbar=True):
@@ -249,7 +251,9 @@ def anno_traj(ax, df,
                         cb_max=cb_max,
                         cb_major_ticker=cb_major_ticker,
                         cb_minor_ticker=cb_minor_ticker,
-                        show_colorbar=show_colorbar)
+                        show_colorbar=show_colorbar,
+                        cb_pos=cb_pos,
+                        cb_tick_loc=cb_tick_loc)
 
 
     # """

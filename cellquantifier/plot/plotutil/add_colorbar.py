@@ -15,6 +15,7 @@ def add_outside_colorbar(ax, df, data_col='D',
                         cb_max=None,
                         cb_major_ticker=None,
                         cb_minor_ticker=None,
+                        cb_tick_loc='right',
                         show_colorbar=True,
                         label_str=r'D (nm$^2$/s)',
                         label_font_size=20,
@@ -117,7 +118,8 @@ def add_outside_colorbar(ax, df, data_col='D',
                                 cmap=colormap,
                                 norm=norm,
                                 orientation=cb_orientation,
-                                extend=cb_extend)
+                                extend=cb_extend,
+                                ticklocation=cb_tick_loc)
 
         # Setup colorbar format
         cb1.outline.set_visible(False)

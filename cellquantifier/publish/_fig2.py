@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from seaborn import color_palette
 from copy import deepcopy
 from matplotlib.gridspec import GridSpec
 from cellquantifier.math import interpolate_lin
@@ -13,6 +14,10 @@ from skimage.io import imread
 from skimage.color import gray2rgb
 
 def plot_fig_2(df,
+			   df_path,
+			   im_path,
+			   segm_path,
+			   bound_thres=20,
 			   hole_size=10,
 			   nbins=12,
 			   pixel_size=.1083,
@@ -73,20 +78,20 @@ def plot_fig_2(df,
 	# """
 
 	gs2 = GridSpec(6, 6)
-	gs2.update(left=0.15, right=0.55, bottom=.55, top=.95, wspace=0, hspace=0)
+	gs2.update(left=0.1, right=0.45, bottom=.55, top=.95, wspace=0, hspace=0)
 	ax5 = plt.subplot(gs2[0:4, :3])
 	ax6 = plt.subplot(gs2[0:2, 3:])
 	ax7 = plt.subplot(gs2[2:4, 3:])
 
 	gs1 = GridSpec(6, 6)
-	gs1.update(left=0.6, right=0.98, bottom=.05, top=.95, wspace=1, hspace=1)
+	gs1.update(left=0.45, right=0.925, bottom=.05, top=.95, wspace=.1, hspace=.05)
 	ax1 = plt.subplot(gs1[0, :3], projection='polar')
-	ax2 = plt.subplot(gs1[1, 3:], projection='polar')
-	ax3 = plt.subplot(gs1[0, 3:], projection='polar')
-	ax4 = plt.subplot(gs1[1, :3], projection='polar')
+	ax2 = plt.subplot(gs1[0, 3:], projection='polar')
+	ax3 = plt.subplot(gs1[1, :3], projection='polar')
+	ax4 = plt.subplot(gs1[1, 3:], projection='polar')
 
 	gs3 = GridSpec(6, 6)
-	gs3.update(left=0.15, right=0.48, bottom=.05, top=.6, wspace=40, hspace=30)
+	gs3.update(left=0.1, right=0.48, bottom=.05, top=.6, wspace=40, hspace=30)
 	ax8 = plt.subplot(gs3[0:4, :4])
 	ax9 = plt.subplot(gs3[0:2, 4:])
 	ax10 = plt.subplot(gs3[2:4, 4:])
@@ -105,7 +110,7 @@ def plot_fig_2(df,
 	ctrl_df = df.loc[df['exp_label'] == 'Ctr']
 
 	ctrl_df_bincenters, ctrl_df_binned = bin_df(ctrl_df,
-											    'avg_dist_bound',
+												'avg_dist_bound',
 												nbins=nbins)
 
 	ctrl_df_binned = ctrl_df_binned.groupby(['category'])
@@ -137,7 +142,7 @@ def plot_fig_2(df,
 
 	r_cont_blm, D_blm = interpolate_lin(blm_df_bincenters,
 										D_blm,
-									    pad_size=hole_size)
+										pad_size=hole_size)
 
 	r_cont_blm, alpha_blm = interpolate_lin(blm_df_bincenters,
 											alpha_blm,
@@ -160,7 +165,8 @@ def plot_fig_2(df,
 				 ylabel=ylabel,
 				 nbins=nbins,
 				 hole_size=hole_size,
-				 range=(min,max))
+				 range=(min,max),
+				 show_colorbar=True)
 
 	add_heat_map(ax2,
 				 blm_df_bincenters,
@@ -170,7 +176,6 @@ def plot_fig_2(df,
 				 nbins=nbins,
 				 hole_size=hole_size,
 				 range=(min,max))
-
 
 	xlabel = r'$\mathbf{\alpha}$'
 	ylabel = r'$\mathbf{\alpha}$'
@@ -186,7 +191,8 @@ def plot_fig_2(df,
 				 ylabel=ylabel,
 				 nbins=nbins,
 				 hole_size=hole_size,
-				 range=(min,max))
+				 range=(min,max),
+				 show_colorbar=True)
 
 	add_heat_map(ax4,
 				 blm_df_bincenters,
@@ -196,21 +202,22 @@ def plot_fig_2(df,
 				 nbins=nbins,
 				 hole_size=hole_size,
 				 range=(min,max))
-	#
-	# ax1.set_title(r'$\mathbf{CTRL}$')
-	# ax2.set_title(r'$\mathbf{BLM}$')
+
+	ax1.set_title(r'$\mathbf{CTRL}$')
+	ax2.set_title(r'$\mathbf{BLM}$')
 
 	# """
 	# ~~~~~~~~~~~CTRL MSD Curve~~~~~~~~~~~~~~
 	# """
 
 	ctrl_df_cpy = df_cpy.loc[df_cpy['exp_label'] == 'Ctr']
+
 	add_mean_msd(ax8,
 				 ctrl_df_cpy,
-				 'sort_flag_boundary',
 				 pixel_size,
 				 frame_rate,
-				 divide_num)
+				 divide_num,
+				 'sort_flag_boundary')
 
 	ax8.set_title(r'$\mathbf{CTRL}$')
 
@@ -218,13 +225,15 @@ def plot_fig_2(df,
 	# ~~~~~~~~~~~CTRL Strip Plots~~~~~~~~~~~~~~
 	# """
 
+	palette = color_palette("coolwarm", 7)
+	palette = [palette[0], palette[-1]]
 	add_strip_plot(ax9,
 				   ctrl_df,
 				   'D',
 				   'sort_flag_boundary',
 				   xlabels=['Interior', 'Boundary'],
 				   ylabel=r'\mathbf{D (nm^{2}/s)}',
-				   palette=['blue', 'red'],
+				   palette=palette,
 				   x_labelsize=8,
 				   drop_duplicates=True)
 
@@ -240,7 +249,7 @@ def plot_fig_2(df,
 						'sort_flag_boundary',
 						xlabels=['Interior', 'Boundary'],
 						ylabel=r'\mathbf{\alpha}',
-						palette=['blue', 'red'],
+						palette=palette,
 						x_labelsize=8,
 						drop_duplicates=True)
 
@@ -258,10 +267,10 @@ def plot_fig_2(df,
 	blm_df_cpy = df_cpy.loc[df_cpy['exp_label'] == 'BLM']
 	add_mean_msd(ax11,
 				 blm_df_cpy,
-				 'sort_flag_boundary',
 				 pixel_size,
 				 frame_rate,
-				 divide_num)
+				 divide_num,
+				 'sort_flag_boundary',)
 
 	ax11.set_title(r'$\mathbf{BLM}$')
 
@@ -275,7 +284,7 @@ def plot_fig_2(df,
 				   'sort_flag_boundary',
 				   xlabels=['Interior', 'Boundary'],
 				   ylabel=r'\mathbf{D (nm^{2}/s)}',
-				   palette=['blue', 'red'],
+				   palette=palette,
 				   x_labelsize=8,
 				   drop_duplicates=True)
 
@@ -291,7 +300,7 @@ def plot_fig_2(df,
 				   'sort_flag_boundary',
 				   xlabels=['Interior', 'Boundary'],
 				   ylabel=r'\mathbf{\alpha}',
-				   palette=['blue', 'red'],
+				   palette=palette,
 				   x_labelsize=8,
 				   drop_duplicates=True)
 
@@ -301,24 +310,20 @@ def plot_fig_2(df,
 			   hist_col='alpha',
 			   text_pos=[0.9, 0.9])
 
-   	# """
-   	# ~~~~~~~~~~~Data Selection Figure~~~~~~~~~~~~~
-   	# """
-
-	df_path = '/home/cwseitz/Desktop/190821_CtrBLM_BLM10-dutp-physData.csv'
-	im_path = '/home/cwseitz/Desktop/190821_CtrBLM_BLM10-dutp-raw.tif'
+	# """
+	# ~~~~~~~~~~~Data Selection Figure~~~~~~~~~~~~~
+	# """
 
 	df = pd.read_csv(df_path)
 	im = imread(im_path)[0]
-	mask = get_thres_mask(im, sig=3, thres_rel=.01)
+	segm = imread(segm_path)[0]
+	mask = get_thres_mask(segm, sig=3, thres_rel=.05)
 	mask = get_dist2boundary_mask(mask)
-
-	thres = 20
 
 	im = gray2rgb(im, alpha=True)
 	im_cpy = deepcopy(im)
-	im[(mask <= 0) & (mask <= -thres)] = [0, 0, 50, 255]
-	im[(mask < 0) & (mask > -thres)] = [50, 0, 0, 255]
+	im[(mask <= 0) & (mask <= bound_thres)] = [0, 0, 100, 255]
+	im[(mask < 0) & (mask > bound_thres)] = [100, 0, 0, 255]
 
 	out = np.ubyte(0.7*im + 0.3*im_cpy)
 
@@ -326,22 +331,27 @@ def plot_fig_2(df,
 
 	anno_traj(ax5,
 			  df,
-			  show_traj_num=False)
+			  pixel_size=pixel_size,
+			  show_traj_num=False,
+			  cb_pos='left',
+			  cb_tick_loc='left')
 	ax5.set_aspect('auto')
 
 	anno_traj(ax6,
-	          df,
-	          image=im,
-	          choose_particle=5,
-	          show_traj_num=False,
+			  df,
+			  image=im,
+			  pixel_size=pixel_size,
+			  choose_particle=59,
+			  show_traj_num=False,
 			  show_colorbar=False)
 	ax6.set_aspect('auto')
 
 	anno_traj(ax7,
-	          df,
-	          image=im,
-	          choose_particle=59,
-	          show_traj_num=False,
+			  df,
+			  image=im,
+			  pixel_size=pixel_size,
+			  choose_particle=118,
+			  show_traj_num=False,
 			  show_colorbar=False)
 	ax7.set_aspect('auto')
 
