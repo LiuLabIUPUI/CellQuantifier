@@ -14,3 +14,4 @@ from ._add_heat_map import *
 from ._add_scalebar import *
 from .anno import *
 from .add_colorbar import *
+from ._format_ax import *
