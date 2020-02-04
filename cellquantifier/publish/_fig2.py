@@ -33,6 +33,19 @@ def plot_fig_2(df,
 	df : DataFrame
 		DataFrame containing 'particle', 'alpha' columns
 
+	df_path: str,
+		Path to csv file containing single cell dataframe for subfigure A
+
+	im_path: str,
+		Path to tif file containing single cell image for subfigure A
+
+	df_path: str,
+		Path to tif file containing single cell image to be segmented for
+		subfigure A
+
+	bound_thres: int,
+		Width of the boundary in pixels for subfigure A
+
 	hole_size: int
 		Size of the black hole in the center of the heat map
 
@@ -48,27 +61,6 @@ def plot_fig_2(df,
 	divide_num : float
 		Divide number to use for the MSD curves
 
-	Example
-	--------
-	import pandas as pd
-	from cellquantifier.publish import plot_fig_2
-	from cellquantifier.phys.physutil import add_avg_dist
-	from cellquantifier.plot.plotutil import *
-
-	df = pd.read_csv('cellquantifier/data/physDataMerged.csv')
-	df = add_avg_dist(df)
-
-	boundary_sorter = [-20, 0]
-	bp1_sorter = [-50, 10]
-
-	df['sort_flag_boundary'] = df['avg_dist_bound'].between(boundary_sorter[0], \
-															boundary_sorter[1],
-															inclusive=True)
-
-	df['sort_flag_53bp1'] = df['avg_dist_53bp1'].between(bp1_sorter[0], \
-														 bp1_sorter[1],
-														 inclusive=True)
-	plot_fig_2(df)
 	"""
 
 	fig = plt.figure(figsize=(10,10))
