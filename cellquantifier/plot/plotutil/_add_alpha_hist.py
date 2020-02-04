@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 def add_alpha_hist(ax, df,
                 cat_col=None,
@@ -61,12 +62,16 @@ def add_alpha_hist(ax, df,
     else:
         dfs = [df]
         cats_label = ['alpha']
-        colors = [(0, 0, 0, RGBA_alpha)]
+        colors = [plt.cm.coolwarm(0)]
 
     for i, df in enumerate(dfs):
-        ax.hist(df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
-					bins=30, color=colors[i], density=True, ec='gray', linewidth=.5,
+        sns.set(style="white", palette="coolwarm", color_codes=True)
+        sns.distplot(df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
+                    hist=True, kde=True, color=colors[i], ax=ax,
                     label=cats_label[i] + (r' $\mathbf{(N_{foci} = %d)}$') % df['particle'].nunique())
+        # ax.hist(df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
+		# 			bins=30, color=colors[i], density=True, ec='gray', linewidth=.5,
+        #             label=cats_label[i] + (r' $\mathbf{(N_{foci} = %d)}$') % df['particle'].nunique())
 
     # """
     # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~

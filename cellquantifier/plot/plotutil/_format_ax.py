@@ -101,3 +101,5 @@ def format_ax(ax,
     if y_minor_tk:
         if y_minor_tk < y_major_tk:
             ax.yaxis.set_minor_locator(MultipleLocator(y_minor_tk))
+
+    ax.set_anchor('SW')

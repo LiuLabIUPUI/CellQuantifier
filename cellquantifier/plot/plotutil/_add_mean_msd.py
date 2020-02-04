@@ -10,6 +10,10 @@ def add_mean_msd(ax, df,
                 divide_num,
                 cat_col=None,
                 RGBA_alpha=0.5,
+                fitting_linewidth=3,
+                elinewidth=None,
+                markersize=None,
+                capsize=2,
                 set_format=True):
     """
     Add mean MSD curve in matplotlib axis.
@@ -105,9 +109,10 @@ def add_mean_msd(ax, df,
             popt_log = fit_msd(x, y, space='log')
             fit_of_mean_msd = msd(x, popt_log[0], popt_log[1])
             ax.plot(x, fit_of_mean_msd, color=colors[i],
-                    label=cats_label[i], linewidth=3)
+                    label=cats_label[i], linewidth=fitting_linewidth)
             ax.errorbar(x, fit_of_mean_msd, yerr=yerr, linestyle='None',
-                marker='.', capsize=2, color=colors[i])
+                marker='.', markersize=markersize,
+                elinewidth=elinewidth, capsize=capsize, color=colors[i])
 
     # """
     # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~
