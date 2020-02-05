@@ -44,7 +44,7 @@ def nonempty_exists_then_copy(input_path, output_path, filename):
 
 
 def nonempty_openfile1_or_openfile2(path, filename1, filename2):
-	if filename1: # if not empty
+	if filename1 and osp.exists(filename1): # if not empty and exists
 		frames = imread(path + filename1)
 	else:
 		frames = imread(path + filename2)
@@ -93,6 +93,40 @@ class Pipeline2():
 
 	def check_regi(self):
 
+		# """
+		# ~~~~~~~~~~~~~~~~~change scaler to list~~~~~~~~~~~~~~~~~
+		# """
+
+		ref_ind_num = []
+		sig_mask = []
+		thres_rel = []
+		poly_deg = []
+		rotation_multiplier =[]
+		translation_multiplier = []
+		use_ransac = []
+
+		if not isinstance(self.config.REF_IND_NUM, list):
+			ref_ind_num.append(self.config.REF_IND_NUM)
+			self.config.REF_IND_NUM = ref_ind_num
+		if not isinstance(self.config.SIG_MASK, list):
+			sig_mask.append(self.config.SIG_MASK)
+			self.config.SIG_MASK = sig_mask
+		if not isinstance(self.config.THRES_REL, list):
+			thres_rel.append(self.config.THRES_REL)
+			self.config.THRES_REL = thres_rel
+		if not isinstance(self.config.POLY_DEG, list):
+			poly_deg.append(self.config.POLY_DEG)
+			self.config.POLY_DEG = poly_deg
+		if not isinstance(self.config.ROTATION_MULTIPLIER, list):
+			rotation_multiplier.append(self.config.ROTATION_MULTIPLIER)
+			self.config.ROTATION_MULTIPLIER = rotation_multiplier
+		if not isinstance(self.config.TRANSLATION_MULTIPLIER, list):
+			translation_multiplier.append(self.config.TRANSLATION_MULTIPLIER)
+			self.config.TRANSLATION_MULTIPLIER = translation_multiplier
+		if not isinstance(self.config.USE_RANSAC, list):
+			use_ransac.append(self.config.USE_RANSAC)
+			self.config.USE_RANSAC = use_ransac
+
 		print("######################################")
 		print("Check regi parameters")
 		print("######################################")
@@ -102,72 +136,91 @@ class Pipeline2():
 					self.config.REF_FILE_NAME,
 					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
-		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+		im = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+					self.config.ROOT_NAME + '-active.tif',
+					self.config.ROOT_NAME + '-raw.tif')
 
-
-		for j in range(len(self.config.REF_IND_NUM)):
+		# for j in range(len(self.config.REF_IND_NUM)):
+		for j in self.config.REF_IND_NUM:
 			for k in range(len(self.config.SIG_MASK)):
 				for l in range(len(self.config.THRES_REL)):
 					for m in range(len(self.config.POLY_DEG)):
 						for n in range(len(self.config.ROTATION_MULTIPLIER)):
 							for o in range(len(self.config.TRANSLATION_MULTIPLIER)):
+								for p in range(len(self.config.USE_RANSAC)):
 
-								# Get regi parameters from ref file, save the regi params in csv file
-								regi_params_array_2d = get_regi_params(ref_im,
-								              ref_ind_num=self.config.REF_IND_NUM[j],
-								              sig_mask=self.config.SIG_MASK[k],
-								              thres_rel=self.config.THRES_REL[l],
-								              poly_deg=self.config.POLY_DEG[m],
-								              rotation_multplier=self.config.ROTATION_MULTIPLIER[n],
-								              translation_multiplier=self.config.TRANSLATION_MULTIPLIER[o],
-								              diagnostic=False)
+									# Get regi parameters from ref file, save the regi params in csv file
+									regi_params_array_2d = get_regi_params(ref_im,
+									              # ref_ind_num=self.config.REF_IND_NUM[j],
+												  ref_ind_num=j,
+									              sig_mask=self.config.SIG_MASK[k],
+									              thres_rel=self.config.THRES_REL[l],
+									              poly_deg=self.config.POLY_DEG[m],
+									              rotation_multplier=self.config.ROTATION_MULTIPLIER[n],
+									              translation_multiplier=self.config.TRANSLATION_MULTIPLIER[o],
+									              diagnostic=False)
 
-								# Apply the regi params, save the registered file
-								registered = apply_regi_params(im, regi_params_array_2d)
+									# Apply the regi params, save the registered file
+									registered = apply_regi_params(im, regi_params_array_2d)
 
-								imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-'
-									+ str(self.config.REF_IND_NUM[j]) + '-'
-									+ str(self.config.SIG_MASK[k]) + '-'
-									+ str(self.config.THRES_REL[l]) + '-'
-									+ str(self.config.POLY_DEG[m]) + '-'
-									+ str(self.config.ROTATION_MULTIPLIER[n]) + '-'
-									+ str(self.config.TRANSLATION_MULTIPLIER[o])
-									+ '.tif', registered)
+									imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-'
+										+ str(self.config.REF_IND_NUM[j]) + '-'
+										+ str(self.config.SIG_MASK[k]) + '-'
+										+ str(self.config.THRES_REL[l]) + '-'
+										+ str(self.config.POLY_DEG[m]) + '-'
+										+ str(self.config.ROTATION_MULTIPLIER[n]) + '-'
+										+ str(self.config.TRANSLATION_MULTIPLIER[o]) + '-'
+										+ str(self.config.USE_RANSAC[p])
+										+ '.tif', registered)
 		return
 
 
 	def regi(self):
 
-		print("######################################")
-		print("Registering Image Stack")
-		print("######################################")
+		check_regi_switch = isinstance(self.config.REF_IND_NUM, list) or \
+							isinstance(self.config.SIG_MASK, list) or \
+							isinstance(self.config.THRES_REL, list) or \
+							isinstance(self.config.POLY_DEG, list) or \
+							isinstance(self.config.ROTATION_MULTIPLIER, list) or \
+							isinstance(self.config.TRANSLATION_MULTIPLIER, list) or \
+							isinstance(self.config.USE_RANSAC, list)
+		if check_regi_switch:
+			self.check_regi()
+		else:
+			print("######################################")
+			print("Registering Image Stack")
+			print("######################################")
 
-		# If no regi ref file, use raw file automatically
-		ref_im = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
-					self.config.REF_FILE_NAME,
-					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
+			# If no regi ref file, use raw file automatically
+			ref_im = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+						self.config.REF_FILE_NAME,
+						self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
-		im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+			im = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
+						self.config.ROOT_NAME + '-active.tif',
+						self.config.ROOT_NAME + '-raw.tif')
 
-		# Get regi parameters from ref file, save the regi params in csv file
-		regi_params_array_2d = get_regi_params(ref_im,
-		              ref_ind_num=self.config.REF_IND_NUM,
-		              sig_mask=self.config.SIG_MASK,
-		              thres_rel=self.config.THRES_REL,
-		              poly_deg=self.config.POLY_DEG,
-		              rotation_multplier=self.config.ROTATION_MULTIPLIER,
-		              translation_multiplier=self.config.TRANSLATION_MULTIPLIER,
-		              diagnostic=False,
-					  use_ransac=self.config.USE_RANSAC)
-		regi_data = pd.DataFrame(regi_params_array_2d,
-				columns=['x_center', 'y_center', 'angle', 'delta_x', 'delta_y' ])
-		regi_data.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME +
-		 				'-regiData.csv', index=False)
+			# Get regi parameters from ref file, save the regi params in csv file
+			regi_params_array_2d = get_regi_params(ref_im,
+			              ref_ind_num=self.config.REF_IND_NUM,
+			              sig_mask=self.config.SIG_MASK,
+			              thres_rel=self.config.THRES_REL,
+			              poly_deg=self.config.POLY_DEG,
+			              rotation_multplier=self.config.ROTATION_MULTIPLIER,
+			              translation_multiplier=self.config.TRANSLATION_MULTIPLIER,
+			              diagnostic=True,
+						  show_trace=False,
+						  use_ransac=self.config.USE_RANSAC)
 
-		# Apply the regi params, save the registered file
-		registered = apply_regi_params(im, regi_params_array_2d)
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif', registered)
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', registered)
+			# regi_data = pd.DataFrame(regi_params_array_2d,
+			# 		columns=['x_center', 'y_center', 'angle', 'delta_x', 'delta_y' ])
+			# regi_data.to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME +
+			#  				'-regiData.csv', index=False)
+
+			# Apply the regi params, save the registered file
+			registered = apply_regi_params(im, regi_params_array_2d)
+			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regi.tif', registered)
+			# imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', registered)
 
 
 	def get_boundary_mask(self):

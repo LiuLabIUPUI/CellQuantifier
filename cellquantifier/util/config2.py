@@ -19,7 +19,7 @@ class Config():
 		self.SIG_MASK = config['Regi sig_mask']
 		self.THRES_REL = config['Regi thres_rel']
 		self.POLY_DEG = config['Regi poly_deg']
-		self.ROTATION_MULTIPLIER = config['Regi rotation_multplier']
+		self.ROTATION_MULTIPLIER = config['Regi rotation_multiplier']
 		self.TRANSLATION_MULTIPLIER = config['Regi translation_multiplier']
 		self.USE_RANSAC = config['Regi use_ransac']
 
