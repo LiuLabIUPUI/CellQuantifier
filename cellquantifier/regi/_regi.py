@@ -19,6 +19,7 @@ def get_regi_params(array_3d,
               rotation_multplier=1,
               translation_multiplier=1,
               diagnostic=False,
+              show_trace=True,
               use_ransac=False):
     """
     Get the rigid registration parameters.
@@ -117,9 +118,12 @@ def get_regi_params(array_3d,
         ax[0].plot(index, angle_fit2, '-b', label='ransac fitting')
         ax[0].legend(loc='lower left')
 
-        Ref = adjust_gamma(Ref, gain=6)
-        trace = mark_boundaries(Ref, Reg_mask)
-        ax[1].imshow(trace, cmap='gray')
+        if show_trace:
+            Ref = adjust_gamma(Ref, gain=6)
+            trace = mark_boundaries(Ref, Reg_mask)
+            ax[1].imshow(trace, cmap='gray')
+        else:
+            ax[1].imshow(Reg_mask, cmap='gray')
         anno_ellipse(ax[1], Ref_props)
         anno_ellipse(ax[1], Reg_props)
 
