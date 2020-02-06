@@ -140,6 +140,7 @@ class Pipeline2():
 					self.config.ROOT_NAME + '-active.tif',
 					self.config.ROOT_NAME + '-raw.tif')
 
+		concate_tif = np.array([])
 		# for j in range(len(self.config.REF_IND_NUM)):
 		for j in self.config.REF_IND_NUM:
 			for k in range(len(self.config.SIG_MASK)):
@@ -163,15 +164,23 @@ class Pipeline2():
 									# Apply the regi params, save the registered file
 									registered = apply_regi_params(im, regi_params_array_2d)
 
-									imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-'
-										+ str(self.config.REF_IND_NUM[j]) + '-'
-										+ str(self.config.SIG_MASK[k]) + '-'
-										+ str(self.config.THRES_REL[l]) + '-'
-										+ str(self.config.POLY_DEG[m]) + '-'
-										+ str(self.config.ROTATION_MULTIPLIER[n]) + '-'
-										+ str(self.config.TRANSLATION_MULTIPLIER[o]) + '-'
-										+ str(self.config.USE_RANSAC[p])
-										+ '.tif', registered)
+									savename = self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-' \
+										+ str(self.config.REF_IND_NUM[j]) + '-' \
+										+ str(self.config.SIG_MASK[k]) + '-' \
+										+ str(self.config.THRES_REL[l]) + '-' \
+										+ str(self.config.POLY_DEG[m]) + '-' \
+										+ str(self.config.ROTATION_MULTIPLIER[n]) + '-' \
+										+ str(self.config.TRANSLATION_MULTIPLIER[o]) + '-' \
+										+ str(self.config.USE_RANSAC[p]) \
+										+ '.tif'
+									imsave(savename, registered)
+
+									if concate_tif.size != 0:
+										concate_tif = np.concatenate((concate_tif, registered), axis=2)
+									else:
+										concate_tif = registered
+
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-check-results.tif', concate_tif)
 		return
 
 
