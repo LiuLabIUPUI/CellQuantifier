@@ -12,6 +12,8 @@ from ._add_fitting import *
 from ._add_strip_plot import *
 from ._add_heat_map import *
 from ._add_scalebar import *
+from ._add_53bp1_count import *
+from ._add_53bp1_diffusion import *
 from .anno import *
 from .add_colorbar import *
 from ._format_ax import *

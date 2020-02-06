@@ -164,8 +164,9 @@ def fit_spotcount(x, y):
 		return a*(1-np.exp(-x/b)) + c
 
 	popt, pcov = op.curve_fit(spot_count,x,y)
+	spot_count = spot_count(x, *popt)
 
-	return popt, popt
+	return spot_count
 
 
 def fit_expdecay(x,y):

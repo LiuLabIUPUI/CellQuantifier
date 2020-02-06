@@ -1,7 +1,33 @@
 from skimage.filters import gaussian
 import numpy as np
 from skimage.morphology import binary_dilation, binary_erosion, disk
+from skimage.filters import threshold_li
+from skimage.segmentation import clear_border
 
+def get_li_mask(img, sig=2):
+
+    """
+    Get a mask based on gaussian blur, li threshold (automatic)
+
+    Parameters
+    ----------
+    img : ndarray
+        Imaging in the format of 2d ndarray.
+    sig : float
+        Sigma of gaussian blur
+
+    Returns
+    -------
+    mask_array_2d: ndarray
+        2d ndarray of 0s and 1s
+    """
+    img = gaussian(img, sigma=sig)
+    th = threshold_li(img)
+    mask_array_2d = img > .9*th
+    mask_array_2d = clear_border(mask_array_2d)
+    mask_array_2d = mask_array_2d.astype(np.uint8)
+
+    return mask_array_2d
 
 def get_thres_mask(img, sig=3, thres_rel=0.2):
     """
