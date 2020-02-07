@@ -26,3 +26,26 @@ def rename_01(src_path):
 	# get src_path and rename
 	dst_path = src_path[:-n] + '-' + stage_label + src_path[-n:end_ind] + '.tif'
 	os.rename(src_path, dst_path)
+
+
+def rename_02(src_path):
+	"""
+	Rename files manner 2
+
+	Examples
+	--------
+    "190814_Ctr1-1_cell01-53bp1-0-3-0.2-2-0-1-True.tif" --> "190814_Ctr1-1_cell01-53bp1.tif"
+    """
+
+	# find insert index
+	filename = src_path.split('/')[-1]
+	m = filename.find('-') + 1
+	m = filename.find('-', m) + 1
+	m = filename.find('-', m)
+	n = len(filename) - m
+
+	# get src_path and rename
+	dst_path = src_path[:-n] + '.tif'
+	print(src_path)
+	print(dst_path)
+	os.rename(src_path, dst_path)
