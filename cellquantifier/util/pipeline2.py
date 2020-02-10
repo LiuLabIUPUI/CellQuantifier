@@ -669,20 +669,19 @@ def get_root_name_list(settings_dict):
 		settings['Mask 53bp1_mask file label'] = '*%#@)9_@*#@_@'
 
 	root_name_list = []
-
 	path_list = glob.glob(settings['IO input_path'] + '/*-raw.tif')
 	if len(path_list) != 0:
 		for path in path_list:
 			temp = path.split('/')[-1]
-			temp = temp[:temp.index('.') - len('-raw')]
+			temp = temp[:-4 - len('-raw')]
 			root_name_list.append(temp)
 	else:
 		path_list = glob.glob(settings['IO input_path'] + '/*.tif')
 		for path in path_list:
 			temp = path.split('/')[-1]
-			temp = temp[:temp.index('.')]
-			if (settings['Mask boundary_mask file label'] not in temp+'.tif') & \
-				(settings['Mask 53bp1_mask file label'] not in temp+'.tif') & \
+			temp = temp[:-4]
+			if (settings['Mask boundary_mask file label'] not in temp+'.tif') and \
+				(settings['Mask 53bp1_mask file label'] not in temp+'.tif') and \
 				(settings['Regi reference file label'] not in temp+'.tif'):
 				root_name_list.append(temp)
 
