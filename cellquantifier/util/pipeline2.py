@@ -70,7 +70,7 @@ class Pipeline2():
 		frames = img_as_ubyte(frames)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
 
-		if frames.ndim == 3 & self.config.DICT['End frame index'] <= len(frames):
+		if frames.ndim == 3 and self.config.DICT['End frame index'] <= len(frames):
 			frames = frames[list(self.config.TRANGE),:,:]
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
 
@@ -136,9 +136,11 @@ class Pipeline2():
 					self.config.REF_FILE_NAME,
 					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
-		im = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
-					self.config.ROOT_NAME + '-active.tif',
-					self.config.ROOT_NAME + '-raw.tif')
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif'):
+			im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+		else:
+			im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME
+					+ '-raw.tif')[list(self.config.TRANGE),:,:]
 
 		concate_tif = np.array([])
 		# for j in range(len(self.config.REF_IND_NUM)):
@@ -205,9 +207,11 @@ class Pipeline2():
 						self.config.REF_FILE_NAME,
 						self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
 
-			im = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
-						self.config.ROOT_NAME + '-active.tif',
-						self.config.ROOT_NAME + '-raw.tif')
+			if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif'):
+				im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
+			else:
+				im = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME
+						+ '-raw.tif')[list(self.config.TRANGE),:,:]
 
 			# Get regi parameters from ref file, save the regi params in csv file
 			regi_params_array_2d = get_regi_params(ref_im,
