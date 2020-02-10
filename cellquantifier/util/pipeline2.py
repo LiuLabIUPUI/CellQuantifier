@@ -218,7 +218,7 @@ class Pipeline2():
 			              rotation_multplier=self.config.ROTATION_MULTIPLIER,
 			              translation_multiplier=self.config.TRANSLATION_MULTIPLIER,
 			              diagnostic=True,
-						  show_trace=False,
+						  show_trace=True,
 						  use_ransac=self.config.USE_RANSAC)
 
 			# regi_data = pd.DataFrame(regi_params_array_2d,
