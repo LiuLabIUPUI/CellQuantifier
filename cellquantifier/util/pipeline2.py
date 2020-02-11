@@ -540,7 +540,11 @@ class Pipeline2():
 		print("Add Physics Param: dist_to_boundary")
 		print("######################################")
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
-		boundary_masks = self.get_boundary_mask()
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif'):
+			boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
+			boundary_masks = boundary_masks // 255
+		else:
+			boundary_masks = self.get_boundary_mask()
 		phys_df = add_dist_to_boundary_batch(phys_df, boundary_masks)
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
@@ -551,7 +555,11 @@ class Pipeline2():
 		print("Add Physics Param: dist_to_53bp1")
 		print("######################################")
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
-		masks_53bp1 = self.get_53bp1_mask()
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif'):
+			masks_53bp1 = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif')
+			masks_53bp1 = boundary_masks // 255
+		else:
+			masks_53bp1 = self.get_53bp1_mask()
 		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1)
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
@@ -562,7 +570,11 @@ class Pipeline2():
 		print("Add Physics Param: dist_to_53bp1_blob")
 		print("######################################")
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
-		masks_53bp1_blob = self.get_53bp1_blob_mask()
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1BlobMask.tif'):
+			masks_53bp1_blob = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1BlobMask.tif')
+			masks_53bp1_blob = boundary_masks // 255
+		else:
+			masks_53bp1_blob = self.get_53bp1_blob_mask()
 		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1_blob)
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
