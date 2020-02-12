@@ -6,7 +6,12 @@ from ...math import t_test
 
 def add_t_test(ax, blobs_df, cat_col, hist_col,
                 drop_duplicates=True,
-                text_pos=[0.95, 0.3]):
+                text_pos=[0.95, 0.3],
+                color=(0,0,0,1),
+                fontname='Arial',
+                fontweight='normal',
+                fontsize=8
+                ):
 
     # """
     # ~~~~~~~~~~~Check if blobs_df is empty~~~~~~~~~~~~~~
@@ -14,7 +19,7 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
 
     if blobs_df.empty:
     	return
-        
+
     # """
     # ~~~~~~~~~~~Prepare the data, category, color~~~~~~~~~~~~~~
     # """
@@ -46,6 +51,8 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
                 t_test_str,
                 horizontalalignment='right',
                 verticalalignment='bottom',
-                fontsize = 8,
-                color = (0, 0, 0, 1),
+                color=color,
+                family=fontname,
+                fontweight=fontweight,
+                fontsize=fontsize,
                 transform=ax.transAxes)
