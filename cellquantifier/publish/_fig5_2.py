@@ -4,14 +4,14 @@ from skimage.io import imread
 from ..plot.plotutil import *
 
 
-def plot_fig4_1():
+def plot_fig5_2():
 
     # """
 	# ~~~~~~~~~~~Prepare the data~~~~~~~~~~~~~~
 	# """
     df = pd.read_csv('/home/linhua/Desktop/temp/200211_CtrBLM-physDataMerged.csv')
-    df.loc[ df['sort_flag_boundary']==0, 'sort_flag_boundary'] = 'Interior'
-    df.loc[ df['sort_flag_boundary']==1, 'sort_flag_boundary' ] = 'Boundary'
+    df.loc[ df['sort_flag_53bp1']==0, 'sort_flag_53bp1'] = 'Far from 53bp1'
+    df.loc[ df['sort_flag_53bp1']==1, 'sort_flag_53bp1' ] = 'Near 53bp1'
     df['A_to_area'] = df['A'] / df['area']
 
 
@@ -24,6 +24,10 @@ def plot_fig4_1():
 	# """
     fig, ax = plt.subplots(1, 1, figsize=(15, 15))
     ax.set_xticks([]); ax.set_yticks([])
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
     ax2_1 = ax.inset_axes([0, 0, 0.2, 0.2])
     ax2_2 = ax.inset_axes([0.3, 0, 0.2, 0.2])
     ax2_3 = ax.inset_axes([0.6, 0, 0.2, 0.2])
@@ -41,13 +45,13 @@ def plot_fig4_1():
     add_violin_2(ax2_1,
                 df=df_blm,
                 data_col='A',
-                cat_col='sort_flag_boundary',
-                hue_order=['Interior', 'Boundary']
+                cat_col='sort_flag_53bp1',
+                hue_order=['Far from 53bp1', 'Near 53bp1']
                 )
 
     add_t_test(ax2_1,
                 blobs_df=df_blm,
-                cat_col='sort_flag_boundary',
+                cat_col='sort_flag_53bp1',
                 hist_col='A',
                 drop_duplicates=False,
                 text_pos=[0.99, 0.0],
@@ -82,13 +86,13 @@ def plot_fig4_1():
     add_violin_2(ax2_2,
                 df=df_blm,
                 data_col='area',
-                cat_col='sort_flag_boundary',
-                hue_order=['Interior', 'Boundary']
+                cat_col='sort_flag_53bp1',
+                hue_order=['Far from 53bp1', 'Near 53bp1']
                 )
 
     add_t_test(ax2_2,
                 blobs_df=df_blm,
-                cat_col='sort_flag_boundary',
+                cat_col='sort_flag_53bp1',
                 hist_col='area',
                 drop_duplicates=False,
                 text_pos=[0.99, 0.0],
@@ -124,13 +128,13 @@ def plot_fig4_1():
     add_violin_2(ax2_3,
                 df=df_blm,
                 data_col='A_to_area',
-                cat_col='sort_flag_boundary',
-                hue_order=['Interior', 'Boundary']
+                cat_col='sort_flag_53bp1',
+                hue_order=['Far from 53bp1', 'Near 53bp1']
                 )
 
     add_t_test(ax2_3,
                 blobs_df=df_blm,
-                cat_col='sort_flag_boundary',
+                cat_col='sort_flag_53bp1',
                 hist_col='A_to_area',
                 drop_duplicates=False,
                 text_pos=[0.99, 0.0],
@@ -166,13 +170,13 @@ def plot_fig4_1():
     add_violin_2(ax1_1,
                 df=df_ctr,
                 data_col='A',
-                cat_col='sort_flag_boundary',
-                hue_order=['Interior', 'Boundary']
+                cat_col='sort_flag_53bp1',
+                hue_order=['Far from 53bp1', 'Near 53bp1']
                 )
 
     add_t_test(ax1_1,
                 blobs_df=df_ctr,
-                cat_col='sort_flag_boundary',
+                cat_col='sort_flag_53bp1',
                 hist_col='A',
                 drop_duplicates=False,
                 text_pos=[0.99, 0.0],
@@ -207,13 +211,13 @@ def plot_fig4_1():
     add_violin_2(ax1_2,
                 df=df_ctr,
                 data_col='area',
-                cat_col='sort_flag_boundary',
-                hue_order=['Interior', 'Boundary']
+                cat_col='sort_flag_53bp1',
+                hue_order=['Far from 53bp1', 'Near 53bp1']
                 )
 
     add_t_test(ax1_2,
                 blobs_df=df_ctr,
-                cat_col='sort_flag_boundary',
+                cat_col='sort_flag_53bp1',
                 hist_col='area',
                 drop_duplicates=False,
                 text_pos=[0.99, 0.0],
@@ -249,13 +253,13 @@ def plot_fig4_1():
     add_violin_2(ax1_3,
                 df=df_ctr,
                 data_col='A_to_area',
-                cat_col='sort_flag_boundary',
-                hue_order=['Interior', 'Boundary']
+                cat_col='sort_flag_53bp1',
+                hue_order=['Far from 53bp1', 'Near 53bp1']
                 )
 
     add_t_test(ax1_3,
                 blobs_df=df_ctr,
-                cat_col='sort_flag_boundary',
+                cat_col='sort_flag_53bp1',
                 hist_col='A_to_area',
                 drop_duplicates=False,
                 text_pos=[0.99, 0.0],
@@ -289,7 +293,7 @@ def plot_fig4_1():
     # """
 	# ~~~~Save the figure into pdf file, preview the figure in webbrowser~~~~~~~
 	# """
-    fig.savefig('/home/linhua/Desktop/Fig4_1.pdf')
-    # import webbrowser
-    # webbrowser.open_new(r'/home/linhua/Desktop/Figure_1.pdf')
-    # plt.clf(); plt.close()
+    fig.savefig('/home/linhua/Desktop/Fig5_2.pdf')
+    import webbrowser
+    webbrowser.open_new(r'/home/linhua/Desktop/Fig5_2.pdf')
+    plt.clf(); plt.close()
