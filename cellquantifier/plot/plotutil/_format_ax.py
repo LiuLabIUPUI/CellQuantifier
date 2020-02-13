@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 def format_ax(ax,
     xlabel='',
     ylabel='',
+    spine_linewidth=2,
+    ax_is_box=True,
     xlabel_color=(0,0,0,1),
     ylabel_color=(0,0,0,1),
     label_fontname='Arial',
@@ -33,6 +35,12 @@ def format_ax(ax,
 
     ylabel : str
         x axis label name.
+
+    spine_linewidth : int,
+        Linewidth of the axis spines
+
+    ax_is_box : bool,
+        Determines whether the axis will be a box or just x,y axes
 
     xlabel_color : tuple
         RGB or RGBA tuple.
@@ -72,8 +80,22 @@ def format_ax(ax,
                 fontname=label_fontname,
                 fontweight=label_fontweight,
                 fontsize=label_fontsize)
-    ax.spines['bottom'].set_color(xlabel_color)
+
+    ax.spines['left'].set_linewidth(spine_linewidth)
     ax.spines['left'].set_color(ylabel_color)
+
+    ax.spines['right'].set_linewidth(spine_linewidth)
+    ax.spines['right'].set_color(ylabel_color)
+
+    ax.spines['bottom'].set_linewidth(spine_linewidth)
+    ax.spines['bottom'].set_color(xlabel_color)
+
+    ax.spines['top'].set_linewidth(spine_linewidth)
+    ax.spines['top'].set_color(xlabel_color)
+
+    if not ax_is_box:
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
 
     # """
     # ~~~~~~~~~~~format xtick, ytick label~~~~~~~~~~~~~~

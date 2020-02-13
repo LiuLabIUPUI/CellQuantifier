@@ -2,97 +2,122 @@ import numpy as np; import pandas as pd
 import matplotlib.pyplot as plt
 import trackpy as tp
 
-from ...math import fit_spotcount
 from scipy.stats import sem
 from ...math import msd, fit_msd
 
 def add_53bp1_diffusion(ax, df,
-                    exp_col='exp_label',
-                    cell_col='cell_num',
-                    cycle_col='cycle_num',
-                    RGBA_alpha=0.5,
-                    fitting_linewidth=3,
-                    elinewidth=None,
-                    markersize=None,
-                    capsize=2,
-                    set_format=True):
-    """
-    Add mean spot count curve in matplotlib axis.
-    For use with cycled imaging only
-    The spot counts are obtained from df.
+					exp_col='exp_label',
+					cell_col='cell_num',
+					cycle_col='cycle_num',
+					dt_per_cycle=2,
+					start=None,
+					RGBA_alpha=0.5,
+					fitting_linewidth=3,
+					elinewidth=None,
+					markersize=None,
+					capsize=2,
+					set_format=True):
 
-    Parameters
-    ----------
-    ax : object
-        matplotlib axis to annotate ellipse.
+	"""
+	Add mean D curve in matplotlib axis.
+	For use with cycled imaging only
 
-    df : DataFrame
+	Parameters
+	----------
+	ax : object
+		matplotlib axis to annotate ellipse.
+
+	df : DataFrame
 		DataFrame containing 'cell_num', 'particle', 'exp_label', 'cycle_num'
-        columns
+		columns
 
-    cat_col : None or str
+	cat_col : None or str
 		Column to use for categorical sorting
 
-    """
+	"""
 
-    # """
-    # ~~~~~~~~~~~Check if df is empty~~~~~~~~~~~~~~
-    # """
 
-    if df.empty:
-    	return
+	# """
+	# ~~~~~~~~~~~Check if df is empty~~~~~~~~~~~~~~
+	# """
 
-    # """
-    # ~~~~~~~~~~~Divide the data by exp_label~~~~~~~~~~~~~~
-    # """
+	if df.empty:
+		return
 
-    exps = df[exp_col].unique()
-    d_coeff = [[] for exp in exps]
-    exp_dfs = [df.loc[df[exp_col] == exp] for exp in exps]
+	# """
+	# ~~~~~~~~~~~Divide the data by exp_label~~~~~~~~~~~~~~
+	# """
 
-    for i, exp_df in enumerate(exp_dfs):
+	exps = df[exp_col].unique()
+	# colors = plt.cm.coolwarm(np.linspace(0,1,len(exps)))
+	colors = ['blue', 'red']
+	d_coeff = [[] for exp in exps]
+	exp_dfs = [df.loc[df[exp_col] == exp] for exp in exps]
 
-        # """
-        # ~~~~~~~~~~~Divide the data by cell~~~~~~~~~~~~~~
-        # """
+	for i, exp_df in enumerate(exp_dfs):
 
-        cells = exp_df[cell_col].unique()
-        cell_dfs = [exp_df.loc[exp_df[cell_col] == cell] for cell in cells]
+		# """
+		# ~~~~~~~~~~~Divide the data by cell~~~~~~~~~~~~~~
+		# """
 
-        for j, cell_df in enumerate(cell_dfs):
+		cells = exp_df[cell_col].unique()
+		cell_dfs = [exp_df.loc[exp_df[cell_col] == cell] for cell in cells]
 
-        # """
-        # ~~~~~~~~~~~Divide the data by cycle~~~~~~~~~~~~~~
-        # """
+		for j, cell_df in enumerate(cell_dfs):
 
-            d_coeff[i].append([])
-            cycles = sorted(cell_df[cycle_col].unique())
-            cycle_dfs = [cell_df.loc[cell_df[cycle_col] == cycle]\
-                                    for cycle in cycles]
+		# """
+		# ~~~~~~~~~~~Divide the data by cycle~~~~~~~~~~~~~~
+		# """
 
-            for k, cycle_df in enumerate(cycle_dfs):
-                D = cycle_df.drop_duplicates('particle')['D']
-                mean_d = D.mean()
-                d_coeff[i][j].append(mean_d)
+			d_coeff[i].append([])
+			cycles = sorted(cell_df[cycle_col].unique())
+			cycle_dfs = [cell_df.loc[cell_df[cycle_col] == cycle]\
+									for cycle in cycles]
 
-    # """
-    # ~~~~~~~~~~Compute the mean and add to axis~~~~~~~~~~~~~~
-    # """
+			for k, cycle_df in enumerate(cycle_dfs):
+				D = cycle_df.drop_duplicates('particle')['D']
+				mean_D = D.mean()
+				d_coeff[i][j].append(mean_D)
 
-        mean_mean_d = np.mean(d_coeff[i], axis=0)
-        yerr = sem(d_coeff[i], axis=0)
-        ax.plot(cycles, mean_mean_d, color='red')
-        ax.errorbar(cycles, mean_mean_d, yerr=yerr)
+	# """
+	# ~~~~~~~~~~Compute the mean and add to axis~~~~~~~~~~~~~~
+	# """
 
-    # """
-    # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~
-    # """
-    if set_format:
-        ax.spines['right'].set_visible(False)
-        ax.spines['top'].set_visible(False)
-        ax.spines['left'].set_linewidth(2)
-        ax.spines['bottom'].set_linewidth(2)
-        ax.tick_params(labelsize=13, width=2, length=5)
+		mean_mean_D = np.mean(d_coeff[i], axis=0)
+		yerr = sem(d_coeff[i], axis=0)
 
-        ax.set_xlabel(r'$\mathbf{Time (s)}$', fontsize=15)
-        ax.set_ylabel(r'$\mathbf{Spot Count}$', fontsize=15)
+		if start:
+			trunc = cycles[start-1:] #truncate cycle array
+			delta = trunc[0]
+			shifted = np.array([cycle-delta for cycle in trunc])
+			shifted = shifted*dt_per_cycle
+			mean_mean_D = mean_mean_D[start-1:]
+			yerr = yerr[start-1:]
+
+			ax.errorbar(shifted, mean_mean_D, yerr=yerr,
+						color=colors[i], linestyle='-', label=exps[i])
+
+		else:
+			cycles = np.array(cycles)
+			cycles = cycles*dt_per_cycle
+			ax.errorbar(shifted, mean_mean_D, yerr=yerr,
+						color=colors[i], linestyle='-', label=exps[i])
+
+
+	# """
+	# ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~
+	# """
+
+	ax.axvspan(-dt_per_cycle, -.5*dt_per_cycle, alpha=0.3, color='gray')
+	ax.axvspan(-.5*dt_per_cycle, 0, alpha=0.3, color='red')
+	ax.set_xlim(-dt_per_cycle, (max(cycles))*dt_per_cycle)
+
+	if set_format:
+		ax.spines['right'].set_visible(False)
+		ax.spines['top'].set_visible(False)
+		ax.spines['left'].set_linewidth(2)
+		ax.spines['bottom'].set_linewidth(2)
+		ax.tick_params(labelsize=13, width=2, length=5)
+		ax.set_xlabel(r'$\mathbf{Time (min)}$', fontsize=15)
+		ax.set_ylabel(r'$\mathbf{D (nm^{2}/s)}$', fontsize=15)
+		ax.legend()

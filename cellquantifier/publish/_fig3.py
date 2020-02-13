@@ -1,11 +1,16 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from seaborn import color_palette
 from copy import deepcopy
 from cellquantifier.math import interpolate_lin
 from cellquantifier.phys.physutil import bin_df
 from cellquantifier.plot.plotutil import *
-
+from matplotlib.gridspec import GridSpec
+from skimage.io import imread
+from cellquantifier.segm import get_thres_mask, get_dist2boundary_mask
+from cellquantifier.plot.plotutil import anno_traj, add_scalebar
+from skimage.color import gray2rgb
 
 def plot_fig_3(df,
 			   bp1_thres=10,
@@ -13,7 +18,10 @@ def plot_fig_3(df,
 			   hole_size=1,
 			   pixel_size=.1083,
 			   frame_rate=3.33,
-			   divide_num=5):
+			   divide_num=5,
+			   sub_df_path=None,
+			   dutp_path=None,
+			   bp1_path=None):
 
 	"""
 	Construct Figure 3
@@ -53,19 +61,23 @@ def plot_fig_3(df,
 	plot_fig_2(df)
 	"""
 
-	fig = plt.figure(figsize=(14,6))
-	shape = (8,10)
+	fig = plt.figure(figsize=(7,9))
 
 	# """
 	# ~~~~~~~~~~~Initialize Grid~~~~~~~~~~~~~~
 	# """
 
-	ax1 = plt.subplot2grid(shape, (0, 0), rowspan=8, colspan=4) #msd curve
-	ax2 = plt.subplot2grid(shape, (0, 4), rowspan=4, colspan=2) #up sp
-	ax3 = plt.subplot2grid(shape, (4, 4), rowspan=4, colspan=2) #down sp
+	gs1 = GridSpec(6, 6)
+	gs2 = GridSpec(4, 4)
+	gs1.update(left=0.25, right=0.98, bottom=.15, top=.5, wspace=40, hspace=30)
+	gs2.update(left=0.25, right=0.98, bottom=.55, top=.95, wspace=.1, hspace=30)
 
-	ax4 = plt.subplot2grid(shape, (0, 6), rowspan=4, colspan=2, projection='polar') #heat maps
-	ax5 = plt.subplot2grid(shape, (4, 6), rowspan=4, colspan=2, projection='polar') #heat maps
+	ax1 = plt.subplot(gs1[:6, :4])
+	ax2 = plt.subplot(gs1[:3, 4:])
+	ax3 = plt.subplot(gs1[3:, 4:])
+
+	ax4 = plt.subplot(gs2[:, :2])
+	ax5 = plt.subplot(gs2[:, 2:])
 
 	df_cpy = deepcopy(df)
 
@@ -99,16 +111,18 @@ def plot_fig_3(df,
 	blm_df_cpy = df_cpy.loc[df_cpy['exp_label'] == 'BLM']
 	add_mean_msd(ax1,
 			 blm_df_cpy,
-			 'sort_flag_53bp1',
 			 pixel_size,
 			 frame_rate,
-			 divide_num)
-
-	ax1.set_title(r'$\mathbf{BLM}$')
+			 divide_num,
+			 'sort_flag_53bp1')
+	ax1.set_title(r'$\mathbf{BLM}$', fontsize=18)
 
 	# """
 	# ~~~~~~~~~~~BLM Strip Plots~~~~~~~~~~~~~~
 	# """
+
+	palette = color_palette("coolwarm", 7)
+	palette = [palette[0], palette[-1]]
 
 	add_strip_plot(ax2,
 			   blm_df_cpy,
@@ -116,8 +130,9 @@ def plot_fig_3(df,
 			   'sort_flag_53bp1',
 			   xlabels=['Far', 'Near'],
 			   ylabel=r'\mathbf{D (nm^{2}/s)}',
-			   palette=['blue', 'red'],
-			   x_labelsize=8,
+			   palette=palette,
+			   x_labelsize=12,
+			   y_labelsize=14,
 			   drop_duplicates=True)
 
 	add_t_test(ax2,
@@ -132,8 +147,9 @@ def plot_fig_3(df,
 				'sort_flag_53bp1',
 				xlabels=['Far', 'Near'],
 				ylabel=r'\mathbf{\alpha}',
-				palette=['blue', 'red'],
-				x_labelsize=8,
+				palette=palette,
+				x_labelsize=12,
+				y_labelsize=14,
 				drop_duplicates=True)
 
 
@@ -143,28 +159,51 @@ def plot_fig_3(df,
 		   hist_col='alpha',
 		   text_pos=[0.9, 0.9])
 
-
 	# """
-	# ~~~~~~~~~~~Heat Maps~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Data Selection Figure~~~~~~~~~~~~~~
 	# """
 
-	add_heat_map(ax4,
-				 blm_df_bincenters,
-				 r_cont_blm,
-				 D_blm,
-				 ylabel=r'$\mathbf{D (nm^{2}/s)}$',
-				 nbins=nbins,
-				 hole_size=hole_size,
-				 edge_ring=True)
+	df = pd.read_csv(sub_df_path)
+	im_dutp = imread(dutp_path)[0]
+	im_bp1 = imread(bp1_path)[0]
 
-	add_heat_map(ax5,
-				 blm_df_bincenters,
-				 r_cont_blm,
-				 alpha_blm,
-				 ylabel=r'$\mathbf{\alpha}$',
-				 nbins=nbins,
-				 hole_size=hole_size,
-				 edge_ring=True)
+	im_zeros = np.zeros_like(im_dutp)
+	im_dutp = np.dstack((im_zeros, im_dutp, im_zeros))
+	im_bp1 = np.dstack((im_bp1, im_zeros, im_zeros))
 
-	plt.subplots_adjust(wspace=5, hspace=5)
+	out = im_dutp + im_bp1
+	out1 = out[255:275, 227:247]
+	out2 = out[210:230, 188:208]
+	ax4.imshow(out1)
+	ax5.imshow(out2)
+
+	ax4.set_xticks([])
+	ax4.set_yticks([])
+	ax5.set_xticks([])
+	ax5.set_yticks([])
+
+	for spine in ax4.spines.values():
+		spine.set_edgecolor(palette[-1])
+		spine.set_linewidth(5)
+	for spine in ax5.spines.values():
+		spine.set_edgecolor(palette[0])
+		spine.set_linewidth(5)
+
+	add_scalebar(ax4, .1084, sb_color=(1,1,1), sb_pos='lower left', fontsize=12)
+	ax4.text(.02,
+		    .9,
+		    'dUTP',
+		    fontsize=18,
+		    color='green',
+		    transform=ax4.transAxes)
+
+	ax4.text(.02,
+		    .8,
+		    '53BP1',
+		    fontsize=18,
+		    color='red',
+		    transform=ax4.transAxes)
+
+	plt.tight_layout()
+	# plt.savefig('/home/cwseitz/Desktop/fig3.png', dpi=1200)
 	plt.show()

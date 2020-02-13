@@ -39,7 +39,7 @@ def plot_fig_2(df,
 	im_path: str,
 		Path to tif file containing single cell image for subfigure A
 
-	df_path: str,
+	segm_path: str,
 		Path to tif file containing single cell image to be segmented for
 		subfigure A
 

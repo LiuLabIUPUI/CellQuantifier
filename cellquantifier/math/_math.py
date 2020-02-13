@@ -141,6 +141,10 @@ def msd(x, D, alpha):
 	return 4*D*(x**alpha)
 
 
+def spot_count(x,a,tau,c):
+
+	return a*(1-np.exp(-x/tau)) + c
+
 def fit_spotcount(x, y):
 
 	"""Spot count fitting function
@@ -159,14 +163,11 @@ def fit_spotcount(x, y):
 		optimal parameters and covariance matrix
 	"""
 
-	def spot_count(x,a,b,c):
+	c = y[0]
+	popt, pcov = op.curve_fit(lambda x,a,tau: spot_count(x,a,tau,c), x, y)
+	popt = [*popt, c]
 
-		return a*(1-np.exp(-x/b)) + c
-
-	popt, pcov = op.curve_fit(spot_count,x,y)
-	spot_count = spot_count(x, *popt)
-
-	return spot_count
+	return popt
 
 
 def fit_expdecay(x,y):
