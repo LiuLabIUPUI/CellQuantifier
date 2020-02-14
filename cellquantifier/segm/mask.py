@@ -189,21 +189,21 @@ def blobs_df_to_mask(tif, blobs_df):
 
     shape = (len(tif), tif[0].shape[0], tif[0].shape[1])
     masks_array_3d = np.zeros(shape, dtype=np.uint8)
-
+    
     for i in range(len(tif)):
         curr_blobs_df = blobs_df[ blobs_df['frame']==i ]
         mask = np.zeros((shape[1], shape[2]))
-        x = np.arange(0, shape[1])[np.newaxis, :]
-        y = np.arange(0, shape[2])[:, np.newaxis]
+        x = np.arange(0, shape[1])[:, np.newaxis]
+        y = np.arange(0, shape[2])[np.newaxis, :]
 
         for j in curr_blobs_df.index:
-            x0 = curr_blobs_df.loc[j, 'y']
-            y0 = curr_blobs_df.loc[j, 'x']
+            x0 = curr_blobs_df.loc[j, 'x']
+            y0 = curr_blobs_df.loc[j, 'y']
             r = curr_blobs_df.loc[j, 'r']
             curr_mask = (x-x0)**2 + (y-y0)**2 <= r**2
             mask = np.logical_or(mask, curr_mask)
 
         masks_array_3d[i][mask] = 1
-        print("Get blob_mask NO.%d is done!" % i)
+        # print("Get blob_mask NO.%d is done!" % i)
 
     return masks_array_3d

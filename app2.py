@@ -4,7 +4,7 @@ control = [
 # 'clean_dir',
 # 'load',
 # 'regi',
-# 'mask_boundary', 'mask_53bp1', #'mask_53bp1_blob',
+# 'mask_boundary', 'mask_53bp1', # 'mask_53bp1_blob',
 # 'deno_box', 'deno_gaus',
 # 'check_detect_fit',
 # 'detect_fit',
@@ -47,8 +47,8 @@ settings = {
   'Mask boundary_mask thres_rel': 0.2,
   #MASK_53BP1 SETTINGS
   'Mask 53bp1_mask file label': '53bp1',
-  'Mask 53bp1_mask sig': '',
-  'Mask 53bp1_mask thres_rel': '',
+  'Mask 53bp1_mask sig': 3,
+  'Mask 53bp1_mask thres_rel': 0.7,
   #MASK_53BP1_BLOB SETTINGS
   'Mask 53bp1_blob_mask file label': '53bp1',
   'Mask 53bp1_blob_threshold': 0.02,
@@ -60,7 +60,7 @@ settings = {
   #DENOISE SETTINGS
   'Deno boxcar_radius': 10,
   'Deno gaus_blur_sig': 0.5,
-
+#
   #DETECTION SETTINGS
   'Det blob_threshold': 0.02,
   'Det blob_min_sigma': 2,

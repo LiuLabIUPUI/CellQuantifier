@@ -44,7 +44,7 @@ def nonempty_exists_then_copy(input_path, output_path, filename):
 
 
 def nonempty_openfile1_or_openfile2(path, filename1, filename2):
-	if filename1 and osp.exists(filename1): # if not empty and exists
+	if filename1 and osp.exists(path + filename1): # if not empty and exists
 		frames = imread(path + filename1)
 	else:
 		frames = imread(path + filename2)
@@ -679,6 +679,8 @@ def get_root_name_list(settings_dict):
 		settings['Mask boundary_mask file label'] = '*%#@)9_@*#@_@'
 	if settings['Mask 53bp1_mask file label'] == '':
 		settings['Mask 53bp1_mask file label'] = '*%#@)9_@*#@_@'
+	if settings['Mask 53bp1_blob_mask file label'] == '':
+		settings['Mask 53bp1_blob_mask file label'] = '*%#@)9_@*#@_@'
 
 	root_name_list = []
 	path_list = glob.glob(settings['IO input_path'] + '/*-raw.tif')
@@ -694,7 +696,8 @@ def get_root_name_list(settings_dict):
 			temp = temp[:-4]
 			if (settings['Mask boundary_mask file label'] not in temp+'.tif') and \
 				(settings['Mask 53bp1_mask file label'] not in temp+'.tif') and \
-				(settings['Regi reference file label'] not in temp+'.tif'):
+				(settings['Regi reference file label'] not in temp+'.tif') and \
+				(settings['Mask 53bp1_blob_mask file label'] not in temp+'.tif'):
 				root_name_list.append(temp)
 
 	return np.array(sorted(root_name_list))
@@ -720,9 +723,9 @@ def pipeline_batch(settings_dict, control_list):
 	root_name_list = get_root_name_list(settings_dict)
 
 	print("######################################")
-	print("Data to be processed")
-	print("######################################")
+	print("Data to be processed:")
 	print(root_name_list)
+	print("######################################")
 
 	for root_name in root_name_list:
 
