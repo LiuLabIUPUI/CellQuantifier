@@ -1,17 +1,15 @@
-from cellquantifier.util.pipeline2 import *
-import numpy as np
 """Part I: CellQuantifier Sequence Control"""
 
 control = [
 # 'clean_dir',
 # 'load',
-'regi',
 # 'regi',
-# 'mask_boundary', 'mask_53bp1', #'mask_53bp1_blob'
+# 'mask_boundary', 'mask_53bp1', #'mask_53bp1_blob',
 # 'deno_box', 'deno_gaus',
+# 'check_detect_fit',
 # 'detect_fit',
 # 'filt_track',
-# 'phys_dist2boundary', 'phys_dist253bp1',
+# 'phys_dist2boundary', 'phys_dist253bp1', #'phys_dist253bp1_blob',
 # 'sort_plot'
 ]
 
@@ -26,7 +24,7 @@ settings = {
   'Load existing analMeta': False,
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/temp/',
+  'IO input_path': '/home/linhua/Desktop/input/',
   'IO output_path': '/home/linhua/Desktop/temp/',
 
   #REGISTRATION SETTINGS
@@ -44,20 +42,20 @@ settings = {
   'Segm threshold': 'NA',
 
   #MASK_BOUNDARY SETTINGS
-  'Mask boundary_mask file label': '',
+  'Mask boundary_mask file label': '53bp1',
   'Mask boundary_mask sig': 3,
   'Mask boundary_mask thres_rel': 0.2,
   #MASK_53BP1 SETTINGS
-  'Mask 53bp1_mask file label': '',
+  'Mask 53bp1_mask file label': '53bp1',
   'Mask 53bp1_mask sig': '',
   'Mask 53bp1_mask thres_rel': '',
   #MASK_53BP1_BLOB SETTINGS
-  'Mask 53bp1_blob_mask file label': '',
-  'Mask 53bp1_blob_threshold': '',
-  'Mask 53bp1_blob_min_sigma': '',
-  'Mask 53bp1_blob_max_sigma': '',
-  'Mask 53bp1_blob_num_sigma': '',
-  'Mask 53bp1_pk_thresh_rel': '',
+  'Mask 53bp1_blob_mask file label': '53bp1',
+  'Mask 53bp1_blob_threshold': 0.02,
+  'Mask 53bp1_blob_min_sigma': 2,
+  'Mask 53bp1_blob_max_sigma': 4,
+  'Mask 53bp1_blob_num_sigma': 5,
+  'Mask 53bp1_pk_thresh_rel': 0.15,
 
   #DENOISE SETTINGS
   'Deno boxcar_radius': 10,
@@ -66,9 +64,9 @@ settings = {
   #DETECTION SETTINGS
   'Det blob_threshold': 0.02,
   'Det blob_min_sigma': 2,
-  'Det blob_max_sigma': 6,
-  'Det blob_num_sigma': 10,
-  'Det pk_thresh_rel': 0.3,
+  'Det blob_max_sigma': 4,
+  'Det blob_num_sigma': 5,
+  'Det pk_thresh_rel': 0.15,
 
   #TRACKING SETTINGS
   'Trak frame_rate': 3.33,
@@ -90,4 +88,5 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
+from cellquantifier.util.pipeline2 import *
 pipeline_batch(settings, control)
