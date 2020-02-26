@@ -63,7 +63,11 @@ def anno_ellipse(ax, regionprops, linewidth=1, color=(1,0,0,0.8)):
                         linewidth=linewidth, edgecolor=color)
         ax.add_patch(curr_e)
 
-def anno_blob(ax, blob_df, marker='s', plot_r=True, color=(0,1,0,0.8)):
+def anno_blob(ax, blob_df,
+            marker='s',
+            markersize=10,
+            plot_r=True,
+            color=(0,1,0,0.8)):
     """
     Annotate blob in matplotlib axis.
     The blob parameters are obtained from blob_df.
@@ -92,7 +96,7 @@ def anno_blob(ax, blob_df, marker='s', plot_r=True, color=(0,1,0,0.8)):
     for i in f.index:
         y, x, r = f.at[i, 'x'], f.at[i, 'y'], f.at[i, 'r']
         ax.scatter(x, y,
-                    s=10,
+                    s=markersize,
                     marker=marker,
                     c=[color])
         if plot_r:

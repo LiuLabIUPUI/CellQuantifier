@@ -17,6 +17,9 @@ def detect_blobs(pims_frame,
 				diagnostic=True,
 				pltshow=True,
 				plot_r=True,
+				blob_marker='^',
+				blob_markersize=10,
+				blob_markercolor=(0,0,1,0.8),
 				truth_df=None):
 	"""
 	Detect blobs for each frame.
@@ -134,8 +137,8 @@ def detect_blobs(pims_frame,
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~Annotate the blobs~~~~~~~~~~~~~~~~~~~~~~~~~~
 		# """
 		ax.imshow(frame, cmap="gray", aspect='equal')
-		anno_blob(ax, blobs_df, marker='^',
-				plot_r=plot_r, color=(0,0,1,0.8))
+		anno_blob(ax, blobs_df, marker=blob_marker, markersize=blob_markersize,
+				plot_r=plot_r, color=blob_markercolor)
 
 		# """
 		# ~~~~~~~~~~~~~~~~~~~Annotate ground truth if needed~~~~~~~~~~~~~~~~~~~
@@ -169,6 +172,9 @@ def detect_blobs_batch(pims_frames,
 			diagnostic=False,
 			pltshow=False,
 			plot_r=True,
+			blob_marker='^',
+			blob_markersize=10,
+			blob_markercolor=(0,0,1,0.8),
 			truth_df=None):
 
 	"""
@@ -225,6 +231,9 @@ def detect_blobs_batch(pims_frames,
 					   diagnostic=diagnostic,
 					   pltshow=pltshow,
 					   plot_r=plot_r,
+					   blob_marker=blob_marker,
+					   blob_markersize=blob_markersize,
+					   blob_markercolor=blob_markercolor,
 					   truth_df=current_truth_df)
 		blobs_df = pd.concat([blobs_df, tmp], sort=True)
 		plt_array.append(tmp_plt_array)
