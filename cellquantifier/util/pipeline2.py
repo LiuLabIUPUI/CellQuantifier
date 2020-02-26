@@ -557,7 +557,7 @@ class Pipeline2():
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif'):
 			masks_53bp1 = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif')
-			masks_53bp1 = boundary_masks // 255
+			masks_53bp1 = masks_53bp1 // 255
 		else:
 			masks_53bp1 = self.get_53bp1_mask()
 		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1)
@@ -572,7 +572,7 @@ class Pipeline2():
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1BlobMask.tif'):
 			masks_53bp1_blob = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1BlobMask.tif')
-			masks_53bp1_blob = boundary_masks // 255
+			masks_53bp1_blob = masks_53bp1_blob // 255
 		else:
 			masks_53bp1_blob = self.get_53bp1_blob_mask()
 		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1_blob)
