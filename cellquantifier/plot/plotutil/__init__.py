@@ -17,3 +17,4 @@ from ._add_53bp1_diffusion import *
 from .anno import *
 from .add_colorbar import *
 from ._format_ax import *
+from ._add_hist import *

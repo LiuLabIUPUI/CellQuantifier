@@ -1,24 +1,47 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+from ._add_hist import *
 
 def add_alpha_hist(ax, df,
-                cat_col=None,
-                RGBA_alpha=0.5,
-                set_format=True):
+            cat_col=None,
+            cat_order=None,
+            color_list=None,
+            RGBA_alpha=0.5,
+            set_format=True):
     """
-    Add histogram in matplotlib axis.
+    Add alpha histogram in matplotlib axis.
+
+    Pseudo code
+    ----------
+    1. If df is empty, return.
+    2. Drop duplicates alpha values based on 'particle' column.
+    3. Add alpha histograms to the ax.
+    4. Format the ax if needed.
 
     Parameters
     ----------
     ax : object
-        matplotlib axis to annotate ellipse.
+        matplotlib axis.
 
     df : DataFrame
-		DataFrame containing 'particle', 'alpha' columns
+		DataFrame contains with columns 'alpha', 'particle'
+        may contain cat_col.
 
-    cat_col : str
-		Column to use for categorical sorting
+    data_col : str
+        Column used to plot histogram.
+
+    cat_col : str, optional
+		Column to use for categorical sorting.
+
+    cat_order : list of str, optional
+        Prefered order to plot the histograms.
+
+    color_list : list of tuple/list, optional
+        Prefered colors to plot histograms.
+
+    RGBA_alpha : float, optional
+        If alpha value is not specified, this value will be used.
+
+    set_format : bool, optional
+        If true, set the ax format to default format.
 
     Returns
     -------
@@ -28,53 +51,40 @@ def add_alpha_hist(ax, df,
 	--------
     import matplotlib.pyplot as plt
     import pandas as pd
-    from cellquantifier.plot.plotutil import add_alpha_hist
-    path = 'cellquantifier/data/physDataMerged.csv'
-    df = pd.read_csv(path, index_col=None, header=0)
+    from cellquantifier.plot.plotutil import *
+    filepath = 'cellquantifier/data/physDataMerged.csv'
+    df = pd.read_csv(filepath, index_col=None, header=0)
+    df = df.drop_duplicates('particle')
     fig, ax = plt.subplots()
-    add_alpha_hist(ax, df, 'exp_label',
-                RGBA_alpha=0.5)
+    add_alpha_hist(ax, df,
+            cat_col='exp_label',
+            cat_order=['Ctr', 'BLM'],
+            RGBA_alpha=0.5)
     plt.show()
     """
 
-
     # """
-    # ~~~~~~~~~~~Check if df is empty~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~Check if df is empty~~~~~~~~~~~~
     # """
-
     if df.empty:
     	return
 
+    # """
+    # ~~~~Drop duplicates alpha values based on 'particle' column~~~~
+    # """
+    df = df.drop_duplicates('particle')
 
     # """
-    # ~~~~~~~~~~~Prepare the data, category, color~~~~~~~~~~~~~~
+    # ~~~~Add alpha histograms to the ax~~~~
     # """
-    if cat_col:
-        cats = sorted(df[cat_col].unique())
-        dfs = [df.loc[df[cat_col] == cat] for cat in cats]
-        colors = plt.cm.jet(np.linspace(0,1,len(cats)))
-        colors[:, 3] = RGBA_alpha
-
-        cats_label = cats.copy()
-        if 'sort_flag_' in cat_col:
-            for m in range(len(cats_label)):
-                cats_label[m] = cat_col[len('sort_flag_'):] + ': ' + str(cats[m])
-    else:
-        dfs = [df]
-        cats_label = ['alpha']
-        colors = [plt.cm.coolwarm(0)]
-
-    for i, df in enumerate(dfs):
-        sns.set(style="white", palette="coolwarm", color_codes=True)
-        sns.distplot(df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
-                    hist=True, kde=True, color=colors[i], ax=ax,
-                    label=cats_label[i] + (r' $\mathbf{(N_{foci} = %d)}$') % df['particle'].nunique())
-        # ax.hist(df.drop_duplicates(subset='particle')['alpha'].to_numpy(),
-		# 			bins=30, color=colors[i], density=True, ec='gray', linewidth=.5,
-        #             label=cats_label[i] + (r' $\mathbf{(N_{foci} = %d)}$') % df['particle'].nunique())
+    add_hist(ax, df, 'alpha',
+            cat_col=cat_col,
+            cat_order=cat_order,
+            color_list=color_list,
+            RGBA_alpha=RGBA_alpha)
 
     # """
-    # ~~~~~~~~~~~Set the label~~~~~~~~~~~~~~
+    # ~~~~Format the ax if needed~~~~
     # """
     if set_format:
         ax.spines['right'].set_visible(False)
