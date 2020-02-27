@@ -135,8 +135,8 @@ def track_blobs(blobs_df,
 	# """
 
 	if blobs_df.empty:
-		print('\n***ERROR: No Trajectories Exist!!!***\n')
-		sys.exit()
+		print('\n***Trajectories num is zero***\n')
+		return
 
 	# """
 	# ~~~~~~~~~~~Get dA/A~~~~~~~~~~~~~

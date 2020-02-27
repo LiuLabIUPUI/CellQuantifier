@@ -288,7 +288,7 @@ def anno_traj(ax, df,
         ax.text(0.95,
                 0.00,
                 """
-                Density Total trajectory number: %d
+                Total trajectory number: %d
                 """ %(len(particles)),
                 horizontalalignment='right',
                 verticalalignment='bottom',
