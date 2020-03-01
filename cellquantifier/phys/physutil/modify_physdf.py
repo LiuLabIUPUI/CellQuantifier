@@ -63,14 +63,13 @@ def merge_physdfs(files):
         df = df.assign(raw_data=root_name)
 
         # add 'exp_label' column to the merged df
-        exp = re.findall(r'[a-zA-Z]{3}\d{1}', file)
-        df = df.assign(exp_label=exp[0][:-1])
-
-
-        # m = root_name.find('_') + 1
-        # n = root_name.find('_', m)
-        # print(m, n)
-        # df = df.assign(exp_label=root_name[m:n])
+        if '50Nc' in root_name:
+            m = root_name.find('_') + 1
+            n = root_name.find('_', m)
+            df = df.assign(exp_label=root_name[m:n])
+        else:
+            exp = re.findall(r'[a-zA-Z]{3}\d{1}', file)
+            df = df.assign(exp_label=exp[0][:-1])
 
         merged_df = pd.concat([merged_df, df], sort=True, ignore_index=True)
 
