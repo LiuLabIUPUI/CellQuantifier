@@ -53,6 +53,7 @@ def add_violin_1(ax, df, data_col, cat_col):
 def add_violin_2(ax, df, data_col, cat_col,
                 hue_order=None,
                 inner='quartile',
+                RGBA_alpha=0.6,
                 linewidth=0.5,
                 set_format=True):
     """
@@ -106,7 +107,6 @@ def add_violin_2(ax, df, data_col, cat_col,
     # ~~~~~~~~~~~update violin colors with coolwarm~~~~~~~~~~~~~~
     # """
     # Define colors
-    RGBA_alpha = 0.6
     warm = plt.cm.coolwarm(0.99)
     cool = plt.cm.coolwarm(0)
     warm_alpha = (warm[0], warm[1], warm[2], RGBA_alpha)

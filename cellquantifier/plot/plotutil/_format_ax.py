@@ -148,6 +148,8 @@ def format_ax(ax,
                 prop={'family' : legend_fontname,
                     'size' : legend_fontsize,
                     'weight' : legend_fontweight})
+    else:
+        ax.get_legend().remove()
 
     # """
     # ~~~~~~~~~~~set anchor position~~~~~~~~~~~~~~

@@ -9,6 +9,7 @@ def add_mean_msd(ax, df,
                 frame_rate,
                 divide_num,
                 cat_col=None,
+                cat_order=None,
                 RGBA_alpha=0.5,
                 fitting_linewidth=3,
                 elinewidth=None,
@@ -64,7 +65,10 @@ def add_mean_msd(ax, df,
     # ~~~~~~~~~~~Prepare the data, category, color~~~~~~~~~~~~~~
     # """
     if cat_col:
-        cats = sorted(df[cat_col].unique())
+        if cat_order:
+            cats = cat_order
+        else:
+            cats = sorted(df[cat_col].unique())
         dfs = [df.loc[df[cat_col] == cat] for cat in cats]
         colors = plt.cm.coolwarm(np.linspace(0,1,len(cats)))
         colors[:, 3] = RGBA_alpha
