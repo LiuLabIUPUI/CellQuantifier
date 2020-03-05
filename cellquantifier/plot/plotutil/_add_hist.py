@@ -101,9 +101,15 @@ def add_hist(ax, df, data_col,
     # ~~~~~~~~~~~~Add histgrams accordingly~~~~~~~~~~~~
     # """
     for i in range(len(cats)):
-        curr_cat = cats[i]
-        curr_df = df.loc[ df[cat_col]==curr_cat ]
-        curr_color = tuple(colors[i])
+        if cat_col != None:
+            curr_cat = cats[i]
+            curr_df = df.loc[ df[cat_col]==curr_cat ]
+            curr_color = tuple(colors[i])
+        else:
+            curr_cat = cats
+            curr_df = df
+            curr_color = tuple(colors[i])
+
 
         sns.set(style="white", palette="coolwarm", color_codes=True)
         sns.distplot(curr_df[data_col].to_numpy(),

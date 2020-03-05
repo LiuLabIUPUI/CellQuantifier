@@ -77,6 +77,11 @@ def add_mean_msd(ax, df,
         if 'sort_flag_' in cat_col:
             for m in range(len(cats_label)):
                 cats_label[m] = cat_col[len('sort_flag_'):] + ': ' + str(cats[m])
+                cats_label[m] = cats_label[m] + ' (%d)' % len(dfs[m].drop_duplicates('particle'))
+        else:
+            for m in range(len(cats_label)):
+                cats_label[m] = cats_label[m] + ' (%d)' % len(dfs[m].drop_duplicates('particle'))
+
     else:
         dfs = [df]
         cats_label = ['MSD']
