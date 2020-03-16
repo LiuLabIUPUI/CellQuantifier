@@ -56,8 +56,12 @@ def filter_batch(image, method, arg):
 
 		elif method == 'gain':
 			denoised[i] = gain(image[i], arg)
+
 		elif method == 'boxcar':
 			denoised[i] = boxcar(image[i], arg)
+			
+		elif method == 'mean':
+			denoised[i] = mean(image[i], arg)
 
 	return denoised
 
@@ -177,3 +181,19 @@ def boxcar(image, width):
 	filtered = img_as_ubyte(image-filtered)
 
 	return filtered
+
+
+def mean(image, disk_radius):
+	from skimage.morphology import disk
+	from skimage.filters import rank
+
+	image = image / image.max()
+	image = img_as_ubyte(image)
+
+	selem = disk(disk_radius)
+	image = rank.mean(image, selem=selem)
+
+	image = image / image.max()
+	image = img_as_ubyte(image)
+
+	return image
