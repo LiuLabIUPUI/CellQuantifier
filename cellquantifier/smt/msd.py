@@ -72,7 +72,11 @@ def plot_msd_batch(phys_df,
 			 plot_without_sorter=False,
 			 show_fig=False,
 			 save_pdf=False,
-			 open_pdf=False):
+			 open_pdf=False,
+			 cb_min=None,
+             cb_max=None,
+             cb_major_ticker=None,
+             cb_minor_ticker=None):
 
 	# """
 	# ~~~~~~~~~~~Prepare the input data~~~~~~~~~~~~~~
@@ -99,7 +103,11 @@ def plot_msd_batch(phys_df,
 
 		plot_msd(gooddf_list[i], baddf_list[i], image, output_path,
 					 root_name, pixel_size, frame_rate,divide_num,
-					 ax=ax, plot_without_sorter=plot_without_sorter)
+					 ax=ax, plot_without_sorter=plot_without_sorter,
+					 cb_min=cb_min,
+					 cb_max=cb_max,
+					 cb_major_ticker=cb_major_ticker,
+					 cb_minor_ticker=cb_minor_ticker)
 
 		ax0.set_xticks([])
 		ax0.set_yticks([])
@@ -142,7 +150,11 @@ def plot_msd(blobs_df,
 			 frame_rate,
 			 divide_num,
 			 ax=None,
-			 plot_without_sorter=False):
+			 plot_without_sorter=False,
+			 cb_min=None,
+             cb_max=None,
+             cb_major_ticker=None,
+             cb_minor_ticker=None,):
 
 	"""
 	Generates the 3 panel msd figure with color-coded trajectories, msd curves, and a histogram of d values
@@ -205,7 +217,11 @@ def plot_msd(blobs_df,
 	# ~~~~~~~~~~~Plot trajectory annotation~~~~~~~~~~~~~~
 	# """
 
-	anno_traj(ax[0], blobs_df, image, pixel_size)
+	anno_traj(ax[0], blobs_df, image, pixel_size,
+				cb_min=cb_min,
+	            cb_max=cb_max,
+	            cb_major_ticker=cb_major_ticker,
+	            cb_minor_ticker=cb_minor_ticker)
 
 
 	# """
