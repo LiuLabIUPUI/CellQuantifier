@@ -67,6 +67,8 @@ def merge_physdfs(files):
             m = root_name.find('_') + 1
             n = root_name.find('_', m)
             df = df.assign(exp_label=root_name[m:n])
+        elif 'cohort' in root_name:
+            df = df.assign(exp_label=root_name[0:9])
         else:
             exp = re.findall(r'[a-zA-Z]{3}\d{1}', file)
             df = df.assign(exp_label=exp[0][:-1])
