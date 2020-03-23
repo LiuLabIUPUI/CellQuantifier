@@ -5,6 +5,8 @@ def add_D_hist(ax, df,
             cat_order=None,
             color_list=None,
             RGBA_alpha=0.5,
+            hist_kws=None,
+            kde=True,
             set_format=True):
     """
     Add D histogram in matplotlib axis.
@@ -81,7 +83,9 @@ def add_D_hist(ax, df,
             cat_col=cat_col,
             cat_order=cat_order,
             color_list=color_list,
-            RGBA_alpha=RGBA_alpha)
+            RGBA_alpha=RGBA_alpha,
+            hist_kws=hist_kws,
+            kde=kde)
 
     # """
     # ~~~~Format the ax if needed~~~~

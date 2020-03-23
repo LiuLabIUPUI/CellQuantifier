@@ -10,7 +10,9 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
                 color=(0,0,0,1),
                 fontname='Arial',
                 fontweight='normal',
-                fontsize=8
+                fontsize=8,
+                prefix_str='',
+                horizontalalignment='right',
                 ):
 
     # """
@@ -36,20 +38,20 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
                             blobs_dfs[1][hist_col])
 
         if t_stats[1] < .0001:
-            t_test_str = 'P < .0001'
+            t_test_str = prefix_str + 'P < .0001'
         elif t_stats[1] >= .0001 and t_stats[1] < .001:
-            t_test_str = 'P < .001'
+            t_test_str = prefix_str + 'P < .001'
         elif t_stats[1] >= .001 and t_stats[1] < .01:
-            t_test_str = 'P < .01'
+            t_test_str = prefix_str + 'P < .01'
         elif t_stats[1] >= .01 and t_stats[1] < .05:
-            t_test_str = 'P < .05'
+            t_test_str = prefix_str + 'P < .05'
         elif t_stats[1] >= .05:
-            t_test_str = 'P = %.2F' % (t_stats[1])
+            t_test_str = prefix_str + 'P = %.2F' % (t_stats[1])
 
         ax.text(text_pos[0],
                 text_pos[1],
                 t_test_str,
-                horizontalalignment='right',
+                horizontalalignment=horizontalalignment,
                 verticalalignment='bottom',
                 color=color,
                 family=fontname,

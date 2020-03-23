@@ -276,13 +276,38 @@ def anno_traj(ax, df,
     ax.set_aspect(1.0)
     particles = df.particle.unique()
     for particle_num in particles:
-        traj = df[df.particle == particle_num] # traj = df[df.particle == particles[i]]
+        traj = df[df.particle == particle_num]
         traj = traj.sort_values(by='frame')
-        ax.plot(traj['y'], traj['x'], linewidth=1,
-        			color=colormap(traj['D_norm'].mean()))
+
+        # """
+        # ~~~Plot global movement if 'x_global', 'y_global' in df.columns~~~
+        # """
+        if 'x_global' in df.columns and 'y_global' in df.columns:
+            ax.plot(traj['y_global'], traj['x_global'], '-',
+                    linewidth=1, color=(0,1,0))
+            ax.plot(traj['y'], traj['x'], 'o', linewidth=1,
+            			color=colormap(traj['D_norm'].mean()))
+            for ind in traj.index:
+                temp = np.zeros((2, 2))
+                temp[0,:] = df.loc[ind, ['x', 'y']].to_numpy()
+                temp[1,:] = df.loc[ind, ['x_global', 'y_global']].to_numpy()
+                if 'half_sign' in traj.columns:
+                    if traj.loc[ind, 'half_sign'] < 0:
+                        ax.plot(temp[:,1], temp[:,0], color=(0,0,1))
+                    else:
+                        ax.plot(temp[:,1], temp[:,0], color=(1,0,0))
+
+                else:
+                    ax.plot(temp[:,1], temp[:,0],
+                            color=colormap(traj['D_norm'].mean()))
+        else:
+            ax.plot(traj['y'], traj['x'], linewidth=1,
+            			color=colormap(traj['D_norm'].mean()))
+
         if show_particle_label:
             ax.text(traj['y'].mean(), traj['x'].mean(),
                     particle_num, color=(0, 1, 0))
+
 
     if show_traj_num:
         ax.text(0.95,
