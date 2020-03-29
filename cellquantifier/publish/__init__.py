@@ -6,3 +6,4 @@ from ._fig5_2 import *
 from ._fig5_3 import *
 from ._fig_quick_nucleosome import *
 from ._fig_quick_cilia import *
+from ._fig_quick_antigen import *
