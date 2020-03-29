@@ -16,6 +16,9 @@ def format_ax(ax,
     tklabel_fontname='Arial',
     tklabel_fontweight='normal',
     tklabel_fontsize='medium',
+    tk_width=None,
+    majortk_length=None,
+    minortk_length=None,
     show_legend=True,
     legend_loc='upper left',
     legend_frameon=False,
@@ -137,6 +140,23 @@ def format_ax(ax,
     if y_minor_tk:
         if y_minor_tk < y_major_tk:
             ax.yaxis.set_minor_locator(MultipleLocator(y_minor_tk))
+
+
+    # """
+    # ~~~~~~~~~~~tk width, major_tk length, minor_tk length~~~~~~~~~~~~~~
+    # """
+    if tk_width:
+        plt.setp(ax.xaxis.get_ticklines(), 'markeredgewidth', tk_width)
+        plt.setp(ax.yaxis.get_ticklines(), 'markeredgewidth', tk_width)
+        plt.setp(ax.xaxis.get_minorticklines(), 'markeredgewidth', tk_width)
+        plt.setp(ax.yaxis.get_minorticklines(), 'markeredgewidth', tk_width)
+    if majortk_length:
+        plt.setp(ax.xaxis.get_ticklines(), 'markersize', majortk_length)
+        plt.setp(ax.yaxis.get_ticklines(), 'markersize', majortk_length)
+    if minortk_length:
+        plt.setp(ax.xaxis.get_minorticklines(), 'markersize', minortk_length)
+        plt.setp(ax.yaxis.get_minorticklines(), 'markersize', minortk_length)
+
 
     # """
     # ~~~~~~~~~~~format legend~~~~~~~~~~~~~~
