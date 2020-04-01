@@ -4,7 +4,7 @@ control = [
 # 'clean_dir',
 # 'load',
 # 'regi',
-# 'mask_boundary',
+'mask_boundary',
 # 'mask_53bp1',
 # 'mask_53bp1_blob',
 # 'deno_mean',
@@ -21,7 +21,8 @@ control = [
 # 'phys_dist2boundary',
 # 'phys_dist253bp1',
 # 'phys_dist253bp1_blob',
-'plot_traj',
+# 'phys_antigen_data',
+# 'plot_traj',
 # 'sort_plot',
 # 'merge_plot',
 ]
@@ -31,13 +32,13 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/all-results/',
-  'IO output_path': '/home/linhua/Desktop/all-results/',
+  'IO input_path': '/home/linhua/Desktop/temp/',
+  'IO output_path': '/home/linhua/Desktop/temp/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
   'Start frame index': 0,
-  'End frame index': 28,
+  'End frame index': 500,
   'Load existing analMeta': False,
 
   #REGISTRATION SETTINGS
@@ -55,13 +56,13 @@ settings = {
   'Segm threshold': '',
 
   #MASK_BOUNDARY SETTINGS
-  'Mask boundary_mask file label': '',
-  'Mask boundary_mask sig': '',
-  'Mask boundary_mask thres_rel': '',
+  'Mask boundary_mask file label': 'bdr',
+  'Mask boundary_mask sig': 0,
+  'Mask boundary_mask thres_rel': 0.05,
   #MASK_53BP1 SETTINGS
-  'Mask 53bp1_mask file label': '',
-  'Mask 53bp1_mask sig': '',
-  'Mask 53bp1_mask thres_rel': '',
+  'Mask 53bp1_mask file label': '-ncs',
+  'Mask 53bp1_mask sig': 0,
+  'Mask 53bp1_mask thres_rel': 0.01,
   #MASK_53BP1_BLOB SETTINGS
   'Mask 53bp1_blob_mask file label': '',
   'Mask 53bp1_blob_threshold': '',
@@ -79,27 +80,27 @@ settings = {
   'Deno mean_radius': 5,
 
   #DETECTION SETTINGS
-  'Det blob_threshold': 0.015,
-  'Det blob_min_sigma': 10,
-  'Det blob_max_sigma': 30,
-  'Det blob_num_sigma': 5,
-  'Det pk_thresh_rel': 0.2,
+  'Det blob_threshold': 0.005,
+  'Det blob_min_sigma': 2,
+  'Det blob_max_sigma': 3,
+  'Det blob_num_sigma': 2,
+  'Det pk_thresh_rel': 0.05,
 
   #TRACKING SETTINGS
-  'Trak frame_rate': 0.48,
-  'Trak pixel_size': 0.03,
-  'Trak divide_num': 1,
-  'Trak search_range': 20,
+  'Trak frame_rate': 2,
+  'Trak pixel_size': 0.163,
+  'Trak divide_num': 5,
+  'Trak search_range': 1,
   'Trak memory': 3,
 
   #FILTERING SETTINGS
-  'Filt max_dist_err': 5,
+  'Filt max_dist_err': 1,
   'Filt max_sig_to_sigraw': 2,
   'Filt max_delta_area': 0.8,
-  'Filt traj_length_thres': 25,
+  'Filt traj_length_thres': 100,
 
   #SORTING SETTINGS
-  'Sort dist_to_boundary': [-20, 0],
+  'Sort dist_to_boundary': [-10, 0],
   'Sort dist_to_53bp1': [-50, 10],
 
 }
@@ -153,3 +154,26 @@ pipeline_batch(settings, control)
 # df = pd.read_csv('/home/linhua/Desktop/temp/200317-physDataMerged.csv',
 #                 index_col=False)
 # fig_quick_cilia(df)
+
+
+
+# from skimage.io import imread, imsave
+# from cellquantifier.publish import *
+# from cellquantifier.video import *
+# import pandas as pd
+#
+# df = pd.read_csv('/home/linhua/Desktop/temp/200205_MalKN-E-physData.csv',
+#                 index_col=False)
+# df = df[ df['traj_length']>20 ]
+# fig_quick_antigen(df)
+
+
+
+# df = pd.read_csv('/home/linhua/Desktop/temp/200205_MalKN-E-physData.csv',
+#                 index_col=False)
+# tif = imread('/home/linhua/Desktop/temp/200205_MalKN-E-raw.tif')
+# df = df[ df['traj_length']>10 ]
+# # df = df[ df['travel_dist']>3 ]
+# anim_tif = anim_blob(df, tif)
+# imsave('/home/linhua/Desktop/temp/anim-result.tif', anim_tif)
+# # fig_quick_antigen(df)

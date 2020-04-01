@@ -3,7 +3,7 @@ import trackpy as tp
 import os.path as osp; import os; import ast
 from datetime import date, datetime
 from skimage.io import imread, imsave
-from skimage.util import img_as_ubyte
+from skimage.util import img_as_ubyte, img_as_uint, img_as_int
 from skimage.measure import regionprops
 import warnings
 import glob
@@ -51,7 +51,7 @@ def nonempty_openfile1_or_openfile2(path, filename1, filename2):
 	return frames
 
 
-class Pipeline2():
+class Pipeline3():
 
 	def __init__(self, config):
 		self.config = config
@@ -66,16 +66,16 @@ class Pipeline2():
 		else:
 			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 
-		sides_pixel_num = 100
-		if sides_pixel_num:
-			new_shape = (frames.shape[0],
-						frames.shape[1] + sides_pixel_num*2,
-						frames.shape[2] + sides_pixel_num*2)
-			new_frames = np.zeros(new_shape, dtype=frames.dtype)
-			new_frames[:,
-				sides_pixel_num:sides_pixel_num+frames.shape[1],
-				sides_pixel_num:sides_pixel_num+frames.shape[2]] = frames
-			frames = new_frames
+		# sides_pixel_num = 100
+		# if sides_pixel_num:
+		# 	new_shape = (frames.shape[0],
+		# 				frames.shape[1] + sides_pixel_num*2,
+		# 				frames.shape[2] + sides_pixel_num*2)
+		# 	new_frames = np.zeros(new_shape, dtype=frames.dtype)
+		# 	new_frames[:,
+		# 		sides_pixel_num:sides_pixel_num+frames.shape[1],
+		# 		sides_pixel_num:sides_pixel_num+frames.shape[2]] = frames
+		# 	frames = new_frames
 
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
 
@@ -97,7 +97,8 @@ class Pipeline2():
 
 
 	def rename(self):
-		rename_01(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '.tif')
+		# rename_01(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '.tif')
+		rename_03(self.config.OUTPUT_PATH)
 
 
 
@@ -250,7 +251,7 @@ class Pipeline2():
 		# If no mask ref file, use raw file automatically
 		frames = nonempty_openfile1_or_openfile2(self.config.OUTPUT_PATH,
 					self.config.DIST2BOUNDARY_MASK_NAME,
-					self.config.ROOT_NAME+'-raw.tif')[list(self.config.TRANGE),:,:]
+					self.config.ROOT_NAME+'-raw.tif')
 
 		# If regi params csv file exsits, load it and do the registration.
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
@@ -258,7 +259,16 @@ class Pipeline2():
 			 				self.config.ROOT_NAME + '-regiData.csv').to_numpy()
 			frames = apply_regi_params(frames, regi_params_array_2d)
 
-		boundary_masks = get_thres_mask_batch(frames,
+		# If only 1 frame available, duplicate it to enough frames_num.
+		tot_frame_num = len(self.config.TRANGE)
+		if frames.ndim==2:
+			dup_frames = np.zeros((tot_frame_num, frames.shape[0], frames.shape[1]),
+									dtype=frames.dtype)
+			for i in range(tot_frame_num):
+				dup_frames[i] = frames
+			frames = dup_frames
+
+		boundary_masks = get_thres_mask_batch(frames[list(self.config.TRANGE),:,:],
 					self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
 
 		return boundary_masks
@@ -351,12 +361,18 @@ class Pipeline2():
 		print("Generate mask_boundary")
 		print("######################################")
 		boundary_masks = self.get_boundary_mask()
-
 		# Save it using 255 and 0
-		boundary_masks = np.rint(boundary_masks / \
+		boundary_masks_255 = np.rint(boundary_masks / \
 							boundary_masks.max() * 255).astype(np.uint8)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif',
-				boundary_masks)
+				boundary_masks_255)
+
+		print("######################################")
+		print("Generate dist2boundary_mask")
+		print("######################################")
+		dist2boundary_masks = img_as_int(get_dist2boundary_mask_batch(boundary_masks))
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-dist2boundaryMask.tif',
+				dist2boundary_masks)
 
 
 	def mask_53bp1(self):
@@ -449,32 +465,46 @@ class Pipeline2():
 		print("Check detection and fitting")
 		print("######################################")
 
+		check_frame_ind = [0, 100, 200, 300, 400, 499]
+
 		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
 									'-regi.tif', '-raw.tif')
+		# blobs_df, det_plt_array = detect_blobs(frames[check_frame_ind],
+		# 							min_sig=self.config.MIN_SIGMA,
+		# 							max_sig=self.config.MAX_SIGMA,
+		# 							num_sig=self.config.NUM_SIGMA,
+		# 							blob_thres=self.config.THRESHOLD,
+		# 							peak_thres_rel=self.config.PEAK_THRESH_REL,
+		# 							r_to_sigraw=1,
+		# 							pixel_size=self.config.PIXEL_SIZE,
+		# 							diagnostic=True,
+		# 							pltshow=True,
+		# 							plot_r=True,
+		# 							truth_df=None)
 
-		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif')
+		for ind in check_frame_ind:
+			blobs_df, det_plt_array = detect_blobs(frames[ind],
+										min_sig=self.config.MIN_SIGMA,
+										max_sig=self.config.MAX_SIGMA,
+										num_sig=self.config.NUM_SIGMA,
+										blob_thres=self.config.THRESHOLD,
+										peak_thres_rel=self.config.PEAK_THRESH_REL,
+										r_to_sigraw=1,
+										pixel_size=self.config.PIXEL_SIZE,
+										diagnostic=True,
+										pltshow=True,
+										plot_r=False,
+										truth_df=None)
 
-		blobs_df, det_plt_array = detect_blobs(frames[0],
-									min_sig=self.config.MIN_SIGMA,
-									max_sig=self.config.MAX_SIGMA,
-									num_sig=self.config.NUM_SIGMA,
-									blob_thres=self.config.THRESHOLD,
-									peak_thres_rel=self.config.PEAK_THRESH_REL,
-									r_to_sigraw=1,
-									pixel_size=self.config.PIXEL_SIZE,
-									diagnostic=True,
-									pltshow=True,
-									plot_r=True,
-									truth_df=None)
-
-		psf_df, fit_plt_array = fit_psf(frames_deno[0],
-		            blobs_df,
-		            diagnostic=True,
-		            pltshow=True,
-		            diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
-		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
-		            truth_df=None,
-		            segm_df=blobs_df)
+		# frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif')
+		# psf_df, fit_plt_array = fit_psf(frames_deno[check_frame_ind],
+		#             blobs_df,
+		#             diagnostic=True,
+		#             pltshow=True,
+		#             diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
+		#             diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
+		#             truth_df=None,
+		#             segm_df=blobs_df)
 
 
 	def detect_fit(self):
@@ -533,7 +563,7 @@ class Pipeline2():
 									pixel_size=self.config.PIXEL_SIZE,
 									diagnostic=True,
 									pltshow=False,
-									plot_r=True,
+									plot_r=False,
 									truth_df=None)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
 
@@ -553,13 +583,13 @@ class Pipeline2():
 
 		psf_df, fit_plt_array = fit_psf_batch(frames_deno,
 		            blobs_df,
-		            diagnostic=True,
+		            diagnostic=False,
 		            pltshow=False,
 		            diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
 		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
 		            truth_df=None,
 		            segm_df=None)
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fitVideo.tif', fit_plt_array)
+		# imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fitVideo.tif', fit_plt_array)
 		psf_df = psf_df.apply(pd.to_numeric)
 		psf_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-fittData.csv', index=False)
@@ -622,25 +652,27 @@ class Pipeline2():
 									'-regi.tif', '-raw.tif')
 
 		# plot_msd_batch(phys_df,
-		# 			 image=frames[0],
-		# 			 output_path=self.config.OUTPUT_PATH,
-		# 			 root_name=self.config.ROOT_NAME,
-		# 			 pixel_size=self.config.PIXEL_SIZE,
-		# 			 frame_rate=self.config.FRAME_RATE,
-		# 			 divide_num=self.config.DIVIDE_NUM,
-		# 			 plot_without_sorter=True,
-		# 			 show_fig=True,
-		# 			 save_pdf=False,
-		# 			 open_pdf=False,
-		# 			 cb_min=None,
-		#              cb_max=None,
-		#              cb_major_ticker=None,
-		#              cb_minor_ticker=None,)
+		# 			image=frames[0],
+		# 			output_path=self.config.OUTPUT_PATH,
+		# 			root_name=self.config.ROOT_NAME,
+		# 			pixel_size=self.config.PIXEL_SIZE,
+		# 			frame_rate=self.config.FRAME_RATE,
+		# 			divide_num=self.config.DIVIDE_NUM,
+		# 			plot_without_sorter=True,
+		# 			show_fig=True,
+		# 			save_pdf=False,
+		# 			open_pdf=False,
+		# 			cb_min=None,
+		# 			cb_max=None,
+		# 			cb_major_ticker=None,
+		# 			cb_minor_ticker=None,
+		# 			)
 
 		fig, ax = plt.subplots()
 		anno_traj(ax, phys_df,
 					image=frames[0],
-					pixel_size=1)
+					pixel_size=self.config.PIXEL_SIZE,
+					)
 		plt.show()
 
 
@@ -676,12 +708,20 @@ class Pipeline2():
 		print("Add Physics Param: dist_to_boundary")
 		print("######################################")
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif'):
-			boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
-			boundary_masks = boundary_masks // 255
+
+
+
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-dist2boundaryMask.tif'):
+			dist2boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-dist2boundaryMask.tif')
+		# 	boundary_masks = boundary_masks // 255
 		else:
 			boundary_masks = self.get_boundary_mask()
-		phys_df = add_dist_to_boundary_batch(phys_df, boundary_masks)
+			dist2boundary_masks = get_dist2boundary_mask_batch(boundary_masks)
+
+
+
+
+		phys_df = add_dist_to_boundary_batch_2(phys_df, dist2boundary_masks)
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
@@ -691,11 +731,17 @@ class Pipeline2():
 		print("Add Physics Param: dist_to_53bp1")
 		print("######################################")
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+
+
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif'):
 			masks_53bp1 = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1Mask.tif')
 			masks_53bp1 = masks_53bp1 // 255
 		else:
 			masks_53bp1 = self.get_53bp1_mask()
+
+
+
 		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1)
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
@@ -706,11 +752,17 @@ class Pipeline2():
 		print("Add Physics Param: dist_to_53bp1_blob")
 		print("######################################")
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+
+
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1BlobMask.tif'):
 			masks_53bp1_blob = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1BlobMask.tif')
 			masks_53bp1_blob = masks_53bp1_blob // 255
 		else:
 			masks_53bp1_blob = self.get_53bp1_blob_mask()
+
+
+
 		phys_df = add_dist_to_53bp1_batch(phys_df, masks_53bp1_blob)
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
@@ -762,6 +814,21 @@ class Pipeline2():
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
+	def phys_antigen_data(self):
+		print("######################################")
+		print("Add Physics Param: antigen_data")
+		print("######################################")
+
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		phys_df['pixel_size'] = self.config.PIXEL_SIZE
+		phys_df['dist_to_boundary'] = phys_df['dist_to_boundary'] * self.config.PIXEL_SIZE
+		phys_df['dist_to_53bp1'] = phys_df['dist_to_53bp1'] * self.config.PIXEL_SIZE
+
+		phys_df = add_antigen_data(phys_df)
+		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physData.csv', index=False)
+
 
 	def sort_plot(self):
 
@@ -798,10 +865,11 @@ class Pipeline2():
 					 show_fig=False,
 					 save_pdf=True,
 					 open_pdf=False,
-					 cb_min=1000,
-		             cb_max=7000,
-		             cb_major_ticker=1000,
-		             cb_minor_ticker=1000,)
+					 # cb_min=1000,
+		             # cb_max=7000,
+		             # cb_major_ticker=1000,
+		             # cb_minor_ticker=1000,
+					 )
 
 		self.config.DICT['Load existing analMeta'] = True
 		self.config.save_config()
@@ -933,10 +1001,12 @@ def pipeline_batch(settings_dict, control_list):
 	print(root_name_list)
 	print("######################################")
 
+	ind = 0
+	tot = len(root_name_list)
 	for root_name in root_name_list:
-
+		ind = ind + 1
 		print("\n")
-		print("Processing: %s" % root_name)
+		print("Processing (%d/%d): %s" % (ind, tot, root_name))
 
 		# """
 		# ~~~~~~~~~~~~~~~~~2. Update config~~~~~~~~~~~~~~~~~
@@ -964,6 +1034,8 @@ def pipeline_batch(settings_dict, control_list):
 		# 2.2. Update config.REF_FILE_NAME
 		if '-' in root_name and root_name.find('-')>0:
 			key = root_name[0:root_name.find('-')]
+		else:
+			key = root_name
 
 		if settings_dict['Regi reference file label']:# if label is not empty, find file_list
 			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
@@ -1003,6 +1075,6 @@ def pipeline_batch(settings_dict, control_list):
 		# """
 		# ~~~~~~~~~~~~~~~~~3. Setup pipe and run~~~~~~~~~~~~~~~~~
 		# """
-		pipe = Pipeline2(config)
+		pipe = Pipeline3(config)
 		for func in control_list:
 			getattr(pipe, func)()
