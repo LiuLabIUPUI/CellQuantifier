@@ -179,7 +179,7 @@ def scatter_bivariate(x,y, labels=None, color_col=None, norm=False, fit=False):
 
 	"""
 	from scipy.stats import pearsonr
-	from cellquantifier.math import fit_linear
+	from cellquantifier.qmath import fit_linear
 
 	if norm:
 		x = x/x.max()

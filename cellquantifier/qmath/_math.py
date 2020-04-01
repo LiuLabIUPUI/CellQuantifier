@@ -87,6 +87,35 @@ def poisson1d(x, lambd, scale):
 	return scale*(lambd**x/factorial(x))*np.exp(-lambd)
 
 
+def fit_offset_msd(x,y, space='log'):
+
+	"""Mean Squared Dispacement fitting
+
+	Parameters
+	----------
+	x: 1d array
+		raw x data
+
+	y: 1d array
+		raw y data
+
+	space: string
+		'log' for fitting in log space (default)
+		'linear' for sitting in linear space
+
+	Returns
+	-------
+	popt, pcov: 1d ndarray
+		optimal parameters and covariance matrix
+	"""
+
+	cmax = 1e6
+	popt, pcov = op.curve_fit(offset_msd, x, y,
+							  bounds=(0, [np.inf, np.inf, cmax]),
+							  maxfev=1000)
+
+	return popt
+
 def fit_msd(x,y, space='log'):
 
 	"""Mean Squared Dispacement fitting
@@ -125,7 +154,8 @@ def fit_msd(x,y, space='log'):
 
 	def fit_msd_linear(x, y):
 
-		popt, pcov = op.curve_fit(msd, x, y, bounds=(0, [np.inf, np.inf]))
+		popt, pcov = op.curve_fit(msd, x, y,
+								  bounds=(0, [np.inf, np.inf]))
 
 		return popt
 
@@ -135,6 +165,12 @@ def fit_msd(x,y, space='log'):
 		popt = fit_msd_linear(x,y)
 
 	return popt
+
+
+def offset_msd(x, D, alpha, c):
+
+	return 4*D*(x**alpha) + c
+
 
 def msd(x, D, alpha):
 

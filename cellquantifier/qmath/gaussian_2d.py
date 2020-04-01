@@ -88,7 +88,7 @@ def fit_gaussian_2d(img, diagnostic=False):
     --------
     import numpy as np
     import matplotlib.pyplot as plt
-    from cellquantifier.math.gaussian_2d import gaussian_2d, fit_gaussian_2d
+    from cellquantifier.qmath.gaussian_2d import gaussian_2d, fit_gaussian_2d
     from cellquantifier.io.imshow import imshow
     X = np.indices((100,100))
     A, x0, y0, sig_x, sig_y, phi = 1, 50, 80, 30, 10, 0.174

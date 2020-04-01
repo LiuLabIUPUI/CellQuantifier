@@ -24,7 +24,7 @@ def get_nearest_point(X, X_array):
 
     Examples
 	--------
-    from cellquantifier.math import *
+    from cellquantifier.qmath import *
     import numpy as np
     X = np.array([1.5, 1.5])
     X_array = np.array([[0,0], [1,1], [2,2]])

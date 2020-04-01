@@ -1,16 +1,16 @@
 """Part I: CellQuantifier Sequence Control"""
 
 control = [
-# 'clean_dir',
-# 'load',
-# 'regi',
-# 'mask_boundary', 'mask_53bp1', # 'mask_53bp1_blob',
-# 'deno_box', 'deno_gaus',
-# 'check_detect_fit',
-# 'detect_fit',
-# 'filt_track',
-# 'phys_dist2boundary', 'phys_dist253bp1', #'phys_dist253bp1_blob',
-# 'sort_plot'
+'clean_dir',
+'load',
+'regi',
+'mask_boundary', 'mask_53bp1', # 'mask_53bp1_blob',
+'deno_box', 'deno_gaus',
+'check_detect_fit',
+'detect_fit',
+'filt_track',
+'phys_dist2boundary', 'phys_dist253bp1', #'phys_dist253bp1_blob',
+'sort_plot'
 ]
 
 """Part II: CellQuantifier Parameter Settings"""
@@ -18,14 +18,14 @@ control = [
 settings = {
 
   #HEADER INFO
-  'Processed By:': 'Hua Lin',
+  'Processed By:': 'Clayton Seitz',
   'Start frame index': 0,
   'End frame index': 100,
   'Load existing analMeta': False,
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/input/',
-  'IO output_path': '/home/linhua/Desktop/temp/',
+  'IO input_path': '/home/clayton/Desktop/input/',
+  'IO output_path': '/home/clayton/Desktop/temp/',
 
   #REGISTRATION SETTINGS
   'Regi reference file label': '',

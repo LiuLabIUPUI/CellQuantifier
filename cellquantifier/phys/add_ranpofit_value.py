@@ -1,5 +1,5 @@
 import numpy as np
-from ..math.ransac import ransac_polyfit
+from ..qmath.ransac import ransac_polyfit
 
 def add_ranpofit_value(
         df, indep_col, dep_col,

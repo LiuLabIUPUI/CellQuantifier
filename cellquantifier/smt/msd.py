@@ -7,7 +7,7 @@ import sys
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
-from ..math import msd, fit_msd
+from ..qmath import msd, fit_msd
 from skimage.io import imsave
 from ..plot.plotutil import plt2array, anno_traj
 

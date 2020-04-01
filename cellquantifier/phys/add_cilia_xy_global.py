@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from ..math import *
+from ..qmath import *
 from .add_ranpofit_value import *
 
 def add_cilia_x_global_raw(df):

@@ -3,7 +3,7 @@ import pandas as pd
 
 from seaborn import color_palette
 from copy import deepcopy
-from cellquantifier.math import interpolate_lin
+from cellquantifier.qmath import interpolate_lin
 from cellquantifier.phys.physutil import bin_df
 from cellquantifier.plot.plotutil import *
 from matplotlib.gridspec import GridSpec

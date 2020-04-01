@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
-from cellquantifier.math.gaussian_2d import (gaussian_2d, get_moments,
+from cellquantifier.qmath.gaussian_2d import (gaussian_2d, get_moments,
                                             fit_gaussian_2d)
 from ..plot.plotutil import anno_scatter, anno_blob
 from ..plot.plotutil import plot_end

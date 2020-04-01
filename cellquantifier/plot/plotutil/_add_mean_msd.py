@@ -2,7 +2,7 @@ import numpy as np; import pandas as pd
 import matplotlib.pyplot as plt
 import trackpy as tp
 
-from ...math import msd, fit_msd
+from ...qmath import msd, fit_msd
 
 def add_mean_msd(ax, df,
                 pixel_size,
