@@ -84,3 +84,59 @@ def add_dist_to_boundary_batch(df, thres_masks):
             df.at[index, 'dist_to_boundary'] = curr_dist2boundary_mask[r, c]
 
     return df
+
+
+def add_dist_to_boundary_2(df, dist2boundary_mask):
+
+    """
+    Label particles in a DataFrame based on dist2boundary_mask
+
+    Parameters
+    ----------
+    dist2boundary_mask : ndarray
+        dist2boundary_mask of cell
+    df : DataFrame
+        DataFrame containing x,y columns
+
+    Returns
+    -------
+    df: DataFrame
+        DataFrame with added 'dist_to_boundary' column
+    """
+
+    for index in df.index:
+        r = int(round(df.at[index, 'x']))
+        c = int(round(df.at[index, 'y']))
+        df.at[index, 'dist_to_boundary'] = dist2boundary_mask[r, c]
+
+    return df
+
+
+def add_dist_to_boundary_batch_2(df, dist2boundary_masks):
+
+    """
+    Label particles in a DataFrame based on dist2boundary_masks
+
+    Parameters
+    ----------
+    dist2boundary_masks : 3D ndarray
+        dist2boundary_masks of cell video
+    df : DataFrame
+        DataFrame containing 'x', 'y', 'frame' columns
+
+    Returns
+    -------
+    df: DataFrame
+        DataFrame with added 'dist_to_boundary' column
+    """
+
+    for i in range(len(dist2boundary_masks)):
+        curr_dist2boundary_mask = dist2boundary_masks[i]
+        curr_df = df[ df['frame'] == i ]
+
+        for index in curr_df.index:
+            r = int(round(df.at[index, 'x']))
+            c = int(round(df.at[index, 'y']))
+            df.at[index, 'dist_to_boundary'] = curr_dist2boundary_mask[r, c]
+
+    return df
