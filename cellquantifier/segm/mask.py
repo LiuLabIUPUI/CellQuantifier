@@ -87,7 +87,8 @@ def get_thres_mask_batch(tif, sig=3, thres_rel=0.2):
     masks_array_3d = np.zeros(shape, dtype=np.uint8)
     for i in range(len(tif)):
         masks_array_3d[i] = get_thres_mask(tif[i], sig=sig, thres_rel=thres_rel)
-        print("Get thres_mask NO.%d is done!" % i)
+        # print("Get thres_mask NO.%d is done!" % i)
+    print("Get thres_mask is done!")
 
     return masks_array_3d
 
@@ -189,7 +190,7 @@ def blobs_df_to_mask(tif, blobs_df):
 
     shape = (len(tif), tif[0].shape[0], tif[0].shape[1])
     masks_array_3d = np.zeros(shape, dtype=np.uint8)
-    
+
     for i in range(len(tif)):
         curr_blobs_df = blobs_df[ blobs_df['frame']==i ]
         mask = np.zeros((shape[1], shape[2]))
