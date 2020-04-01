@@ -1,4 +1,6 @@
 import os
+import glob
+import sys
 
 def rename_01(src_path):
 	"""
@@ -49,3 +51,31 @@ def rename_02(src_path):
 	print(src_path)
 	print(dst_path)
 	os.rename(src_path, dst_path)
+
+
+def rename_03(src_path):
+	"""
+	Rename all the files in the folder according to name manner 3
+
+	Examples
+	--------
+    "200205_MalKN-XXXXX.XXX" --> "200205_MalKN_XXXXX.XXX"
+    """
+
+	path_list = glob.glob(src_path + '*')
+
+	for curr_src_path in path_list:
+
+		# find insert index
+		filename = curr_src_path.split('/')[-1]
+		m = filename.find('-')
+		filename = filename[:m] + '_' + filename[m+1:]
+		n = len(filename)
+
+		# get src_path and rename
+		curr_dst_path = curr_src_path[0:-n] + filename
+		print(curr_src_path)
+		print(curr_dst_path)
+		os.rename(curr_src_path, curr_dst_path)
+
+	sys.exit()
