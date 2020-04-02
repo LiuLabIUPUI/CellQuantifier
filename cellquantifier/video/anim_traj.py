@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib_scalebar.scalebar import ScaleBar
 from ..plot.plotutil import *
 
-def anim_blob(df, tif,
+def anim_traj(df, tif,
             pixel_size=None,
             scalebar_pos='upper right',
             scalebar_fontsize='large',
@@ -11,7 +11,16 @@ def anim_blob(df, tif,
             scalebar_height=0.02,
             scalebar_boxcolor=(1,1,1),
             scalebar_boxcolor_alpha=0,
+            cb_fontsize='large',
+            cb_min=None,
+            cb_max=None,
+            cb_major_ticker=None,
+            cb_minor_ticker=None,
+            cb_pos='right',
+            cb_tick_loc='right',
+            show_colorbar=True,
             show_image=True,
+            tail_length=50,
             dpi=150,
             ):
     """
@@ -54,12 +63,34 @@ def anim_blob(df, tif,
     scalebar_boxcolor_alpha : float
         Define the transparency of the background box color
 
+    cb_fontsize : string or integer
+        Define the colorbar label text size. eg. 'large', 'x-large', 10, 40...
+
+    cb_min, cb_max: float
+        [cb_min, cb_max] is the color bar range.
+
+    cb_major_ticker, cb_minor_ticker: float
+        Major and minor ticker setting for the color bar.
+
+    cb_pos : string
+        append_axes position string. ('right', 'top'...)
+
+    cb_tick_loc : string
+        colorbar tick position string. ('right', 'top'...)
+
+    show_colorbar : bool
+        If False, only return colormap and df, no colorbar added.
+
     show_image : bool
         if True, show animation of top of image.
         if False, only show blobs without image.
 
+    tail_length : int
+        how many frames will the traj last.
+
     dpi : int
         dpi setting for plt.subplots().
+
 
     Returns
     -------
@@ -67,7 +98,7 @@ def anim_blob(df, tif,
 
     Examples
 	--------
-    anim_tif = anim_blob(df, tif,
+    anim_tif = anim_traj(df, tif,
                 pixel_size=0.163,
                 show_image=True)
     imsave('anim-result.tif', anim_tif)
@@ -77,10 +108,11 @@ def anim_blob(df, tif,
     # ~~~~~~~~~~~Check if df is empty~~~~~~~~~~~~
     # """
     if df.empty:
-        print('df is empty. No blobs to animate!')
+        print('df is empty. No traj to animate!')
         return
 
     anim_tif = []
+
     for i in range(len(tif)):
         print("Animate frame %d" % i)
         curr_df = df[ df['frame']==i ]
@@ -117,12 +149,52 @@ def anim_blob(df, tif,
                         box_alpha=scalebar_boxcolor_alpha,
                         )
 
+        # """
+        # ~~~~~~~~customized the colorbar, then add it~~~~~~~~
+        # """
+        df, colormap = add_outside_colorbar(ax, df,
+                    cb_colormap='coolwarm',
+                    label_font_size=cb_fontsize,
+                    cb_min=cb_min,
+                    cb_max=cb_max,
+                    cb_major_ticker=cb_major_ticker,
+                    cb_minor_ticker=cb_minor_ticker,
+                    show_colorbar=show_colorbar,
+                    cb_pos=cb_pos,
+                    cb_tick_loc=cb_tick_loc,
+                    )
+
 
         # """
         # ~~~~~~~~Animate curr blob~~~~~~~~
+        # Backup code for color coded blob animation:
+        # for ind in curr_df.index:
+        #     partcle_color = colormap(curr_df.loc[ind, 'D_norm'])
+        #     y, x, r = curr_df.loc[ind, 'x'], curr_df.loc[ind, 'y'], curr_df.loc[ind, 'r']
+        #     ax.scatter(x, y,
+        #                 s=5,
+        #                 marker='^',
+        #                 c=[partcle_color])
+        #     if False:
+        #         c = plt.Circle((x,y), r, color=partcle_color,
+        #                        linewidth=1, fill=False)
+        #         ax.add_patch(c)
         # """
         anno_blob(ax, curr_df, marker='^', markersize=3, plot_r=False,
                     color=(0,0,1))
+
+
+        # """
+        # ~~~~~~~~Animate particle tail~~~~~~~~
+        # """
+        particles = curr_df.particle.unique()
+        for particle_num in particles:
+            traj = df[df.particle == particle_num]
+            traj = traj[ traj['frame'].isin(range(i-tail_length, i+1)) ]
+            traj = traj.sort_values(by='frame')
+
+            ax.plot(traj['y'], traj['x'], linewidth=0.5,
+            			color=colormap(traj['D_norm'].mean()))
 
 
         # """
