@@ -684,6 +684,7 @@ def get_root_name_list(settings_dict):
 
 	root_name_list = []
 	path_list = glob.glob(settings['IO input_path'] + '/*-raw.tif')
+	print(path_list)
 	if len(path_list) != 0:
 		for path in path_list:
 			temp = path.split('/')[-1]
@@ -757,6 +758,8 @@ def pipeline_batch(settings_dict, control_list):
 		# 2.2. Update config.REF_FILE_NAME
 		if '-' in root_name and root_name.find('-')>0:
 			key = root_name[0:root_name.find('-')]
+		else:
+			key = root_name
 
 		if settings_dict['Regi reference file label']:# if label is not empty, find file_list
 			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
