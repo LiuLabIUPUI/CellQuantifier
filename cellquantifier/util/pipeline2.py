@@ -684,7 +684,6 @@ def get_root_name_list(settings_dict):
 
 	root_name_list = []
 	path_list = glob.glob(settings['IO input_path'] + '/*-raw.tif')
-	print(path_list)
 	if len(path_list) != 0:
 		for path in path_list:
 			temp = path.split('/')[-1]
