@@ -193,8 +193,20 @@ def anim_traj(df, tif,
             traj = traj[ traj['frame'].isin(range(i-tail_length, i+1)) ]
             traj = traj.sort_values(by='frame')
 
+
+            # """
+            # ~~~~~~~~Animate cilia global trajectory if exists~~~~~~~~
+            # """
+            if 'x_global' in df.columns and 'y_global' in df.columns:
+                ax.plot(traj['y_global'], traj['x_global'], '-',
+                        linewidth=0.5, color=(0,1,0))
+
+
             ax.plot(traj['y'], traj['x'], linewidth=0.5,
             			color=colormap(traj['D_norm'].mean()))
+
+
+
 
 
         # """
