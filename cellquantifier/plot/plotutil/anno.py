@@ -241,7 +241,7 @@ def anno_traj(ax, df,
     # ~~~~~~~~~~~Add pixel size scale bar~~~~~~~~~~~~~~
     # """
     add_scalebar(ax, pixel_size=pixel_size, units='um',
-                sb_color=(1,1,1),
+                sb_color=(0.5,0.5,0.5),
                 sb_pos=scalebar_pos,
                 length_fraction=scalebar_length,
                 height_fraction=scalebar_height,
