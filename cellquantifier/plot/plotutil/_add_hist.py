@@ -8,6 +8,7 @@ def add_hist(ax, df, data_col,
             cat_order=None,
             color_list=None,
             RGBA_alpha=1,
+            bins=None,
             hist_kws=None,
             kde=True):
     """
@@ -115,6 +116,7 @@ def add_hist(ax, df, data_col,
 
         sns.set(style="white", palette="coolwarm", color_codes=True)
         sns.distplot(curr_df[data_col].to_numpy(),
+                    bins=bins,
                     hist=True, hist_kws=hist_kws, kde=kde,
                     color=curr_color, label=curr_cat, ax=ax)
 
