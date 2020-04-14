@@ -4,7 +4,7 @@ control = [
 # 'clean_dir',
 # 'load',
 # 'regi',
-'mask_boundary',
+# 'mask_boundary',
 # 'mask_53bp1',
 # 'mask_53bp1_blob',
 # 'deno_mean',
@@ -13,17 +13,26 @@ control = [
 # 'check_detect_fit',
 # 'detect',
 # 'fit',
+
 # 'filt_track',
 # 'phys_xy_global',
 # 'phys_dist2halfcilia',
 # 'phys_cilia_halfsign',
 # 'phys_cilia_otherinfo',
-# 'phys_dist2boundary',
+# 'plot_traj',
+# 'anim_traj',
+# 'merge_plot',
+
 # 'phys_dist253bp1',
 # 'phys_dist253bp1_blob',
 # 'phys_antigen_data',
-# 'plot_traj',
+
+# 'filt_track',
+# 'phys_dist2boundary',
+# # 'plot_traj',
 # 'sort_plot',
+# 'anim_traj',
+
 # 'merge_plot',
 ]
 
@@ -32,13 +41,13 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/temp/',
+  'IO input_path': '/home/linhua/Desktop/input/',
   'IO output_path': '/home/linhua/Desktop/temp/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
   'Start frame index': 0,
-  'End frame index': 500,
+  'End frame index': 28,
   'Load existing analMeta': False,
 
   #REGISTRATION SETTINGS
@@ -81,32 +90,32 @@ settings = {
 
   #DETECTION SETTINGS
   'Det blob_threshold': 0.005,
-  'Det blob_min_sigma': 2,
-  'Det blob_max_sigma': 3,
-  'Det blob_num_sigma': 2,
-  'Det pk_thresh_rel': 0.05,
+  'Det blob_min_sigma': 10,
+  'Det blob_max_sigma': 30,
+  'Det blob_num_sigma': 5,
+  'Det pk_thresh_rel': 0.8,
 
   #TRACKING SETTINGS
-  'Trak frame_rate': 2,
-  'Trak pixel_size': 0.163,
-  'Trak divide_num': 5,
-  'Trak search_range': 1,
+  'Trak frame_rate': 0.48,
+  'Trak pixel_size': 0.03,
+  'Trak divide_num': 1,
+  'Trak search_range': 50,
   'Trak memory': 3,
 
   #FILTERING SETTINGS
-  'Filt max_dist_err': 1,
+  'Filt max_dist_err': 5,
   'Filt max_sig_to_sigraw': 2,
-  'Filt max_delta_area': 0.8,
-  'Filt traj_length_thres': 100,
+  'Filt max_delta_area': 2,
+  'Filt traj_length_thres': 25,
 
   #SORTING SETTINGS
-  'Sort dist_to_boundary': [-10, 0],
+  'Sort dist_to_boundary': [-60, 5],
   'Sort dist_to_53bp1': [-50, 10],
 
 }
 
 """Part III: Run CellQuantifier"""
-from cellquantifier.util.pipeline3 import *
+from cellquantifier.util.pipeline3_cilia import *
 pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
@@ -151,7 +160,7 @@ pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
 # import pandas as pd
-# df = pd.read_csv('/home/linhua/Desktop/temp/200317-physDataMerged.csv',
+# df = pd.read_csv('/home/linhua/Desktop/temp/200407-physDataMerged.csv',
 #                 index_col=False)
 # fig_quick_cilia(df)
 
@@ -169,11 +178,16 @@ pipeline_batch(settings, control)
 
 
 
-# df = pd.read_csv('/home/linhua/Desktop/temp/200205_MalKN-E-physData.csv',
+# df = pd.read_csv('/home/linhua/Desktop/temp-E/200205_MalKN-E-physData.csv',
 #                 index_col=False)
-# tif = imread('/home/linhua/Desktop/temp/200205_MalKN-E-raw.tif')
-# df = df[ df['traj_length']>10 ]
-# # df = df[ df['travel_dist']>3 ]
-# anim_tif = anim_blob(df, tif)
-# imsave('/home/linhua/Desktop/temp/anim-result.tif', anim_tif)
-# # fig_quick_antigen(df)
+# tif = imread('/home/linhua/Desktop/temp-E/200205_MalKN-E-raw.tif')[0:50]
+# df = df[ (df['traj_length']>100) & (df['frame']<50) ]
+# anim_tif = anim_traj(df, tif,
+#                 pixel_size=0.163,
+#                 cb_min=2000, cb_max=10000,
+#                 cb_major_ticker=2000, cb_minor_ticker=2000,
+#                 show_image=True)
+# anim_tif = anim_blob(df, tif, pixel_size=0.163,
+#                 show_image=False)
+# imsave('/home/linhua/Desktop/temp-E/anim-traj-result.tif', anim_tif)
+# fig_quick_antigen(df)
