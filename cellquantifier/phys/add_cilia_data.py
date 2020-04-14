@@ -52,8 +52,11 @@ def add_more_info(df):
 
     particles = sorted(df['particle'].unique())
 
+
+
     for particle in particles:
         curr_df = df[ df['particle']==particle ]
+        curr_df = curr_df.sort_values('frame')
         height = curr_df['dist_to_half_cilia'] * curr_df['half_sign']
         height_norm = (height - height.min()) / (height.max() - height.min())
 
@@ -64,5 +67,35 @@ def add_more_info(df):
     df['h_norm_diff'] = (df.groupby('particle')['h_norm'].apply(pd.Series.diff))
     df['v_norm'] = df['h_norm_diff'] * df['frame_rate']
     df['v_norm_abs'] = np.abs(df['v_norm'])
+
+
+
+    for particle in particles:
+        curr_df = df[ df['particle']==particle ]
+        curr_df = curr_df.sort_values('frame')
+
+        y = curr_df['h_norm'] >= 0.8
+        tip_m1 = y * (y.groupby((y != y.shift()).cumsum()).cumcount() + 1)
+        tip_m2 = y != y.shift(-1)
+        tip_lifetime = tip_m1 * tip_m2
+
+        y = curr_df['h_norm'] <= 0.2
+        base_m1 = y * (y.groupby((y != y.shift()).cumsum()).cumcount() + 1)
+        base_m2 = y != y.shift(-1)
+        base_lifetime = bsse_m1 * base_m2
+
+        y = (curr_df['h_norm'] > 0.2) & (curr_df['h_norm'] < 0.8)
+        middle_m1 = y * (y.groupby((y != y.shift()).cumsum()).cumcount() + 1)
+        middle_m2 = y != y.shift(-1)
+        middle_lifetime = middle_m1 * middle_m2
+
+        df = df.sort_values(['particle', 'frame'])
+        df.loc[df['particle']==particle, 'tip_bool'] = curr_df['h_norm'] >= 0.8
+        df.loc[df['particle']==particle, 'tip_lifetime'] = tip_lifetime / curr_df['frame_rate']
+        df.loc[df['particle']==particle, 'base_bool'] = curr_df['h_norm'] <= 0.2
+        df.loc[df['particle']==particle, 'base_lifetime'] = base_lifetime / curr_df['frame_rate']
+        df.loc[df['particle']==particle, 'middle_bool'] = y
+        df.loc[df['particle']==particle, 'middle_lifetime'] = middle_lifetime / curr_df['frame_rate']
+
 
     return df
