@@ -373,7 +373,7 @@ def get_random_crop(input, target, crop_size):
 
 	"""
 
-	dim1,dim2,nchan = crop_size
+	dim1,dim2 = crop_size
 	delta1 = np.random.randint(low=0, high=input.shape[0] - dim1)
 	delta2 = np.random.randint(low=0, high=input.shape[1] - dim2)
 	input_patch = input[delta1:delta1 + dim1, delta2:delta2 + dim2]
@@ -407,16 +407,18 @@ def read_train_files(input_dir, target_dir, train_files, crop_size):
 
 	nimages = len(train_files)
 	input = np.zeros((nimages, *crop_size))
-	target = np.zeros((nimages, *crop_size))
+	target = np.zeros((nimages, *crop_size, 3))
 
 	for i, file in enumerate(train_files):
 
 		this_input = imread(join(input_dir, file + '.tif'))
 		this_target = imread(join(target_dir, file + '.png'))
 
-		this_target, this_input = get_random_crop(this_input, this_target,
+
+		this_input, this_target = get_random_crop(this_input, this_target,
 												  crop_size=crop_size)
-		input[i, :, :, 0] = this_input
-		target[i, :, :, 0] = this_target
+
+		input[i, :, :] = this_input
+		target[i, :, :, :] = this_target
 
 	return input, target

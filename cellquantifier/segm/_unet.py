@@ -85,16 +85,15 @@ def build_new_model(input_dir,
 	model = unet_model(input_size=crop_size); model.summary()
 	model.compile(loss=weighted_crossentropy, metrics=metrics, optimizer=optimizer)
 
-	crop_size += (1,)
 	input, target = read_train_files(input_dir=input_dir, target_dir=target_dir,
 								     train_files=train_files,crop_size=crop_size)
 
-	statistics = model.fit(x=input, y=target, batch_size=batch_size,
-						  epochs=epochs, validation_split=fraction_validation)
+	# statistics = model.fit(x=input, y=target, batch_size=batch_size,
+	# 					  epochs=epochs, validation_split=fraction_validation)
 
 
 parent_dir = '/home/clayton/Desktop'
 input_dir = parent_dir + '/bbbc039/proc_images'
-target_dir = parent_dir + '/bbbc039/proc_masks'
+target_dir = parent_dir + '/bbbc039/val_masks'
 # get_bbbc_training_data(parent_dir, get_metadata=True, preprocess=True)
 build_new_model(input_dir, target_dir, crop_size=(256,256))
