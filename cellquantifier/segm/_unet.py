@@ -3,6 +3,7 @@ from _unet_model import *
 from _unet_model_utils import *
 from _unet_vis import *
 import keras
+import pandas as pd
 
 def build_new_model(input_dir,
 					target_dir,
@@ -92,13 +93,13 @@ def build_new_model(input_dir,
 
 	statistics = model.fit(x=input, y=target, batch_size=batch_size,
 						  epochs=epochs, validation_split=fraction_validation)
+	stats_df = pd.DataFrame(statistics.history)
 
 	if save_dir:
-		save_dir = save_dir + "/cp-{epoch:04d}.ckpt"
-		model.save_weights(save_dir.format(epoch=0))
-		vis_learning_stats(stats, save_dir, metrics)
+		stats_df.to_csv(save_dir + '/train_stats.csv')
+		model.save(save_dir + '/model.h5')
 
-parent_dir = '/home/clayton/Desktop'
+parent_dir = '/home/cwseitz'
 input_dir = parent_dir + '/bbbc039/proc_images'
 target_dir = parent_dir + '/bbbc039/val_masks'
 

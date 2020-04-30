@@ -1,27 +1,69 @@
+import pandas as pd
 import matplotlib.pyplot as plt
+from cellquantifier.plot.plotutil import format_ax
 
-def vis_learning_stats(stats, output_dir, metrics):
 
-    fig, ax = plt.subplots(1, 3)
+def show_train_stats(df):
 
-    print(stats.history)
+    df = pd.read_csv('train_stats.csv')
+    fig,ax = plt.subplots(2,3)
 
-    ax[0].xlabel("Epoch")
-    ax[0].ylabel("Loss")
-    ax[0].plot(stats.history["loss"])
-    ax[0].plot(stats.history["val_loss"])
-    ax[0].legend(["Training", "Validation"])
 
-    ax[1].xlabel("Epoch")
-    ax[1].ylabel("Accuracy")
-    ax[1].plot(stats.history["categorical_accuracy"])
-    ax[1].plot(stats.history["val_categorical_accuracy"])
-    ax[1].legend(["Training", "Validation"])
+    # """
+    # ~~~~~~~~~~bg-recall~~~~~~~~~~~~~~
+    # """
 
-    ax[2].xlabel("Epoch")
-    ax[2].ylabel("Accuracy")
-    ax[2].plot(stats.history["binary_accuracy"])
-    ax[2].plot(stats.history["val_binary_accuracy"])
-    ax[2].legend(["Training", "Validation"])
+    ax[0,0].plot(df['val_background_recall'], color='red', label='Validation')
+    ax[0,0].plot(df['background_recall'], color='blue', label='Train')
+    ax[0,0].set_title(r'$\mathbf{Background}$', fontsize=10)
+    format_ax(ax[0,0], ylabel=r'$\mathbf{Recall}$', ax_is_box=False)
+    ax[0,0].legend(loc='lower right')
 
-    plt.savefig(output_dir + '/train_stats.png')
+    # """
+    # ~~~~~~~~~~int-recall~~~~~~~~~~~~~~
+    # """
+
+    ax[0,1].plot(df['val_interior_recall'], color='red', label='Validation')
+    ax[0,1].plot(df['interior_recall'], color='blue', label='Train')
+    ax[0,1].set_title(r'$\mathbf{Interior}$', fontsize=10)
+    format_ax(ax[0,1], ax_is_box=False)
+    ax[0,1].legend(loc='lower right')
+
+    # """
+    # ~~~~~~~~~~boundary-recall~~~~~~~~~~~~~~
+    # """
+
+    ax[0,2].plot(df['val_boundary_recall'], color='red', label='Validation')
+    ax[0,2].plot(df['boundary_recall'], color='blue', label='Train')
+    ax[0,2].set_title(r'$\mathbf{Boundary}$', fontsize=10)
+    format_ax(ax[0,2], ax_is_box=False)
+    ax[0,2].legend(loc='lower right')
+    # """
+    # ~~~~~~~~~~bg-precision~~~~~~~~~~~~~~
+    # """
+
+    ax[1,0].plot(df['val_background_precision'], color='red', label='Validation')
+    ax[1,0].plot(df['background_precision'], color='blue', label='Train')
+    format_ax(ax[1,0], ylabel=r'$\mathbf{Precision}$', ax_is_box=False)
+    ax[1,0].legend(loc='lower right')
+
+    # """
+    # ~~~~~~~~~~int-precision~~~~~~~~~~~~~~
+    # """
+
+    ax[1,1].plot(df['val_interior_precision'], color='red', label='Validation')
+    ax[1,1].plot(df['interior_precision'], color='blue', label='Train')
+    format_ax(ax[1,1], ax_is_box=False)
+    ax[1,1].legend(loc='lower right')
+
+    # """
+    # ~~~~~~~~~~boundary-precision~~~~~~~~~~~~~~
+    # """
+
+    ax[1,2].plot(df['val_boundary_precision'], color='red', label='Validation')
+    ax[1,2].plot(df['boundary_precision'], color='blue', label='Train')
+    format_ax(ax[1,2], ax_is_box=False)
+    ax[1,2].legend(loc='lower right')
+
+    plt.tight_layout()
+    plt.show()
