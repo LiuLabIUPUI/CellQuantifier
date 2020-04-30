@@ -1,11 +1,13 @@
 from _unet_data_utils import *
 from _unet_model import *
 from _unet_model_utils import *
+from _unet_vis import *
 import keras
 
 def build_new_model(input_dir,
 					target_dir,
 					crop_size,
+					save_dir=None,
 					metrics=None,
 					optimizer=None,
 					loss=None,
@@ -91,9 +93,13 @@ def build_new_model(input_dir,
 	# statistics = model.fit(x=input, y=target, batch_size=batch_size,
 	# 					  epochs=epochs, validation_split=fraction_validation)
 
+	if save_dir:
+		model.save_weights(save_dir)
+		vis_learning_stats(stats, save_dir, metrics)
 
 parent_dir = '/home/clayton/Desktop'
 input_dir = parent_dir + '/bbbc039/proc_images'
 target_dir = parent_dir + '/bbbc039/val_masks'
 # get_bbbc_training_data(parent_dir, get_metadata=True, preprocess=True)
-build_new_model(input_dir, target_dir, crop_size=(256,256))
+build_new_model(input_dir, target_dir, crop_size=(256,256),
+				save_dir='/home/cwseitz')

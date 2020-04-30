@@ -418,7 +418,7 @@ def read_train_files(input_dir, target_dir, train_files, crop_size):
 		this_input, this_target = get_random_crop(this_input, this_target,
 												  crop_size=crop_size)
 
-		input[i, :, :, :] = this_input
+		input[i, :, :, 0] = this_input
 		target[i, :, :, :] = this_target
 
 	return input, target
