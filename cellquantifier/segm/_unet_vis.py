@@ -1,43 +1,27 @@
 import matplotlib.pyplot as plt
 
 def vis_learning_stats(stats, output_dir, metrics):
-    plt.figure()
 
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.plot(stats.history["loss"])
-    plt.plot(stats.history["val_loss"])
-    plt.legend(["Training", "Validation"])
+    fig, ax = plt.subplots(1, 3)
 
-    plt.savefig(output_dir + "plot_loss" + '.' + out_format, format=out_format)
+    print(stats.history)
 
-    plt.figure()
+    ax[0].xlabel("Epoch")
+    ax[0].ylabel("Loss")
+    ax[0].plot(stats.history["loss"])
+    ax[0].plot(stats.history["val_loss"])
+    ax[0].legend(["Training", "Validation"])
 
-    plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
-    plt.plot(stats.history["categorical_accuracy"])
-    plt.plot(stats.history["val_categorical_accuracy"])
-    plt.legend(["Training", "Validation"])
+    ax[1].xlabel("Epoch")
+    ax[1].ylabel("Accuracy")
+    ax[1].plot(stats.history["categorical_accuracy"])
+    ax[1].plot(stats.history["val_categorical_accuracy"])
+    ax[1].legend(["Training", "Validation"])
 
-    plt.savefig(output_dir + "plot_accuracy" + '.' + out_format, format=out_format)
+    ax[2].xlabel("Epoch")
+    ax[2].ylabel("Accuracy")
+    ax[2].plot(stats.history["binary_accuracy"])
+    ax[2].plot(stats.history["val_binary_accuracy"])
+    ax[2].legend(["Training", "Validation"])
 
-def visualize_learning_stats_boundary_hard(stats, output_dir, metrics):
-    plt.figure()
-
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.plot(stats.history["loss"])
-    plt.plot(stats.history["val_loss"])
-    plt.legend(["Training", "Validation"])
-
-    plt.savefig(output_dir + "plot_loss" + '.' + out_format, format=out_format)
-
-    plt.figure()
-
-    plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
-    plt.plot(stats.history["binary_accuracy"])
-    plt.plot(stats.history["val_binary_accuracy"])
-    plt.legend(["Training", "Validation"])
-
-    plt.savefig(output_dir + "plot_accuracy" + '.' + out_format, format=out_format)
+    plt.savefig(output_dir + '/train_stats.png')

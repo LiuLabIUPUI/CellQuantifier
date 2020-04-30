@@ -90,16 +90,20 @@ def build_new_model(input_dir,
 	input, target = read_train_files(input_dir=input_dir, target_dir=target_dir,
 								     train_files=train_files,crop_size=crop_size)
 
-	# statistics = model.fit(x=input, y=target, batch_size=batch_size,
-	# 					  epochs=epochs, validation_split=fraction_validation)
+	statistics = model.fit(x=input, y=target, batch_size=batch_size,
+						  epochs=epochs, validation_split=fraction_validation)
 
 	if save_dir:
-		model.save_weights(save_dir)
+		save_dir = save_dir + "/cp-{epoch:04d}.ckpt"
+		model.save_weights(save_dir.format(epoch=0))
 		vis_learning_stats(stats, save_dir, metrics)
 
 parent_dir = '/home/clayton/Desktop'
 input_dir = parent_dir + '/bbbc039/proc_images'
 target_dir = parent_dir + '/bbbc039/val_masks'
-# get_bbbc_training_data(parent_dir, get_metadata=True, preprocess=True)
-build_new_model(input_dir, target_dir, crop_size=(256,256),
+
+build_new_model(input_dir,
+				target_dir,
+				epochs=10,
+				crop_size=(256,256),
 				save_dir='/home/cwseitz')
