@@ -98,13 +98,3 @@ def build_new_model(input_dir,
 	if save_dir:
 		stats_df.to_csv(save_dir + '/train_stats.csv')
 		model.save(save_dir + '/model.h5')
-
-parent_dir = '/home/cwseitz'
-input_dir = parent_dir + '/bbbc039/proc_images'
-target_dir = parent_dir + '/bbbc039/val_masks'
-
-build_new_model(input_dir,
-				target_dir,
-				epochs=10,
-				crop_size=(256,256),
-				save_dir='/home/cwseitz')
