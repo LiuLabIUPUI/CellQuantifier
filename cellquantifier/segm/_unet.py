@@ -82,11 +82,10 @@ def build_new_model(input_dir,
 
 	train_files = partition_files(input_dir,fraction_train=fraction_train)
 
-	crop_size += (1,)
-	model = unet_model(input_size=crop_size, metrics=metrics,
-					   optimizer=optimizer, loss=weighted_crossentropy)
+	model = unet_model(input_size=crop_size); model.summary()
+	model.compile(loss=weighted_crossentropy, metrics=metrics, optimizer=optimizer)
 
-	model.summary()
+	crop_size += (1,)
 	input, target = read_train_files(input_dir=input_dir, target_dir=target_dir,
 								     train_files=train_files,crop_size=crop_size)
 
@@ -97,5 +96,5 @@ def build_new_model(input_dir,
 parent_dir = '/home/clayton/Desktop'
 input_dir = parent_dir + '/bbbc039/proc_images'
 target_dir = parent_dir + '/bbbc039/proc_masks'
-get_bbbc_training_data(parent_dir, get_metadata=True, preprocess=True)
+# get_bbbc_training_data(parent_dir, get_metadata=True, preprocess=True)
 build_new_model(input_dir, target_dir, crop_size=(256,256))

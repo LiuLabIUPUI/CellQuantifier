@@ -3,10 +3,12 @@ from keras.models import *
 from keras.layers import *
 from _unet_model_utils import *
 
-def unet_model(input_size,
-			   loss,
-			   optimizer,
-			   metrics=[]):
+CONST_DO_RATE = 0.5
+
+option_dict_conv = {"activation": "relu", "border_mode": "same"}
+option_dict_bn = {"mode": 0, "momentum" : 0.9}
+
+def unet_model(input_size, activation='softmax'):
 
 	"""
 	Builds the U-Net architecture in keras
@@ -19,142 +21,86 @@ def unet_model(input_size,
 
 	"""
 
-	option_dict_conv = {"activation": "relu", "padding": "same"}
-	option_dict_bn = {"mode": 0, "momentum" : 0.9}
+	[x, y] = get_core(input_size)
 
-	# """
-	# ~~~~~~~~~~~conv 1~~~~~~~~~~~~~~
-	# """
+	y = keras.layers.Convolution2D(3, 1, 1, **option_dict_conv)(y)
 
-	inputs = Input(input_size)
-	conv1 = Conv2D(64, 3, **option_dict_conv)(inputs)
-	conv1 = Conv2D(64, 3, **option_dict_conv)(conv1)
+	if activation is not None:
+		y = keras.layers.Activation(activation)(y)
 
-	# """
-	# ~~~~~~~~~~~max-pool 1~~~~~~~~~~~~~~
-	# """
-
-	pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
-
-	# """
-	# ~~~~~~~~~~~conv 2~~~~~~~~~~~~~~
-	# """
-
-	conv2 = Conv2D(128, 3, **option_dict_conv)(pool1)
-	conv2 = Conv2D(128, 3, **option_dict_conv)(conv2)
-
-	# """
-	# ~~~~~~~~~~~max-pool 2~~~~~~~~~~~~~~
-	# """
-
-	pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
-
-	# """
-	# ~~~~~~~~~~~conv 3~~~~~~~~~~~~~~
-	# """
-
-	conv3 = Conv2D(256, 3, **option_dict_conv)(pool2)
-	conv3 = Conv2D(256, 3, **option_dict_conv)(conv3)
-
-	# """
-	# ~~~~~~~~~~~max-pool 3~~~~~~~~~~~~~~
-	# """
-
-	pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
-
-	# """
-	# ~~~~~~~~~~~conv 4~~~~~~~~~~~~~~
-	# """
-
-	conv4 = Conv2D(512, 3, **option_dict_conv)(pool3)
-	conv4 = Conv2D(512, 3, **option_dict_conv)(conv4)
-	drop4 = Dropout(0.5)(conv4)
-
-	# """
-	# ~~~~~~~~~~~max-pool 4~~~~~~~~~~~~~~
-	# """
-
-	pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
-
-	# """
-	# ~~~~~~~~~~~conv 5~~~~~~~~~~~~~~
-	# """
-
-	conv5 = Conv2D(1024, 3, **option_dict_conv)(pool4)
-	conv5 = Conv2D(1024, 3, **option_dict_conv)(conv5)
-	drop5 = Dropout(0.5)(conv5)
-
-	# """
-	# ~~~~~~~~~~up-conv 6~~~~~~~~~~~~~~
-	# """
-
-	up6 = Conv2D(512, 2, **option_dict_conv)(UpSampling2D(size = (2,2))(drop5))
-	merge6 = concatenate([drop4,up6], axis = 3)
-
-	# """
-	# ~~~~~~~~~~conv 6~~~~~~~~~~~~~~
-	# """
-
-	conv6 = Conv2D(512, 3, **option_dict_conv)(merge6)
-	conv6 = Conv2D(512, 3, **option_dict_conv)(conv6)
-
-	# """
-	# ~~~~~~~~~~up-conv 7~~~~~~~~~~~~~~
-	# """
-
-	up7 = Conv2D(256, 2, **option_dict_conv)(UpSampling2D(size = (2,2))(conv6))
-	merge7 = concatenate([conv3,up7], axis = 3)
-
-	# """
-	# ~~~~~~~~~~conv 7~~~~~~~~~~~~~~
-	# """
-
-	conv7 = Conv2D(256, 3, **option_dict_conv)(merge7)
-	conv7 = Conv2D(256, 3, **option_dict_conv)(conv7)
-
-	# """
-	# ~~~~~~~~~~up-conv 8~~~~~~~~~~~~~~
-	# """
-
-	up8 = Conv2D(128, 2, **option_dict_conv)(UpSampling2D(size = (2,2))(conv7))
-	merge8 = concatenate([conv2,up8], axis = 3)
-
-	# """
-	# ~~~~~~~~~~conv 8~~~~~~~~~~~~~~
-	# """
-
-	conv8 = Conv2D(128, 3, **option_dict_conv)(merge8)
-	conv8 = Conv2D(128, 3, **option_dict_conv)(conv8)
-
-	# """
-	# ~~~~~~~~~~up-conv 9~~~~~~~~~~~~~~
-	# """
-
-	up9 = Conv2D(64, 2, **option_dict_conv)(UpSampling2D(size = (2,2))(conv8))
-	merge9 = concatenate([conv1,up9], axis = 3)
-
-	# """
-	# ~~~~~~~~~~conv 9~~~~~~~~~~~~~~
-	# """
-
-	conv9 = Conv2D(64, 3, **option_dict_conv)(merge9)
-	conv9 = Conv2D(64, 3, **option_dict_conv)(conv9)
-	conv9 = Conv2D(2, 3, **option_dict_conv)(conv9)
-
-	# """
-	# ~~~~~~~~~~output-conv~~~~~~~~~~~~~~
-	# """
-
-	conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
-
-	# """
-	# ~~~~~~~~~~compile model~~~~~~~~~~~~~~
-	# """
-
-	model = Model(input=inputs, output=conv10)
-
-	model.compile(optimizer=optimizer,
-				  loss=loss,
-				  metrics=metrics)
+	model = keras.models.Model(x, y)
 
 	return model
+
+
+def get_core(input_size):
+
+	dim1, dim2 = input_size
+
+	x = keras.layers.Input(shape=(dim1, dim2, 1))
+
+	a = keras.layers.Convolution2D(64, 3, 3, **option_dict_conv)(x)
+	a = keras.layers.BatchNormalization(**option_dict_bn)(a)
+
+	a = keras.layers.Convolution2D(64, 3, 3, **option_dict_conv)(a)
+	a = keras.layers.BatchNormalization(**option_dict_bn)(a)
+
+	y = keras.layers.MaxPooling2D()(a)
+
+	b = keras.layers.Convolution2D(128, 3, 3, **option_dict_conv)(y)
+	b = keras.layers.BatchNormalization(**option_dict_bn)(b)
+
+	b = keras.layers.Convolution2D(128, 3, 3, **option_dict_conv)(b)
+	b = keras.layers.BatchNormalization(**option_dict_bn)(b)
+
+	y = keras.layers.MaxPooling2D()(b)
+
+	c = keras.layers.Convolution2D(256, 3, 3, **option_dict_conv)(y)
+	c = keras.layers.BatchNormalization(**option_dict_bn)(c)
+
+	c = keras.layers.Convolution2D(256, 3, 3, **option_dict_conv)(c)
+	c = keras.layers.BatchNormalization(**option_dict_bn)(c)
+
+	y = keras.layers.MaxPooling2D()(c)
+
+	d = keras.layers.Convolution2D(512, 3, 3, **option_dict_conv)(y)
+	d = keras.layers.BatchNormalization(**option_dict_bn)(d)
+
+	d = keras.layers.Convolution2D(512, 3, 3, **option_dict_conv)(d)
+	d = keras.layers.BatchNormalization(**option_dict_bn)(d)
+
+
+	# UP
+
+	d = keras.layers.UpSampling2D()(d)
+
+	y = keras.layers.merge.concatenate([d, c], axis=3)
+
+	e = keras.layers.Convolution2D(256, 3, 3, **option_dict_conv)(y)
+	e = keras.layers.BatchNormalization(**option_dict_bn)(e)
+
+	e = keras.layers.Convolution2D(256, 3, 3, **option_dict_conv)(e)
+	e = keras.layers.BatchNormalization(**option_dict_bn)(e)
+
+	e = keras.layers.UpSampling2D()(e)
+
+
+	y = keras.layers.merge.concatenate([e, b], axis=3)
+
+	f = keras.layers.Convolution2D(128, 3, 3, **option_dict_conv)(y)
+	f = keras.layers.BatchNormalization(**option_dict_bn)(f)
+
+	f = keras.layers.Convolution2D(128, 3, 3, **option_dict_conv)(f)
+	f = keras.layers.BatchNormalization(**option_dict_bn)(f)
+
+	f = keras.layers.UpSampling2D()(f)
+
+	y = keras.layers.merge.concatenate([f, a], axis=3)
+
+	y = keras.layers.Convolution2D(64, 3, 3, **option_dict_conv)(y)
+	y = keras.layers.BatchNormalization(**option_dict_bn)(y)
+
+	y = keras.layers.Convolution2D(64, 3, 3, **option_dict_conv)(y)
+	y = keras.layers.BatchNormalization(**option_dict_bn)(y)
+
+	return [x, y]
