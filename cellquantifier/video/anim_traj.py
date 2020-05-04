@@ -2,8 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib_scalebar.scalebar import ScaleBar
 from ..plot.plotutil import *
+from skimage.morphology import binary_dilation, binary_erosion, disk
+from functools import reduce; import operator; import math
 
 def anim_traj(df, tif,
+
+            show_image=True,
+
+            show_scalebar=True,
             pixel_size=None,
             scalebar_pos='upper right',
             scalebar_fontsize='large',
@@ -12,15 +18,24 @@ def anim_traj(df, tif,
             scalebar_boxcolor=(1,1,1),
             scalebar_boxcolor_alpha=0,
             cb_fontsize='large',
+
+            show_colorbar=True,
             cb_min=None,
             cb_max=None,
             cb_major_ticker=None,
             cb_minor_ticker=None,
             cb_pos='right',
             cb_tick_loc='right',
-            show_colorbar=True,
-            show_image=True,
+
+            show_traj_num = False,
+            fontname='Arial',
+
+            show_tail=True,
             tail_length=50,
+
+            show_boundary=False,
+            boundary_masks=None,
+
             dpi=150,
             ):
     """
@@ -136,7 +151,7 @@ def anim_traj(df, tif,
         # """
         # ~~~~~~~~Add scale bar~~~~~~~~
         # """
-        if pixel_size:
+        if show_scalebar and pixel_size:
             add_scalebar(ax, units='um',
                         sb_color=(0.5,0.5,0.5),
                         fontname='Arial',
@@ -164,6 +179,23 @@ def anim_traj(df, tif,
                     cb_tick_loc=cb_tick_loc,
                     )
 
+        # """
+        # ~~~~~~~~Add traj num~~~~~~~~
+        # """
+        if show_traj_num:
+            particles = curr_df.particle.unique()
+            ax.text(0.95,
+                    0.00,
+                    """
+                    Total trajectory number: %d
+                    """ %(len(particles)),
+                    horizontalalignment='right',
+                    verticalalignment='bottom',
+                    fontsize = 12,
+                    color = (0.5, 0.5, 0.5, 0.5),
+                    transform=ax.transAxes,
+                    weight = 'bold',
+                    fontname = fontname)
 
         # """
         # ~~~~~~~~Animate curr blob~~~~~~~~
@@ -183,27 +215,40 @@ def anim_traj(df, tif,
         anno_blob(ax, curr_df, marker='^', markersize=3, plot_r=False,
                     color=(0,0,1))
 
-
         # """
         # ~~~~~~~~Animate particle tail~~~~~~~~
         # """
-        particles = curr_df.particle.unique()
-        for particle_num in particles:
-            traj = df[df.particle == particle_num]
-            traj = traj[ traj['frame'].isin(range(i-tail_length, i+1)) ]
-            traj = traj.sort_values(by='frame')
+        if show_tail:
+            particles = curr_df.particle.unique()
+            for particle_num in particles:
+                traj = df[df.particle == particle_num]
+                traj = traj[ traj['frame'].isin(range(i-tail_length, i+1)) ]
+                traj = traj.sort_values(by='frame')
+
+                # """
+                # ~~~~~~~~Animate cilia global trajectory if exists~~~~~~~~
+                # """
+                if 'x_global' in df.columns and 'y_global' in df.columns:
+                    ax.plot(traj['y_global'], traj['x_global'], '-',
+                            linewidth=0.5, color=(0,1,0))
+
+                ax.plot(traj['y'], traj['x'], linewidth=0.5,
+                			color=colormap(traj['D_norm'].mean()))
+
+        # """
+        # ~~~~~~~~Animate boundary~~~~~~~~
+        # """
+        if show_boundary:
+            curr_mask = boundary_masks[i]
+            selem = disk(1)
+            bdr_pixels = curr_mask - binary_erosion(curr_mask, selem)
+            bdr_coords = np.nonzero(bdr_pixels)
+            ax.plot(bdr_coords[1], bdr_coords[0], 'o',
+                            markersize=1,
+                            linewidth=0.5,
+                            color=(0,1,0,1))
 
 
-            # """
-            # ~~~~~~~~Animate cilia global trajectory if exists~~~~~~~~
-            # """
-            if 'x_global' in df.columns and 'y_global' in df.columns:
-                ax.plot(traj['y_global'], traj['x_global'], '-',
-                        linewidth=0.5, color=(0,1,0))
-
-
-            ax.plot(traj['y'], traj['x'], linewidth=0.5,
-            			color=colormap(traj['D_norm'].mean()))
 
 
 
@@ -216,5 +261,4 @@ def anim_traj(df, tif,
         anim_tif.append(curr_plt_array)
 
     anim_tif = np.array(anim_tif)
-
     return anim_tif
