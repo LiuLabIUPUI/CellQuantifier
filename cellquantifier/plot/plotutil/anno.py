@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import trackpy as tp
 from .add_colorbar import add_outside_colorbar
 from ._add_scalebar import add_scalebar
+from skimage.morphology import binary_dilation, binary_erosion, disk
 
 
 def set_ylim_reverse(ax):
@@ -137,16 +138,20 @@ def anno_scatter(ax, scatter_df, marker = 'o', color=(0,1,0,0.8)):
 
 
 def anno_traj(ax, df,
+
+            show_image=True,
             image=np.array([]),
-            pixel_size=1,
+
+            show_scalebar=True,
+            pixel_size=None,
             scalebar_pos='upper right',
             scalebar_fontsize='large',
             scalebar_length=0.3,
             scalebar_height=0.02,
             scalebar_boxcolor=(1,1,1),
             scalebar_boxcolor_alpha=0,
-            show_traj_num=True,
-            fontname='Arial',
+
+            show_colorbar=True,
             cb_fontsize='large',
             cb_min=None,
             cb_max=None,
@@ -154,9 +159,17 @@ def anno_traj(ax, df,
             cb_minor_ticker=None,
             cb_pos='right',
             cb_tick_loc='right',
+
+            show_traj_num=True,
+            fontname='Arial',
+
             show_particle_label=False,
             choose_particle=None,
-            show_colorbar=True):
+
+            show_boundary=False,
+            boundary_mask=None,
+            boundary_list=None,
+            ):
     """
     Annotate trajectories in matplotlib axis.
     The trajectories parameters are obtained from blob_df.
@@ -232,7 +245,7 @@ def anno_traj(ax, df,
     if df.empty:
     	return
 
-    if image.size != 0:
+    if show_image and image.size != 0:
         ax.imshow(image, cmap='gray', aspect='equal')
         plt.box(False)
 
@@ -240,15 +253,16 @@ def anno_traj(ax, df,
     # """
     # ~~~~~~~~~~~Add pixel size scale bar~~~~~~~~~~~~~~
     # """
-    add_scalebar(ax, pixel_size=pixel_size, units='um',
-                sb_color=(0.5,0.5,0.5),
-                sb_pos=scalebar_pos,
-                length_fraction=scalebar_length,
-                height_fraction=scalebar_height,
-                box_color=scalebar_boxcolor,
-                box_alpha=scalebar_boxcolor_alpha,
-                fontname='Arial',
-                fontsize=scalebar_fontsize)
+    if show_scalebar and pixel_size:
+        add_scalebar(ax, pixel_size=pixel_size, units='um',
+                    sb_color=(0.5,0.5,0.5),
+                    sb_pos=scalebar_pos,
+                    length_fraction=scalebar_length,
+                    height_fraction=scalebar_height,
+                    box_color=scalebar_boxcolor,
+                    box_alpha=scalebar_boxcolor_alpha,
+                    fontname='Arial',
+                    fontsize=scalebar_fontsize)
 
 
     # """
@@ -308,7 +322,6 @@ def anno_traj(ax, df,
             ax.text(traj['y'].mean(), traj['x'].mean(),
                     particle_num, color=(0, 1, 0))
 
-
     if show_traj_num:
         ax.text(0.95,
                 0.00,
@@ -322,6 +335,45 @@ def anno_traj(ax, df,
                 transform=ax.transAxes,
                 weight = 'bold',
                 fontname = fontname)
+
+
+    # """
+    # ~~~~~~~~Draw boundary~~~~~~~~
+    # """
+    if show_boundary:
+        if boundary_list == None:
+            selem = disk(1)
+            bdr_pixels = boundary_mask ^ binary_erosion(boundary_mask, selem)
+            bdr_coords = np.nonzero(bdr_pixels)
+            ax.plot(bdr_coords[1], bdr_coords[0], 'o',
+                            markersize=1,
+                            linewidth=0.5,
+                            color=(0,1,0,0.5))
+        else:
+            selem_in = disk(np.abs(boundary_list[0]))
+            if boundary_list[0] < 0:
+                bdr_mask_1 = binary_erosion(boundary_mask, selem_in)
+            else:
+                bdr_mask_1 = binary_dilation(boundary_mask, selem_in)
+            bdr_pixels_1 = bdr_mask_1 ^ binary_erosion(bdr_mask_1, disk(1))
+            bdr_coords_1 = np.nonzero(bdr_pixels_1)
+            ax.plot(bdr_coords_1[1], bdr_coords_1[0], 'o',
+                            markersize=1,
+                            linewidth=0.5,
+                            color=(0,1,0,0.5))
+
+            selem_out = disk(np.abs(boundary_list[1]))
+            if boundary_list[1] < 0:
+                bdr_mask_2 = binary_erosion(boundary_mask, selem_out)
+            else:
+                bdr_mask_2 = binary_dilation(boundary_mask, selem_out)
+            bdr_pixels_2 = bdr_mask_2 ^ binary_erosion(bdr_mask_2, disk(1))
+            bdr_coords_2 = np.nonzero(bdr_pixels_2)
+            ax.plot(bdr_coords_2[1], bdr_coords_2[0], 'o',
+                            markersize=1,
+                            linewidth=0.5,
+                            color=(0,1,0,0.5))
+
 
 
     # """
