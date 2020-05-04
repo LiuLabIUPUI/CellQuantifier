@@ -55,7 +55,14 @@ def merge_physdfs(files):
     columns = temp_df.columns.tolist()
     merged_df = pd.DataFrame([], columns=columns)
 
+    tot = len(files)
     for file in files:
+
+        ind = 1
+        print("\n")
+        print("Processing (%d/%d): %s" % (ind, tot, file))
+        ind = ind + 1
+
         df = pd.read_csv(file, index_col=False)
 
         # add 'rat_data' column to the merged df
@@ -72,6 +79,9 @@ def merge_physdfs(files):
         else:
             exp = re.findall(r'[a-zA-Z]{3}\d{1}', file)
             df = df.assign(exp_label=exp[0][:-1])
+            # m = root_name.find('_') + 1
+            # n = root_name.find('_', m)
+            # df = df.assign(exp_label=root_name[m:n])
 
         merged_df = pd.concat([merged_df, df], sort=True, ignore_index=True)
 
