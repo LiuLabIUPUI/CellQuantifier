@@ -25,14 +25,15 @@ control = [
 
 # 'phys_dist253bp1',
 # 'phys_dist253bp1_blob',
-# 'phys_antigen_data',
+
 
 # 'filt_track',
 # 'phys_dist2boundary',
-# # 'plot_traj',
-# 'sort_plot',
+# 'phys_antigen_data',
+# 'plot_traj',
 # 'anim_traj',
 
+# 'sort_plot',
 # 'merge_plot',
 ]
 
@@ -42,12 +43,12 @@ settings = {
 
   #IO
   'IO input_path': '/home/linhua/Desktop/input/',
-  'IO output_path': '/home/linhua/Desktop/temp/',
+  'IO output_path': '/home/linhua/Desktop/input/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
   'Start frame index': 0,
-  'End frame index': 28,
+  'End frame index': 500,
   'Load existing analMeta': False,
 
   #REGISTRATION SETTINGS
@@ -96,27 +97,35 @@ settings = {
   'Det pk_thresh_rel': 0.8,
 
   #TRACKING SETTINGS
-  'Trak frame_rate': 0.48,
-  'Trak pixel_size': 0.03,
-  'Trak divide_num': 1,
-  'Trak search_range': 50,
-  'Trak memory': 3,
+  'Trak frame_rate': 2,
+  'Trak pixel_size': 0.163,
+  'Trak divide_num': 5,
+
+  ###############################################
+  'Trak search_range': 2.5,  # NO. 1
+  ###############################################
+
+  'Trak memory': 5,
 
   #FILTERING SETTINGS
-  'Filt max_dist_err': 5,
-  'Filt max_sig_to_sigraw': 2,
-  'Filt max_delta_area': 2,
-  'Filt traj_length_thres': 25,
+  'Filt max_dist_err': 3,
+  'Filt max_sig_to_sigraw': 6,
+  'Filt max_delta_area': 2.4,
 
+  ###############################################
+  'Filt traj_length_thres': 20, # NO. 2
   #SORTING SETTINGS
-  'Sort dist_to_boundary': [-60, 5],
-  'Sort dist_to_53bp1': [-50, 10],
+  'Sort dist_to_boundary': [-15, 10], # NO. 3
+  'Sort travel_dist': [0, 7], # NO. 4
+  ###############################################
+
+  'Sort dist_to_53bp1': None,
 
 }
 
 """Part III: Run CellQuantifier"""
-from cellquantifier.util.pipeline3_cilia import *
-pipeline_batch(settings, control)
+# from cellquantifier.util.pipeline3 import *
+# pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
 # plot_fig_1()
@@ -165,6 +174,13 @@ pipeline_batch(settings, control)
 # fig_quick_cilia(df)
 
 
+from cellquantifier.publish import *
+import pandas as pd
+df = pd.read_csv('/home/linhua/Desktop/temp/200407-physDataMerged.csv',
+                index_col=False)
+fig_quick_cilia(df)
+
+
 
 # from skimage.io import imread, imsave
 # from cellquantifier.publish import *
@@ -191,3 +207,12 @@ pipeline_batch(settings, control)
 #                 show_image=False)
 # imsave('/home/linhua/Desktop/temp-E/anim-traj-result.tif', anim_tif)
 # fig_quick_antigen(df)
+
+
+
+# from cellquantifier.publish import *
+# import pandas as pd
+#
+# df = pd.read_csv('/home/linhua/Desktop/temp/200426_physDataMerged.csv',
+#                 index_col=False)
+# fig_quick_antigen_3(df)
