@@ -93,6 +93,7 @@ class Config():
 
 		'DIST_TO_BOUNDARY': config['Sort dist_to_boundary'],
 		'DIST_TO_53BP1' : config['Sort dist_to_53bp1'],
+		'TRAVEL_DIST' : config['Sort travel_dist']
 
 		}
 

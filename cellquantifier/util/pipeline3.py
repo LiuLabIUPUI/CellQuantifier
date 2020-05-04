@@ -7,10 +7,12 @@ from skimage.util import img_as_ubyte, img_as_uint, img_as_int
 from skimage.measure import regionprops
 import warnings
 import glob
+import sys
 
 from ..deno import filter_batch
 from ..io import *
 from ..segm import *
+from ..video import *
 from ..plot.plotutil import *
 from ..regi import get_regi_params, apply_regi_params
 
@@ -20,6 +22,7 @@ from ..smt.track import track_blobs
 from ..smt.msd import plot_msd_batch, get_sorter_list
 from ..phys import *
 from ..util.config3 import Config
+from ..plot import *
 from ..plot import plot_phys_1 as plot_merged
 from ..phys.physutil import relabel_particles, merge_physdfs
 
@@ -594,17 +597,12 @@ class Pipeline3():
 		psf_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-fittData.csv', index=False)
 
-
-	def filt_track(self):
-
-		print("######################################")
-		print("Filter and Linking")
-		print("######################################")
-
+	# helper function for filt and track()
+	def track_blobs_twice(self):
 		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
 									'-regi.tif', '-raw.tif')
-
 		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
+
 
 		blobs_df, im = track_blobs(psf_df,
 								    search_range=self.config.SEARCH_RANGE,
@@ -614,8 +612,6 @@ class Pipeline3():
 									divide_num=self.config.DIVIDE_NUM,
 									filters=None,
 									do_filter=False)
-
-		traj_num_before = blobs_df['particle'].nunique()
 
 		if self.config.DO_FILTER:
 			blobs_df, im = track_blobs(blobs_df,
@@ -629,27 +625,221 @@ class Pipeline3():
 
 		# Add 'traj_length' column and save physData before traj_length_thres filter
 		blobs_df = add_traj_length(blobs_df)
-		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-									'-physData.csv', index=False)
 
-		after_filter_df = blobs_df [blobs_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES']]
+		return blobs_df
+
+
+	# helper function for filt and track()
+	def print_filt_traj_num(self, blobs_df):
+		traj_num_before = blobs_df['particle'].nunique()
+		after_filter_df = blobs_df [blobs_df['traj_length'] >= self.config.FILTERS['TRAJ_LEN_THRES']]
 		print("######################################")
 		print("Trajectory number before filters: \t%d" % traj_num_before)
 		print("Trajectory number after filters: \t%d" % after_filter_df['particle'].nunique())
 		print("######################################")
 
 
+	# helper function for filt and track()
+	def filt_phys_df(self, phys_df):
+
+		df = phys_df.copy()
+		# """
+		# ~~~~~~~~traj_length filter~~~~~~~~
+		# """
+		if 'traj_length' in df:
+			df = df[ df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
+
+		return df
+
+
+	def filt_track(self):
+
+		print("######################################")
+		print("Filter and Linking")
+		print("######################################")
+
+
+		check_search_range = isinstance(self.config.SEARCH_RANGE, list)
+		if check_search_range:
+			param_list = self.config.SEARCH_RANGE
+			particle_num_list = []
+			phys_dfs = []
+			mean_D_list = []
+			mean_alpha_list = []
+			for search_range in param_list:
+				self.config.SEARCH_RANGE = search_range
+				phys_df = self.track_blobs_twice()
+				self.print_filt_traj_num(phys_df)
+				phys_df = self.filt_phys_df(phys_df)
+				phys_df = phys_df.drop_duplicates('particle')
+				phys_df['search_range'] = search_range
+				phys_dfs.append(phys_df)
+				particle_num_list.append(len(phys_df))
+				mean_D_list.append(phys_df['D'].mean())
+				mean_alpha_list.append(phys_df['alpha'].mean())
+			phys_df_all = pd.concat(phys_dfs)
+			sr_opt_fig = plot_track_param_opt(
+							track_param_name='search_range',
+							track_param_unit='pixel',
+							track_param_list=param_list,
+							particle_num_list=particle_num_list,
+							df=phys_df_all,
+							mean_D_list=mean_D_list,
+							mean_alpha_list=mean_alpha_list,
+							)
+			sr_opt_fig.savefig(self.config.OUTPUT_PATH + \
+							self.config.ROOT_NAME + '-opt-search-range.pdf')
+
+
+		check_traj_len_thres = isinstance(self.config.FILTERS['TRAJ_LEN_THRES'], list)
+		if check_traj_len_thres:
+			param_list = self.config.FILTERS['TRAJ_LEN_THRES']
+			particle_num_list = []
+			phys_dfs = []
+			mean_D_list = []
+			mean_alpha_list = []
+
+			if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv'):
+				original_phys_df = pd.read_csv(self.config.OUTPUT_PATH + \
+					self.config.ROOT_NAME + '-physData.csv')
+			else:
+				original_phys_df = self.track_blobs_twice()
+
+			for traj_len_thres in param_list:
+				self.config.FILTERS['TRAJ_LEN_THRES'] = traj_len_thres
+				self.print_filt_traj_num(original_phys_df)
+				phys_df = self.filt_phys_df(original_phys_df)
+				phys_df = phys_df.drop_duplicates('particle')
+				phys_df['traj_len_thres'] = traj_len_thres
+				phys_dfs.append(phys_df)
+				particle_num_list.append(len(phys_df))
+				mean_D_list.append(phys_df['D'].mean())
+				mean_alpha_list.append(phys_df['alpha'].mean())
+			phys_df_all = pd.concat(phys_dfs)
+			sr_opt_fig = plot_track_param_opt(
+							track_param_name='traj_len_thres',
+							track_param_unit='frame',
+							track_param_list=param_list,
+							particle_num_list=particle_num_list,
+							df=phys_df_all,
+							mean_D_list=mean_D_list,
+							mean_alpha_list=mean_alpha_list,
+							)
+			sr_opt_fig.savefig(self.config.OUTPUT_PATH + \
+							self.config.ROOT_NAME + '-opt-traj-len-thres.pdf')
+
+		else:
+			blobs_df = self.track_blobs_twice()
+			self.print_filt_traj_num(blobs_df)
+			blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+										'-physData.csv', index=False)
+
+
+
+		self.config.DICT['Load existing analMeta'] = True
+		self.config.save_config()
+
+
 	def plot_traj(self):
+		# """
+		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
+		# """
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		# """
+		# ~~~~~~~~traj_length filter~~~~~~~~
+		# """
 		if 'traj_length' in phys_df:
 			phys_df = phys_df[ phys_df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
+
+		# """
+		# ~~~~~~~~'sort_flag_boundary' filter~~~~~~~~
+		# """
+		# if 'sort_flag_boundary' in phys_df:
+		# 	phys_df = phys_df[ phys_df['sort_flag_boundary']==True]
+
+		# """
+		# ~~~~~~~~travel_dist filter~~~~~~~~
+		# """
+		if 'travel_dist' in phys_df:
+			travel_dist_min = self.config.DICT['Sort travel_dist'][0]
+			travel_dist_max = self.config.DICT['Sort travel_dist'][1]
+			phys_df = phys_df[ (phys_df['travel_dist']>=travel_dist_min) & \
+								(phys_df['travel_dist']<=travel_dist_max) ]
+
+		# """
+		# ~~~~~~~~particle_type filter~~~~~~~~
+		# """
+		if 'particle_type' in phys_df:
+			phys_df = phys_df[ phys_df['particle_type']!='--none--']
+
+
+		# """
+		# ~~~~~~~~Optimize the colorbar format~~~~~~~~
+		# """
+		if len(phys_df.drop_duplicates('particle')) > 1:
+			D_max = phys_df['D'].quantile(0.9)
+			D_min = phys_df['D'].quantile(0.1)
+			D_range = D_max - D_min
+			cb_min=D_min
+			cb_max=D_max
+			cb_major_ticker=round(0.2*D_range)
+			cb_minor_ticker=round(0.2*D_range)
+		else:
+			cb_min, cb_max, cb_major_ticker, cb_minor_ticker = None, None, None, None
+
+
+		# """
+		# ~~~~~~~~Prepare the boundary_masks~~~~~~~~
+		# """
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif'):
+			boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
+			boundary_masks = boundary_masks // 255
+		else:
+			boundary_masks = self.get_boundary_mask()
+
+
+		fig, ax = plt.subplots()
+		anno_traj(ax, phys_df,
+
+					show_image=True,
+					image = frames[0],
+
+					show_scalebar=True,
+					pixel_size=self.config.PIXEL_SIZE,
+
+					show_colorbar=True,
+					cb_min=cb_min,
+					cb_max=cb_max,
+	                cb_major_ticker=cb_major_ticker,
+					cb_minor_ticker=cb_minor_ticker,
+
+		            show_traj_num=True,
+
+					show_particle_label=False,
+
+					show_boundary=True,
+					boundary_mask=boundary_masks[0],
+					boundary_list=self.config.DICT['Sort dist_to_boundary'],
+					)
+		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.pdf')
+		plt.clf(); plt.close()
+		# plt.show()
+
+
+
+
+		self.config.DICT['Load existing analMeta'] = True
+		self.config.save_config()
+
+
+
 
 		# phys_df = phys_df[ phys_df['D']<6000 ]
 		# phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 		# 							'-physData.csv', index=False)
-
-		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
-									'-regi.tif', '-raw.tif')
 
 		# plot_msd_batch(phys_df,
 		# 			image=frames[0],
@@ -668,12 +858,105 @@ class Pipeline3():
 		# 			cb_minor_ticker=None,
 		# 			)
 
-		fig, ax = plt.subplots()
-		anno_traj(ax, phys_df,
-					image=frames[0],
+
+	def anim_traj(self):
+
+		print("######################################")
+		print("Animating trajectories")
+		print("######################################")
+
+		# """
+		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
+		# """
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')[list(self.config.TRANGE)]
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		# """
+		# ~~~~~~~~traj_length filter~~~~~~~~
+		# """
+		if 'traj_length' in phys_df:
+			phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
+
+		# # """
+		# # ~~~~~~~~'sort_flag_boundary' filter~~~~~~~~
+		# # """
+		# if 'sort_flag_boundary' in phys_df:
+		# 	phys_df = phys_df[ phys_df['sort_flag_boundary']==True]
+
+		# # """
+		# # ~~~~~~~~travel_dist filter~~~~~~~~
+		# # """
+		# if 'travel_dist' in phys_df:
+		# 	travel_dist_min = self.config.DICT['Sort travel_dist'][0]
+		# 	travel_dist_max = self.config.DICT['Sort travel_dist'][1]
+		# 	phys_df = phys_df[ (phys_df['travel_dist']>travel_dist_min) & \
+		# 						(phys_df['travel_dist']<travel_dist_max) ]
+
+		# """
+		# ~~~~~~~~particle_type filter~~~~~~~~
+		# """
+		# if 'particle_type' in phys_df:
+		# 	phys_df = phys_df[ phys_df['particle_type']!='--none--']
+
+		# """
+		# ~~~~~~~~check if phys_df is empty~~~~~~~~
+		# """
+		if phys_df.empty:
+			print('phys_df is empty. No traj to animate!')
+			return
+
+		# """
+		# ~~~~~~~~Optimize the colorbar format~~~~~~~~
+		# """
+		if len(phys_df.drop_duplicates('particle')) > 1:
+			D_max = phys_df['D'].quantile(0.9)
+			D_min = phys_df['D'].quantile(0.1)
+			D_range = D_max - D_min
+			cb_min=D_min
+			cb_max=D_max
+			cb_major_ticker=round(0.2*D_range)
+			cb_minor_ticker=round(0.2*D_range)
+		else:
+			cb_min, cb_max, cb_major_ticker, cb_minor_ticker = None, None, None, None
+
+		# """
+		# ~~~~~~~~Prepare the boundary_masks~~~~~~~~
+		# """
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif'):
+			boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
+			boundary_masks = boundary_masks // 255
+		else:
+			boundary_masks = self.get_boundary_mask()
+
+		# """
+		# ~~~~~~~~Generate and save animation video~~~~~~~~
+		# """
+		anim_tif = anim_traj(phys_df, frames,
+
+					show_image=True,
+
+					show_scalebar=True,
 					pixel_size=self.config.PIXEL_SIZE,
+
+					show_colorbar=True,
+					cb_min=cb_min,
+					cb_max=cb_max,
+	                cb_major_ticker=cb_major_ticker,
+					cb_minor_ticker=cb_minor_ticker,
+
+					show_traj_num=True,
+
+		            show_tail=True,
+					tail_length=50,
+
+					show_boundary=False,
+					boundary_masks=boundary_masks,
+
+					dpi=100,
 					)
-		plt.show()
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-animVideo.tif', anim_tif)
+
 
 
 
@@ -821,11 +1104,12 @@ class Pipeline3():
 
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
-		phys_df['pixel_size'] = self.config.PIXEL_SIZE
-		phys_df['dist_to_boundary'] = phys_df['dist_to_boundary'] * self.config.PIXEL_SIZE
-		phys_df['dist_to_53bp1'] = phys_df['dist_to_53bp1'] * self.config.PIXEL_SIZE
+		# phys_df['pixel_size'] = self.config.PIXEL_SIZE
+		# phys_df['dist_to_boundary'] = phys_df['dist_to_boundary'] * self.config.PIXEL_SIZE
+		# phys_df['dist_to_53bp1'] = phys_df['dist_to_53bp1'] * self.config.PIXEL_SIZE
 
-		phys_df = add_antigen_data(phys_df)
+		phys_df = add_antigen_data(phys_df, sorters=self.config.SORTERS)
+
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
@@ -873,6 +1157,7 @@ class Pipeline3():
 
 		self.config.DICT['Load existing analMeta'] = True
 		self.config.save_config()
+
 
 	def merge_plot(self):
 
@@ -933,6 +1218,7 @@ class Pipeline3():
 
 		fig.savefig(self.config.OUTPUT_PATH + merged_name + '-mergedResults.pdf')
 
+		sys.exit()
 
 def get_root_name_list(settings_dict):
 	# Make a copy of settings_dict
