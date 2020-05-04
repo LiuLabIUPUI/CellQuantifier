@@ -1,4 +1,4 @@
-## Installation from source
+## Development installation
 
 Create a new conda environment
 

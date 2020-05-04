@@ -3,14 +3,14 @@
 control = [
 'clean_dir',
 'load',
-'regi',
-'mask_boundary', 'mask_53bp1', # 'mask_53bp1_blob',
+# 'regi',
+# 'mask_boundary', 'mask_53bp1', # 'mask_53bp1_blob',
 'deno_box', 'deno_gaus',
-'check_detect_fit',
+# 'check_detect_fit',
 'detect_fit',
-'filt_track',
-'phys_dist2boundary', 'phys_dist253bp1', #'phys_dist253bp1_blob',
-'sort_plot'
+# 'filt_track',
+# 'phys_dist2boundary', 'phys_dist253bp1', #'phys_dist253bp1_blob',
+# 'sort_plot'
 ]
 
 """Part II: CellQuantifier Parameter Settings"""
@@ -20,7 +20,7 @@ settings = {
   #HEADER INFO
   'Processed By:': 'Clayton Seitz',
   'Start frame index': 0,
-  'End frame index': 100,
+  'End frame index': 1,
   'Load existing analMeta': False,
 
   #IO
@@ -62,11 +62,11 @@ settings = {
   'Deno gaus_blur_sig': 0.5,
 #
   #DETECTION SETTINGS
-  'Det blob_threshold': 0.02,
-  'Det blob_min_sigma': 2,
-  'Det blob_max_sigma': 4,
-  'Det blob_num_sigma': 5,
-  'Det pk_thresh_rel': 0.15,
+  'Det blob_threshold': 1e-6,
+  'Det blob_min_sigma': 5,
+  'Det blob_max_sigma': 10,
+  'Det blob_num_sigma': 10,
+  'Det pk_thresh_rel': 0.03,
 
   #TRACKING SETTINGS
   'Trak frame_rate': 3.33,
