@@ -1,7 +1,7 @@
 import keras
 from keras.models import *
 from keras.layers import *
-from _unet_model_utils import *
+from ._unet_model_utils import *
 
 CONST_DO_RATE = 0.5
 
