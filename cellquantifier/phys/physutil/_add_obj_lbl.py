@@ -1,7 +1,7 @@
 import pandas as pd
 from skimage.measure import label
 
-def add_obj_lbl(df, mask, is_labeled=True):
+def add_obj_lbl(df, mask, is_labeled=True, col_name='region_label'):
 
 	"""
 	Add object_lbl column to DataFrame
@@ -17,6 +17,6 @@ def add_obj_lbl(df, mask, is_labeled=True):
 		mask = label(mask)
 
 	for i, row in df.iterrows():
-		df.at[i, 'region_label'] = int(mask[int(round(df.at[i, 'x'])), \
+		df.at[i, col_name] = int(mask[int(round(df.at[i, 'x'])), \
 									    int(round(df.at[i, 'y']))])
 	return df
