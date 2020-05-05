@@ -98,3 +98,58 @@ def build_new_model(input_dir,
 	if save_dir:
 		stats_df.to_csv(save_dir + '/train_stats.csv')
 		model.save(save_dir + '/model.h5')
+
+
+def make_prediction_batch(im_arr, model_weights):
+
+	"""
+	Given an image and a model, makes a prediction for the segmentation
+	mask
+
+	Pseudo code
+	----------
+
+	Parameters
+	----------
+	im_arr: ndarray or list of ndarray
+		image or list of images for which to predict mask
+	model: model weights
+		the weights to plugin to model generate by unet_model()
+
+	"""
+
+	im_arr = np.array(im_arr)
+	target_arr = np.zeros_like(im_arr)
+	pred_arr = np.zeros_like(im_arr)
+	for i,im in enumerate(im_arr):
+		pred = make_prediction(im_arr[i], model_weights)
+		pred_arr[i] = pred
+
+	return pred_arr
+
+
+def make_prediction(im, model_weights):
+
+	"""
+	Given an image and a model, makes a prediction for the segmentation
+	mask
+
+	Pseudo code
+	----------
+
+	Parameters
+	----------
+	im_arr: ndarray or list of ndarray
+		image or list of images for which to predict mask
+	model: model weights
+		the weights to plugin to model generate by unet_model()
+
+	"""
+
+	dim1 = images.shape[1]
+	dim2 = images.shape[2]
+
+	model = unet_model(input_size=crop_size); model.summary()
+	prediction = model.predict(im, batch_size=1)
+
+	return prediction
