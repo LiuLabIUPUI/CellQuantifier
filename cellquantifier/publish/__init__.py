@@ -11,3 +11,4 @@ from ._fig_quick_rna import *
 from ._fig_quick_rna2 import *
 from ._fig_quick_antigen_2 import *
 from ._fig_quick_antigen_3 import *
+from ._fig_quick_cilia_2 import *
