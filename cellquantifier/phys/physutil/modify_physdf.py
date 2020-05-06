@@ -55,12 +55,11 @@ def merge_physdfs(files):
     columns = temp_df.columns.tolist()
     merged_df = pd.DataFrame([], columns=columns)
 
+    ind = 1
     tot = len(files)
     for file in files:
-
-        ind = 1
         print("\n")
-        print("Processing (%d/%d): %s" % (ind, tot, file))
+        print("Merging (%d/%d): %s" % (ind, tot, file))
         ind = ind + 1
 
         df = pd.read_csv(file, index_col=False)
