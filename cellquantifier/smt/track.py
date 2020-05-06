@@ -136,7 +136,7 @@ def track_blobs(blobs_df,
 
 	if blobs_df.empty:
 		print('\n***Trajectories num is zero***\n')
-		return
+		return blobs_df, blobs_df
 
 	# """
 	# ~~~~~~~~~~~Get dA/A~~~~~~~~~~~~~
