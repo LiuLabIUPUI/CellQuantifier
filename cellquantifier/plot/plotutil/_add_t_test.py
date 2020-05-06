@@ -45,7 +45,7 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
             t_test_str = prefix_str + 'P < .01'
         elif t_stats[1] >= .01 and t_stats[1] < .05:
             t_test_str = prefix_str + 'P < .05'
-        elif t_stats[1] >= .05:
+        else:
             t_test_str = prefix_str + 'P = %.2F' % (t_stats[1])
 
         ax.text(text_pos[0],

@@ -12,7 +12,7 @@ def plot_track_param_opt(
         df,
         mean_D_list,
         mean_alpha_list,
-        
+
         ):
     # """
 	# ~~~~~~~~~~~Initialize the page layout~~~~~~~~~~~~~~
@@ -36,7 +36,10 @@ def plot_track_param_opt(
     # """
 	# ~~~~Plot fig2~~~~
 	# """
-    xlabel = track_param_name + ' (' + track_param_unit + ')'
+    if track_param_unit:
+        xlabel = track_param_name + ' (' + track_param_unit + ')'
+    else:
+        xlabel = track_param_name
 
     fig1.plot(track_param_list, particle_num_list, 'o-')
     set_xylabel(fig1,
