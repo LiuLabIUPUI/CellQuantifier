@@ -22,6 +22,7 @@ from ..smt.track import track_blobs
 from ..smt.msd import plot_msd_batch, get_sorter_list
 from ..phys import *
 from ..util.config3 import Config
+from ..plot import *
 from ..plot import plot_phys_1 as plot_merged
 from ..phys.physutil import relabel_particles, merge_physdfs
 
@@ -598,16 +599,36 @@ class Pipeline3():
 						'-fittData.csv', index=False)
 
 
-	def filt_track(self):
-
-		print("######################################")
-		print("Filter and Linking")
-		print("######################################")
-
+	# helper function for filt and track()
+	def track_blobs_twice(self):
 		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
 									'-regi.tif', '-raw.tif')
 
-		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv'):
+
+			# # Option 1: delete tracking results, load pixel_size, frame_rate.
+			# psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+			# psf_df = psf_df.drop(['particle', 'D', 'alpha'], axis=1)
+			# if 'pixel_size' in psf_df:
+			# 	print('Yeah!!!')
+			# 	self.config.PIXEL_SIZE = psf_df['pixel_size'].mean()
+			# if 'frame_rate' in psf_df:
+			# 	print('Yeah!!!')
+			# 	self.config.FRAME_RATE = psf_df['frame_rate'].mean()
+
+			# Option 2: delete tracking results, load frame_rate.
+			# PIXEL_SIZE equals 1 (normalized)
+			psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+			psf_df = psf_df.drop(['particle', 'D', 'alpha', 'x', 'y'], axis=1)
+			psf_df = psf_df.assign(x=0, y=psf_df['h_norm'])
+			if 'pixel_size' in psf_df:
+				print('Yeah!!!')
+				self.config.PIXEL_SIZE = 1
+			if 'frame_rate' in psf_df:
+				print('Yeah!!!')
+				self.config.FRAME_RATE = psf_df['frame_rate'].mean()
+		else:
+			psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
 
 		blobs_df, im = track_blobs(psf_df,
 								    search_range=self.config.SEARCH_RANGE,
@@ -617,8 +638,6 @@ class Pipeline3():
 									divide_num=self.config.DIVIDE_NUM,
 									filters=None,
 									do_filter=False)
-
-		traj_num_before = blobs_df['particle'].nunique()
 
 		if self.config.DO_FILTER:
 			blobs_df, im = track_blobs(blobs_df,
@@ -632,20 +651,247 @@ class Pipeline3():
 
 		# Add 'traj_length' column and save physData before traj_length_thres filter
 		blobs_df = add_traj_length(blobs_df)
-		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-									'-physData.csv', index=False)
 
-		after_filter_df = blobs_df [blobs_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES']]
+		return blobs_df
+
+
+	# helper function for filt and track()
+	def print_filt_traj_num(self, blobs_df):
+		traj_num_before = blobs_df['particle'].nunique()
+		after_filter_df = blobs_df [blobs_df['traj_length'] >= self.config.FILTERS['TRAJ_LEN_THRES']]
 		print("######################################")
 		print("Trajectory number before filters: \t%d" % traj_num_before)
 		print("Trajectory number after filters: \t%d" % after_filter_df['particle'].nunique())
 		print("######################################")
 
 
+	# helper function for filt and track()
+	def filt_phys_df(self, phys_df):
+
+		df = phys_df.copy()
+		# """
+		# ~~~~~~~~traj_length filter~~~~~~~~
+		# """
+		if 'traj_length' in df:
+			df = df[ df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
+
+		return df
+
+
+	def filt_track(self):
+
+		print("######################################")
+		print("Filter and Linking")
+		print("######################################")
+
+
+		check_divide_num = isinstance(self.config.DIVIDE_NUM, list)
+		if check_divide_num:
+			param_list = self.config.DIVIDE_NUM
+			particle_num_list = []
+			phys_dfs = []
+			mean_D_list = []
+			mean_alpha_list = []
+			for divide_num in param_list:
+				self.config.DIVIDE_NUM = divide_num
+				phys_df = self.track_blobs_twice()
+				self.print_filt_traj_num(phys_df)
+				phys_df = self.filt_phys_df(phys_df)
+				phys_df = phys_df.drop_duplicates('particle')
+				phys_df['divide_num'] = divide_num
+				phys_dfs.append(phys_df)
+				particle_num_list.append(len(phys_df))
+				mean_D_list.append(phys_df['D'].mean())
+				mean_alpha_list.append(phys_df['alpha'].mean())
+			phys_df_all = pd.concat(phys_dfs)
+			sr_opt_fig = plot_track_param_opt(
+							track_param_name='divide_num',
+							track_param_unit='',
+							track_param_list=param_list,
+							particle_num_list=particle_num_list,
+							df=phys_df_all,
+							mean_D_list=mean_D_list,
+							mean_alpha_list=mean_alpha_list,
+							)
+			sr_opt_fig.savefig(self.config.OUTPUT_PATH + \
+							self.config.ROOT_NAME + '-opt-divide-num.pdf')
+
+
+		check_memory = isinstance(self.config.MEMORY, list)
+		if check_memory:
+			param_list = self.config.MEMORY
+			particle_num_list = []
+			phys_dfs = []
+			mean_D_list = []
+			mean_alpha_list = []
+			for memory in param_list:
+				self.config.MEMORY = memory
+				phys_df = self.track_blobs_twice()
+				self.print_filt_traj_num(phys_df)
+				phys_df = self.filt_phys_df(phys_df)
+				phys_df = phys_df.drop_duplicates('particle')
+				phys_df['memory'] = memory
+				phys_dfs.append(phys_df)
+				particle_num_list.append(len(phys_df))
+				mean_D_list.append(phys_df['D'].mean())
+				mean_alpha_list.append(phys_df['alpha'].mean())
+			phys_df_all = pd.concat(phys_dfs)
+			sr_opt_fig = plot_track_param_opt(
+							track_param_name='memory',
+							track_param_unit='frame',
+							track_param_list=param_list,
+							particle_num_list=particle_num_list,
+							df=phys_df_all,
+							mean_D_list=mean_D_list,
+							mean_alpha_list=mean_alpha_list,
+							)
+			sr_opt_fig.savefig(self.config.OUTPUT_PATH + \
+							self.config.ROOT_NAME + '-opt-memory.pdf')
+
+		check_search_range = isinstance(self.config.SEARCH_RANGE, list)
+		if check_search_range:
+			param_list = self.config.SEARCH_RANGE
+			particle_num_list = []
+			phys_dfs = []
+			mean_D_list = []
+			mean_alpha_list = []
+			for search_range in param_list:
+				self.config.SEARCH_RANGE = search_range
+				phys_df = self.track_blobs_twice()
+				self.print_filt_traj_num(phys_df)
+				phys_df = self.filt_phys_df(phys_df)
+				phys_df = phys_df.drop_duplicates('particle')
+				phys_df['search_range'] = search_range
+				phys_dfs.append(phys_df)
+				particle_num_list.append(len(phys_df))
+				mean_D_list.append(phys_df['D'].mean())
+				mean_alpha_list.append(phys_df['alpha'].mean())
+			phys_df_all = pd.concat(phys_dfs)
+			sr_opt_fig = plot_track_param_opt(
+							track_param_name='search_range',
+							track_param_unit='pixel',
+							track_param_list=param_list,
+							particle_num_list=particle_num_list,
+							df=phys_df_all,
+							mean_D_list=mean_D_list,
+							mean_alpha_list=mean_alpha_list,
+							)
+			sr_opt_fig.savefig(self.config.OUTPUT_PATH + \
+							self.config.ROOT_NAME + '-opt-search-range.pdf')
+
+
+		check_traj_len_thres = isinstance(self.config.FILTERS['TRAJ_LEN_THRES'], list)
+		if check_traj_len_thres:
+			param_list = self.config.FILTERS['TRAJ_LEN_THRES']
+			particle_num_list = []
+			phys_dfs = []
+			mean_D_list = []
+			mean_alpha_list = []
+
+			if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv'):
+				original_phys_df = pd.read_csv(self.config.OUTPUT_PATH + \
+					self.config.ROOT_NAME + '-physData.csv')
+			else:
+				original_phys_df = self.track_blobs_twice()
+
+			for traj_len_thres in param_list:
+				self.config.FILTERS['TRAJ_LEN_THRES'] = traj_len_thres
+				self.print_filt_traj_num(original_phys_df)
+				phys_df = self.filt_phys_df(original_phys_df)
+				phys_df = phys_df.drop_duplicates('particle')
+				phys_df['traj_len_thres'] = traj_len_thres
+				phys_dfs.append(phys_df)
+				particle_num_list.append(len(phys_df))
+				mean_D_list.append(phys_df['D'].mean())
+				mean_alpha_list.append(phys_df['alpha'].mean())
+			phys_df_all = pd.concat(phys_dfs)
+			sr_opt_fig = plot_track_param_opt(
+							track_param_name='traj_len_thres',
+							track_param_unit='frame',
+							track_param_list=param_list,
+							particle_num_list=particle_num_list,
+							df=phys_df_all,
+							mean_D_list=mean_D_list,
+							mean_alpha_list=mean_alpha_list,
+							)
+			sr_opt_fig.savefig(self.config.OUTPUT_PATH + \
+							self.config.ROOT_NAME + '-opt-traj-len-thres.pdf')
+
+		else:
+			blobs_df = self.track_blobs_twice()
+			self.print_filt_traj_num(blobs_df)
+			blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+										'-physData.csv', index=False)
+
 
 
 		self.config.DICT['Load existing analMeta'] = True
 		self.config.save_config()
+
+
+
+
+
+
+	# def filt_track(self):
+	#
+	# 	print("######################################")
+	# 	print("Filter and Linking")
+	# 	print("######################################")
+	#
+	# 	frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+	# 								'-regi.tif', '-raw.tif')
+	#
+	# 	if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv'):
+	# 		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+	# 		psf_df = psf_df.drop(['particle', 'D', 'alpha'], axis=1)
+	# 		if 'pixel_size' in psf_df:
+	# 			print('Yeah!!!')
+	# 			self.config.PIXEL_SIZE = psf_df.drop_duplicates('particle')['pixel_size']
+	# 		if 'frame_rate' in psf_df:
+	# 			print('Yeah!!!')
+	# 			self.config.FRAME_RATE = psf_df.drop_duplicates('particle')['frame_rate']
+	#
+	# 	else:
+	# 		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
+	#
+	# 	blobs_df, im = track_blobs(psf_df,
+	# 							    search_range=self.config.SEARCH_RANGE,
+	# 								memory=self.config.MEMORY,
+	# 								pixel_size=self.config.PIXEL_SIZE,
+	# 								frame_rate=self.config.FRAME_RATE,
+	# 								divide_num=self.config.DIVIDE_NUM,
+	# 								filters=None,
+	# 								do_filter=False)
+	#
+	# 	traj_num_before = blobs_df['particle'].nunique()
+	#
+	# 	if self.config.DO_FILTER:
+	# 		blobs_df, im = track_blobs(blobs_df,
+	# 								    search_range=self.config.SEARCH_RANGE,
+	# 									memory=self.config.MEMORY,
+	# 									pixel_size=self.config.PIXEL_SIZE,
+	# 									frame_rate=self.config.FRAME_RATE,
+	# 									divide_num=self.config.DIVIDE_NUM,
+	# 									filters=self.config.FILTERS,
+	# 									do_filter=True)
+	#
+	# 	# Add 'traj_length' column and save physData before traj_length_thres filter
+	# 	blobs_df = add_traj_length(blobs_df)
+	# 	blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+	# 								'-physData.csv', index=False)
+	#
+	# 	after_filter_df = blobs_df [blobs_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES']]
+	# 	print("######################################")
+	# 	print("Trajectory number before filters: \t%d" % traj_num_before)
+	# 	print("Trajectory number after filters: \t%d" % after_filter_df['particle'].nunique())
+	# 	print("######################################")
+	#
+	#
+	#
+	#
+	# 	self.config.DICT['Load existing analMeta'] = True
+	# 	self.config.save_config()
 
 
 	def plot_traj(self):
@@ -949,7 +1195,7 @@ class Pipeline3():
 		print("Merge and PlotMSD")
 		print("######################################")
 
-		merged_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
+		merged_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
 		print(merged_files)
 
 		if len(merged_files) > 1:
@@ -962,7 +1208,7 @@ class Pipeline3():
 			phys_df = pd.read_csv(merged_files[0])
 
 		else:
-			phys_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')))
+			phys_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physData.csv')))
 			print("######################################")
 			print("Total number of physData to be merged: %d" % len(phys_files))
 			print("######################################")
@@ -983,19 +1229,19 @@ class Pipeline3():
 			phys_df.round(6).to_csv(self.config.OUTPUT_PATH + merged_name + \
 							'-physDataMerged.csv', index=False)
 
-		# Apply traj_length_thres filter
-		if 'traj_length' in phys_df:
-			phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
-
-		# phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
-		fig = plot_merged(phys_df, 'exp_label',
-						pixel_size=self.config.PIXEL_SIZE,
-						frame_rate=self.config.FRAME_RATE,
-						divide_num=self.config.DIVIDE_NUM,
-						RGBA_alpha=1,
-						do_gmm=False)
-
-		fig.savefig(self.config.OUTPUT_PATH + merged_name + '-mergedResults.pdf')
+		# # Apply traj_length_thres filter
+		# if 'traj_length' in phys_df:
+		# 	phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
+		#
+		# # phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
+		# fig = plot_merged(phys_df, 'exp_label',
+		# 				pixel_size=self.config.PIXEL_SIZE,
+		# 				frame_rate=self.config.FRAME_RATE,
+		# 				divide_num=self.config.DIVIDE_NUM,
+		# 				RGBA_alpha=1,
+		# 				do_gmm=False)
+		#
+		# fig.savefig(self.config.OUTPUT_PATH + merged_name + '-mergedResults.pdf')
 
 		sys.exit()
 
@@ -1015,7 +1261,7 @@ def get_root_name_list(settings_dict):
 
 	root_name_list = []
 
-	path_list = glob.glob(settings['IO input_path'] + '/*-physData.csv')
+	path_list = glob(settings['IO input_path'] + '/*-physData.csv')
 	if len(path_list) != 0:
 		for path in path_list:
 			temp = path.split('/')[-1]
@@ -1023,14 +1269,14 @@ def get_root_name_list(settings_dict):
 			root_name_list.append(temp)
 
 	else:
-		path_list = glob.glob(settings['IO input_path'] + '/*-raw.tif')
+		path_list = glob(settings['IO input_path'] + '/*-raw.tif')
 		if len(path_list) != 0:
 			for path in path_list:
 				temp = path.split('/')[-1]
 				temp = temp[:-4 - len('-raw')]
 				root_name_list.append(temp)
 		else:
-			path_list = glob.glob(settings['IO input_path'] + '/*.tif')
+			path_list = glob(settings['IO input_path'] + '/*.tif')
 			for path in path_list:
 				temp = path.split('/')[-1]
 				temp = temp[:-4]
@@ -1104,7 +1350,7 @@ def pipeline_batch(settings_dict, control_list):
 			key = root_name
 
 		if settings_dict['Regi reference file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
+			file_list = np.array(sorted(glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Regi reference file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.REF_FILE_NAME = file_list[0].split('/')[-1]
@@ -1113,7 +1359,7 @@ def pipeline_batch(settings_dict, control_list):
 
 		# 2.3. Update config.DIST2BOUNDARY_MASK_NAME
 		if settings_dict['Mask boundary_mask file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
+			file_list = np.array(sorted(glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask boundary_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST2BOUNDARY_MASK_NAME = file_list[0].split('/')[-1]
@@ -1122,7 +1368,7 @@ def pipeline_batch(settings_dict, control_list):
 
 		# 2.4. Update config.DIST253BP1_MASK_NAME
 		if settings_dict['Mask 53bp1_mask file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
+			file_list = np.array(sorted(glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask 53bp1_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST253BP1_MASK_NAME = file_list[0].split('/')[-1]
@@ -1131,7 +1377,7 @@ def pipeline_batch(settings_dict, control_list):
 
 		# 2.5. Update config.MASK_53BP1_BLOB_NAME
 		if settings_dict['Mask 53bp1_blob_mask file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
+			file_list = np.array(sorted(glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask 53bp1_blob_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.MASK_53BP1_BLOB_NAME = file_list[0].split('/')[-1]

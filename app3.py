@@ -42,8 +42,8 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/input/',
-  'IO output_path': '/home/linhua/Desktop/input/',
+  'IO input_path': '/home/linhua/Desktop/temp/', #cilia/200407_all-cilia-results/',
+  'IO output_path': '/home/linhua/Desktop/temp/', #cilia/200407_all-cilia-results/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -97,26 +97,26 @@ settings = {
   'Det pk_thresh_rel': 0.8,
 
   #TRACKING SETTINGS
-  'Trak frame_rate': 2,
-  'Trak pixel_size': 0.163,
-  'Trak divide_num': 5,
+  'Trak frame_rate': None,
+  'Trak pixel_size': None,
+  'Trak divide_num': 1,
 
   ###############################################
-  'Trak search_range': 2.5,  # NO. 1
+  'Trak search_range': 20,  # NO. 1
   ###############################################
 
-  'Trak memory': 5,
+  'Trak memory': 3,
 
   #FILTERING SETTINGS
-  'Filt max_dist_err': 3,
-  'Filt max_sig_to_sigraw': 6,
-  'Filt max_delta_area': 2.4,
+  'Filt max_dist_err': 5,
+  'Filt max_sig_to_sigraw': 2,
+  'Filt max_delta_area': 0.8,
 
   ###############################################
   'Filt traj_length_thres': 20, # NO. 2
   #SORTING SETTINGS
-  'Sort dist_to_boundary': [-15, 10], # NO. 3
-  'Sort travel_dist': [0, 7], # NO. 4
+  'Sort dist_to_boundary': None, # NO. 3
+  'Sort travel_dist': None, # NO. 4
   ###############################################
 
   'Sort dist_to_53bp1': None,
@@ -124,7 +124,7 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-# from cellquantifier.util.pipeline3 import *
+# from cellquantifier.util.pipeline3_cilia import *
 # pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
@@ -173,12 +173,22 @@ settings = {
 #                 index_col=False)
 # fig_quick_cilia(df)
 
+# from cellquantifier.phys import *
+# import pandas as pd
+# df = pd.read_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged.csv',
+#                 index_col=False)
+# df = add_cilia_liftime(df)
+# df.round(6).to_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged-lifetime.csv',
+#                 index=False)
+
 
 from cellquantifier.publish import *
 import pandas as pd
-df = pd.read_csv('/home/linhua/Desktop/temp/200407-physDataMerged.csv',
+df_glb = pd.read_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged-lifetime.csv',
                 index_col=False)
-fig_quick_cilia(df)
+df_loc = pd.read_csv('/home/linhua/Desktop/temp/200505_localPhysDataMerged-lifetime.csv',
+                index_col=False)
+fig_quick_cilia_2(df_glb, df_loc)
 
 
 
