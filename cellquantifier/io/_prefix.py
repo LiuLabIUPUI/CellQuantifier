@@ -1,54 +1,62 @@
 from glob import glob
 
-def get_files_from_prefix(file, tags=['ch1-raw', 'ch2-raw']):
+def get_files_from_prefix(input_dir, prefix, tags=None):
 
 	"""
 	Pseudo code
 	----------
-	1. Extract prefix from filename
-	2. Return list of files which matching prefix
-
-	Parameters
-	----------
-	file : str,
-		Full path to file containing prefix
-
-	tags : list,
-		Identifiers of channels to use to find files
-
-	"""
-
-	split = file.split('/')
-	input_dir, filename = '/'.join(split[:-1]) + '/', split[-1]
-	prefix = '_'.join(filename.split('_')[:-1])
-
-	fn_arr = [glob(input_dir + prefix + '_%s*' % tag) \
-			  for tag in tags]
-
-	fn_arr = [fn for sub_fn_arr in fn_arr for fn in sub_fn_arr]
-
-	return fn_arr
-
-def get_unique_prefixes(input_dir, tag):
-
-	"""
-	Pseudo code
-	----------
-	1. Get files containing tag
-	2. Return list of unique prefixes
+	1. If tags are specified, find all files containg prefix and any of the tags
+	2. Unpack nested array
 
 	Parameters
 	----------
 	input_dir : str,
 		Directory containing files of interest
 
+	prefix : str,
+		Prefix in filename to filter files by
+
 	tags : list,
-		Identifies which files are of interest
+		Identifiers of channels to use to find files
 
 	"""
 
-	files = glob(input_dir + '*%s*'%(tag))
+	if tags:
+		fn_arr = [glob(input_dir + prefix + '*%s*' % tag) \
+				  for tag in tags]
+		fn_arr = [fn for sub_fn_arr in fn_arr for fn in sub_fn_arr]
+
+	else:
+		fn_arr = glob(input_dir + prefix + '*')
+
+	return fn_arr
+
+def get_unique_prefixes(input_dir, tag=None):
+
+	"""
+	Pseudo code
+	----------
+	1. If tag is specified, get all files in input_dir that contain tag
+	2. Extract unique prefixes from the list of files
+
+	Parameters
+	----------
+	input_dir : str,
+		Directory containing files of interest
+
+	tag : str,
+		Identifier for files of interest
+
+
+	"""
+
+	if tag:
+		files = glob(input_dir + '*%s*' % (tag))
+	else:
+		files = glob(input_dir + '*')
+
 	roots = [file.split('/')[-1] for file in files]
 	prefixes = ['_'.join(root.split('_')[:-1]) for root in roots]
+	prefixes = list(set(prefixes))
 
 	return prefixes

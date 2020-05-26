@@ -11,8 +11,8 @@ from skimage.util import img_as_ubyte
 from copy import deepcopy
 
 def fig_quick_rna(blobs_df, int_df, im_arr, mask,
-                  cls_div_mat=[[1,.1],[1,-.1]],
-                  min_class_int=[.1,.1],
+				  cls_div_mat=[[1,.1],[1,-.1]],
+				  min_class_int=[.1,.1],
 				  typ_arr=['type1','type2','type3','type4'],
 				  typ_clr_arr=[(255,255,255),(0,255,0),\
 							   (255,255,0),(255,0,0)]):
@@ -28,29 +28,6 @@ def fig_quick_rna(blobs_df, int_df, im_arr, mask,
 	3. Populate left panel with overlay image and cell classifications
 	4. Merge blobs_df and int_df on label column
 	5. Generate blox plots with copy number and peak intensity per cell
-
-	Parameters
-	----------
-	blobs_df : DataFrame
-		DataFrame containing x,y,peak, and label columns
-	int_df: DataFrame
-		Dataframe containing label column and avg intensity columns
-		(1 avg intensity column per channel used for cell classification)
-	im_arr : ndarray,
-		List containing the raw channel used for segm and for detection
-	mask : ndarray,
-		Raw mask to be used for cell classification color-coding
-	typ_clr_arr: list
-		List of colors to use for different cell types
-
-	Notes
-	-------
-	-Support for 2 channel cell classification only e.g. insulin and glucagon
-
-
-	Example
-	--------
-	//insert read statements here
 
 	"""
 
@@ -72,14 +49,10 @@ def fig_quick_rna(blobs_df, int_df, im_arr, mask,
 	# ~~~~~~~~~~~Upper Right Panel (2)~~~~~~~~~~~~~~
 	# """
 
-	cols = [col for col in int_df.columns if 'avg_' in col]
-	for col in cols:
-		int_df[col] = int_df[col]/int_df[col].max()
-
-
 	#Classify cells by partitioning mean intensity space
 	x = np.linspace(0,1,100)
 	tmp1, tmp2 = np.zeros_like(x), np.ones_like(x)
+
 	m1,b1 = cls_div_mat[0]; y1 = m1*x + b1
 	m2,b2 = cls_div_mat[1]; y2 = m2*x + b2
 
@@ -91,6 +64,7 @@ def fig_quick_rna(blobs_df, int_df, im_arr, mask,
 	rect = Rectangle((0,0), min_class_int[0], min_class_int[1],\
 					 color='red', fill=False)
 	ax1.add_patch(rect)
+
 	ax1.scatter(int_df['avg_ins_intensity'], \
 			   int_df['avg_gluc_intensity'], \
 			   color='blue', s=20, marker='s')

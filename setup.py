@@ -7,7 +7,7 @@ setup(
     description='CellQuantifier (a.k.a. cq) is a collection of algorithms \
                 to get quantitative information of living cells',
 
-    author='Clayton Seitz',
+    author='Clayton Seitz and Hua Lin',
     author_email='cwseitz@iu.edu',
     packages=['cellquantifier'],
 

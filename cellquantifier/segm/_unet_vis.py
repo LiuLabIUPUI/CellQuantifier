@@ -1,7 +1,5 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from cellquantifier.plot.plotutil import format_ax
-
 
 def show_train_stats(df):
 

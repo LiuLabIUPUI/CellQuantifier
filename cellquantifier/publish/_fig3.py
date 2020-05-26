@@ -3,14 +3,16 @@ import pandas as pd
 
 from seaborn import color_palette
 from copy import deepcopy
-from cellquantifier.qmath import interpolate_lin
-from cellquantifier.phys.physutil import bin_df
-from cellquantifier.plot.plotutil import *
 from matplotlib.gridspec import GridSpec
 from skimage.io import imread
-from cellquantifier.segm import get_thres_mask, get_dist2boundary_mask
-from cellquantifier.plot.plotutil import anno_traj, add_scalebar
 from skimage.color import gray2rgb
+
+from ..qmath import interpolate_lin
+from ..util import bin_df
+from ..plot.plotutil import *
+from ..segm import get_thres_mask, get_dist2boundary_mask
+
+
 
 def plot_fig_3(df,
 			   bp1_thres=10,

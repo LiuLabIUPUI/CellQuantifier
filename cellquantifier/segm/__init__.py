@@ -1,7 +1,9 @@
 from ._segm import *
 from .mask import *
-from ._clr_code_mask import clr_code_mask
-from ._get_int_df import get_int_df
+
+from ._regions import *
+from ._cc_mask import clr_code_mask
+from ._int_df import get_int_df
 
 from ._unet_data_utils import *
 from ._unet_model_utils import *

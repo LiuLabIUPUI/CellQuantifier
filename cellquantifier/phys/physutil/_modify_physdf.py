@@ -1,38 +1,44 @@
 import pandas as pd
 import re
 
-def relabel_particles(df):
+def relabel_particles(df, col1='raw_data', col2='particle'):
 
-    """
-    Relabel particles after merging dataframes from several experiments
+	"""
+	Relabel particles after merging dataframes from several experiments
 
-    Parameters
-    ----------
-    df: DataFrame
+	Pseudocode
+	----------
+	1. For each unique file get all particles
+	2. For each particle reassign label to particle counter (i)
 
-    Returns
-    -------
-    df: DataFrame
-        input df with relabeled particles
+	Parameters
+	----------
+	df: DataFrame
 
-    """
-    df.sort_values(by=['raw_data', 'particle'])
-    file_names = df['raw_data'].unique()
-    i = 0
+	Returns
+	-------
+	df: DataFrame
+		input df with relabeled particles
 
-    for file_name in file_names:
-      sub_df = df.loc[df['raw_data'] == file_name]
-      particles = sub_df['particle'].unique()
+	"""
 
-      for particle in particles:
-        df.loc[(df['raw_data'] == file_name) & \
-        (df['particle'] == particle), 'new_label'] = i
-        i+=1
+	df.sort_values(by=[col1, col2])
+	file_names = df[col1].unique()
+	i = 0
 
-    df['new_label'] = df['new_label'].astype('int')
-    df['particle'] = df['new_label']; del df['new_label']
+	for file_name in file_names:
+		sub_df = df.loc[df[col1] == file_name]
+		particles = sub_df[col2].unique()
 
-    return df
+		for particle in particles:
+			df.loc[(df[col1] == file_name) & \
+			(df[col2] == particle), 'tmp'] = i
+			i+=1
+
+	df['tmp'] = df['tmp'].astype('int')
+	df[col2] = df['tmp']; del df['tmp']
+
+	return df
 
 def merge_physdfs(files):
 

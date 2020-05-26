@@ -4,7 +4,7 @@ import matplotlib as mpl
 from matplotlib import patches
 import matplotlib.pyplot as plt
 import trackpy as tp
-from .add_colorbar import add_outside_colorbar
+from ._add_colorbar import add_outside_colorbar
 from ._add_scalebar import add_scalebar
 from skimage.morphology import binary_dilation, binary_erosion, disk
 
