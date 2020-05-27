@@ -1170,7 +1170,7 @@ class Pipeline3():
 		print("Merge and PlotMSD")
 		print("######################################")
 
-		merged_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
+		merged_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
 		print(merged_files)
 
 		if len(merged_files) > 1:
@@ -1183,7 +1183,7 @@ class Pipeline3():
 			phys_df = pd.read_csv(merged_files[0])
 
 		else:
-			phys_files = np.array(sorted(glob.glob(self.config.OUTPUT_PATH + '/*physData.csv')))
+			phys_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physData.csv')))
 			print("######################################")
 			print("Total number of physData to be merged: %d" % len(phys_files))
 			print("######################################")
@@ -1235,7 +1235,7 @@ def get_root_name_list(settings_dict):
 
 	root_name_list = []
 
-	path_list = glob.glob(settings['IO input_path'] + '/*-physData.csv')
+	path_list = glob(settings['IO input_path'] + '/*-physData.csv')
 	if len(path_list) != 0:
 		for path in path_list:
 			temp = path.split('/')[-1]
@@ -1243,14 +1243,14 @@ def get_root_name_list(settings_dict):
 			root_name_list.append(temp)
 
 	else:
-		path_list = glob.glob(settings['IO input_path'] + '/*-raw.tif')
+		path_list = glob(settings['IO input_path'] + '/*-raw.tif')
 		if len(path_list) != 0:
 			for path in path_list:
 				temp = path.split('/')[-1]
 				temp = temp[:-4 - len('-raw')]
 				root_name_list.append(temp)
 		else:
-			path_list = glob.glob(settings['IO input_path'] + '/*.tif')
+			path_list = glob(settings['IO input_path'] + '/*.tif')
 			for path in path_list:
 				temp = path.split('/')[-1]
 				temp = temp[:-4]
@@ -1324,7 +1324,7 @@ def pipeline_batch(settings_dict, control_list):
 			key = root_name
 
 		if settings_dict['Regi reference file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
+			file_list = np.array(sorted(glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Regi reference file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.REF_FILE_NAME = file_list[0].split('/')[-1]
@@ -1333,7 +1333,7 @@ def pipeline_batch(settings_dict, control_list):
 
 		# 2.3. Update config.DIST2BOUNDARY_MASK_NAME
 		if settings_dict['Mask boundary_mask file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
+			file_list = np.array(sorted(glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask boundary_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST2BOUNDARY_MASK_NAME = file_list[0].split('/')[-1]
@@ -1342,7 +1342,7 @@ def pipeline_batch(settings_dict, control_list):
 
 		# 2.4. Update config.DIST253BP1_MASK_NAME
 		if settings_dict['Mask 53bp1_mask file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
+			file_list = np.array(sorted(glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask 53bp1_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.DIST253BP1_MASK_NAME = file_list[0].split('/')[-1]
@@ -1351,7 +1351,7 @@ def pipeline_batch(settings_dict, control_list):
 
 		# 2.5. Update config.MASK_53BP1_BLOB_NAME
 		if settings_dict['Mask 53bp1_blob_mask file label']:# if label is not empty, find file_list
-			file_list = np.array(sorted(glob.glob(settings_dict['IO input_path'] + '*' + key +
+			file_list = np.array(sorted(glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask 53bp1_blob_mask file label'] + '*')))
 			if len(file_list) == 1: # there should be only 1 file targeted
 				config.MASK_53BP1_BLOB_NAME = file_list[0].split('/')[-1]

@@ -69,7 +69,7 @@ class Pipeline3():
 		else:
 			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 
-		sides_pixel_num = 100
+		sides_pixel_num = 50
 		if sides_pixel_num:
 			new_shape = (frames.shape[0],
 						frames.shape[1] + sides_pixel_num*2,
@@ -829,75 +829,15 @@ class Pipeline3():
 		self.config.save_config()
 
 
-
-
-
-
-	# def filt_track(self):
-	#
-	# 	print("######################################")
-	# 	print("Filter and Linking")
-	# 	print("######################################")
-	#
-	# 	frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
-	# 								'-regi.tif', '-raw.tif')
-	#
-	# 	if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv'):
-	# 		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
-	# 		psf_df = psf_df.drop(['particle', 'D', 'alpha'], axis=1)
-	# 		if 'pixel_size' in psf_df:
-	# 			print('Yeah!!!')
-	# 			self.config.PIXEL_SIZE = psf_df.drop_duplicates('particle')['pixel_size']
-	# 		if 'frame_rate' in psf_df:
-	# 			print('Yeah!!!')
-	# 			self.config.FRAME_RATE = psf_df.drop_duplicates('particle')['frame_rate']
-	#
-	# 	else:
-	# 		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
-	#
-	# 	blobs_df, im = track_blobs(psf_df,
-	# 							    search_range=self.config.SEARCH_RANGE,
-	# 								memory=self.config.MEMORY,
-	# 								pixel_size=self.config.PIXEL_SIZE,
-	# 								frame_rate=self.config.FRAME_RATE,
-	# 								divide_num=self.config.DIVIDE_NUM,
-	# 								filters=None,
-	# 								do_filter=False)
-	#
-	# 	traj_num_before = blobs_df['particle'].nunique()
-	#
-	# 	if self.config.DO_FILTER:
-	# 		blobs_df, im = track_blobs(blobs_df,
-	# 								    search_range=self.config.SEARCH_RANGE,
-	# 									memory=self.config.MEMORY,
-	# 									pixel_size=self.config.PIXEL_SIZE,
-	# 									frame_rate=self.config.FRAME_RATE,
-	# 									divide_num=self.config.DIVIDE_NUM,
-	# 									filters=self.config.FILTERS,
-	# 									do_filter=True)
-	#
-	# 	# Add 'traj_length' column and save physData before traj_length_thres filter
-	# 	blobs_df = add_traj_length(blobs_df)
-	# 	blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-	# 								'-physData.csv', index=False)
-	#
-	# 	after_filter_df = blobs_df [blobs_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES']]
-	# 	print("######################################")
-	# 	print("Trajectory number before filters: \t%d" % traj_num_before)
-	# 	print("Trajectory number after filters: \t%d" % after_filter_df['particle'].nunique())
-	# 	print("######################################")
-	#
-	#
-	#
-	#
-	# 	self.config.DICT['Load existing analMeta'] = True
-	# 	self.config.save_config()
-
-
 	def plot_traj(self):
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 		if 'traj_length' in phys_df:
 			phys_df = phys_df[ phys_df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
+
+		phys_df['x'] = phys_df['x'] - 50
+		phys_df['y'] = phys_df['y'] - 50
+		phys_df['x_global'] = phys_df['x_global'] - 50
+		phys_df['y_global'] = phys_df['y_global'] - 50
 
 		# phys_df = phys_df[ phys_df['D']<6000 ]
 		# phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
@@ -934,15 +874,28 @@ class Pipeline3():
 
 
 		# Just for cilia
+		# fig, ax = plt.subplots()
+		# anno_traj(ax, phys_df,
+		# 			image=frames[0],
+		# 			pixel_size=self.config.PIXEL_SIZE,
+		# 			scalebar_pos='upper right',
+		# 			show_colorbar=False,
+		# 			show_traj_num=False,
+		# 			)
+		# fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.pdf')
+		# plt.show()
+
 		fig, ax = plt.subplots()
 		anno_traj(ax, phys_df,
-					# image=frames[0],
+					image=frames[0][-250:, 180:-606],
 					pixel_size=self.config.PIXEL_SIZE,
+					scalebar_pos='upper right',
 					show_colorbar=False,
 					show_traj_num=False,
 					)
-		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.pdf')
-		plt.show()
+		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.tiff',
+					dpi=600)
+		plt.clf(); plt.close()
 
 
 
@@ -1042,7 +995,7 @@ class Pipeline3():
 		print("Add Physics Param: x_global, y_global")
 		print("######################################")
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
-		phys_df = add_cilia_xy_global_fine(phys_df, manual_mode=True, angle=-30)
+		phys_df = add_cilia_xy_global_fine(phys_df, manual_mode=False, angle=-30)
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
@@ -1062,7 +1015,7 @@ class Pipeline3():
 		print("Add Physics Param: half_sign")
 		print("######################################")
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
-		phys_df = add_half_sign(phys_df, flip_sign=False)
+		phys_df = add_half_sign(phys_df, flip_sign=True)
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 

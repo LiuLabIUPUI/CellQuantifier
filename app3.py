@@ -18,7 +18,7 @@ control = [
 # 'phys_xy_global',
 # 'phys_dist2halfcilia',
 # 'phys_cilia_halfsign',
-# 'phys_cilia_otherinfo',
+'phys_cilia_otherinfo',
 # 'plot_traj',
 # 'anim_traj',
 # 'merge_plot',
@@ -42,13 +42,13 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/temp/', #cilia/200407_all-cilia-results/',
-  'IO output_path': '/home/linhua/Desktop/temp/', #cilia/200407_all-cilia-results/',
+  'IO input_path': '/home/linhua/Desktop/output/', #cilia/200407_all-cilia-results/',
+  'IO output_path': '/home/linhua/Desktop/output/', #cilia/200407_all-cilia-results/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
   'Start frame index': 0,
-  'End frame index': 500,
+  'End frame index': 28,
   'Load existing analMeta': False,
 
   #REGISTRATION SETTINGS
@@ -97,8 +97,8 @@ settings = {
   'Det pk_thresh_rel': 0.8,
 
   #TRACKING SETTINGS
-  'Trak frame_rate': None,
-  'Trak pixel_size': None,
+  'Trak frame_rate': 0.4,
+  'Trak pixel_size': 0.04,
   'Trak divide_num': 1,
 
   ###############################################
@@ -113,7 +113,7 @@ settings = {
   'Filt max_delta_area': 0.8,
 
   ###############################################
-  'Filt traj_length_thres': 20, # NO. 2
+  'Filt traj_length_thres': 25, # NO. 2
   #SORTING SETTINGS
   'Sort dist_to_boundary': None, # NO. 3
   'Sort travel_dist': None, # NO. 4
@@ -124,8 +124,8 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-# from cellquantifier.util.pipeline3_cilia import *
-# pipeline_batch(settings, control)
+from cellquantifier.util.pipeline3_cilia import *
+pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
 # plot_fig_1()
@@ -182,14 +182,62 @@ settings = {
 #                 index=False)
 
 
-from cellquantifier.publish import *
-import pandas as pd
-df_glb = pd.read_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged-lifetime.csv',
-                index_col=False)
-df_loc = pd.read_csv('/home/linhua/Desktop/temp/200505_localPhysDataMerged-lifetime.csv',
-                index_col=False)
-fig_quick_cilia_2(df_glb, df_loc)
+# from cellquantifier.publish import *
+# import pandas as pd
+# df_glb = pd.read_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged-lifetime.csv',
+#                 index_col=False)
+# df_loc = pd.read_csv('/home/linhua/Desktop/temp/200505_localPhysDataMerged-lifetime.csv',
+#                 index_col=False)
+# fig_quick_cilia_2(df_glb, df_loc)
 
+
+# from cellquantifier.phys import add_d_alpha
+# import pandas as pd
+# df = pd.read_csv('/home/linhua/Desktop/temp/df.csv',
+#                 index_col=False)
+# df = add_d_alpha(df, divide_num=3, unified_pixel_size=0.1)
+# df.round(6).to_csv('/home/linhua/Desktop/temp/df_newD.csv',
+#                 index=False)
+
+
+
+# from cellquantifier.plot import plot_msd_fitting
+# import pandas as pd
+# df = pd.read_csv('/home/linhua/Desktop/temp/df_newD.csv',
+#                 index_col=False)
+# df = df[ df['particle'].isin([0,1,2,3,5,9,10,12,14,15,17,20,25,29,30,31,32,
+#         38,39,43,46,50,51,53,55,58,62,65,66])]
+# plot_msd_fitting(df, output_path='/home/linhua/Desktop/temp/')
+
+
+# from cellquantifier.plot import plot_1dfft
+# import pandas as pd
+# df = pd.read_csv('/home/linhua/Desktop/temp/df_newD.csv',
+#                 index_col=False)
+# # df = df[ df['particle'].isin([0,1,2,3,4])]
+# # df = df[ df['exp_label'].isin(['cohort a'])]
+# # df = df[ ~df['particle'].isin([14, 25, 26, 35, 36, 37])]
+# df = df[ df['exp_label'].isin(['cohort b'])]
+# df = df[ ~df['particle'].isin([41,42,45,54,55,60,63,69,70])]
+# plot_1dfft(df, output_path='/home/linhua/Desktop/temp/')
+
+
+# from cellquantifier.publish import *
+# import pandas as pd
+# df_glb = pd.read_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged-lifetime.csv',
+#                 index_col=False)
+# df_loc = pd.read_csv('/home/linhua/Desktop/temp/df_newD.csv',
+#                 index_col=False)
+# df_loc = df_loc[ df_loc['particle'].isin([0,1,3,5,9,10,12,14,15,17,20,25,29,30,31,32,
+#         38,39,43,46,50,51,53,55,58,62,65,66])]
+# fig_quick_cilia_4(df_glb, df_loc)
+
+
+# from cellquantifier.publish import *
+# import pandas as pd
+# df = pd.read_csv('/home/linhua/Desktop/output/cilia-physData.csv',
+#                 index_col=False)
+# fig_quick_msd(df)
 
 
 # from skimage.io import imread, imsave
