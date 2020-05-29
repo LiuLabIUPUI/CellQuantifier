@@ -84,7 +84,7 @@ def fig_quick_rna_5(merged_blobs_df, norm_row_props,
 	# """
 
 	ind_arr = np.delete(np.array(ind_arr), 1, 1)
-	mean_arr = np.delete(np.array(mean_arr), 1, 1); print(mean_arr)
+	mean_arr = np.delete(np.array(mean_arr), 1, 1)
 	err_arr = np.delete(np.array(err_arr), 1, 1)
 
 	df_arr = nest_df(count_df, cat_cols=['cell_type'])
@@ -112,8 +112,8 @@ def fig_quick_rna_5(merged_blobs_df, norm_row_props,
 
 	# frac_df.to_csv('/home/clayton/Desktop/data-analysis/200521_HLA-DMB-final-analysis/200521_HLA-DMB-fig3-frac-df.csv')
 
-	stack_col = 'exp_label'
-	data_col = 'fracs'; cat_cols = ['cell_type', 'region_type']
+	stack_col = 'region_type'
+	data_col = 'fracs'; cat_cols = ['cell_type', 'exp_label']
 	frac_df_stat = frac_df[[data_col] + cat_cols + [stack_col]]
 	frac_df_stat = frac_df_stat.groupby(cat_cols+[stack_col], \
 								sort=True)[data_col].agg([np.mean, sem])
@@ -125,11 +125,11 @@ def fig_quick_rna_5(merged_blobs_df, norm_row_props,
 										    frac_df_stat,
 											cat_cols=cat_cols,
 											stack_col=stack_col,
-											colors=['blue', 'blue'],
+											colors=['blue', 'red'],
 											bar_width=.2,
 											alpha=.75,
 											grp_space=.5,
-											btm_clr=['red', 'red'])
+											btm_clr=['black', 'black'])
 
 	format_ax(ax[1],
 			  ylabel='Fraction of total RNA',
@@ -143,9 +143,7 @@ def fig_quick_rna_5(merged_blobs_df, norm_row_props,
 					Line2D([0], [0], color='blue', lw=4)]
 
 
-	ax[1].text(.35, 1.1, 'nuc', fontsize=10)
-	ax[1].text(.55, 1.1, 'cyto', fontsize=10)
-	ax[1].set_xticklabels(typ_arr)
+
 
 	# """
 	# ~~~~~~~~~~~Perform statistical tests~~~~~~~~~~~~~~
@@ -155,12 +153,19 @@ def fig_quick_rna_5(merged_blobs_df, norm_row_props,
 	p_val_arr = df_to_pval(df_arr, cat_col='exp_label', data_col='fracs')
 
 	add_stat_anno(ax[1],
-				  x_arr=ind_arr,
-				  y_arr=[.43, .63, .43, .63],
+				  x_arr=[0.5, 0.5, 1.0, 1.0],
+				  y_arr=[.625, 1.05, .625, 1.05],
 				  p_val_arr=p_val_arr,
 				  bwidth=.5*bar_width,
+				  bheight=0.01,
 				  delta=0,
-				  show_brackets=False)
+				  show_brackets=True)
+
+	custom_lines = [Line2D([0], [0], color='blue', lw=4),
+					Line2D([0], [0], color='black', alpha=0.3, lw=4)]
+
+
+	ax[1].legend(custom_lines, ['nucleus', 'cytoplasm'])
 
 
 	plt.tight_layout()
