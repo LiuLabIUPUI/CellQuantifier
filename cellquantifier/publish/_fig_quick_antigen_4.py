@@ -1,249 +1,468 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 from ..plot.plotutil import *
 from ..plot.plotutil._add_mean_msd2 import add_mean_msd2
+from ..phys import *
 
 def fig_quick_antigen_4(
     df=pd.DataFrame([]),
     ):
 
     # """
+	# ~~~~Initialize the colors~~~~
+	# """
+    print("\n")
+    print("Preparing colors")
+    # palette = sns.color_palette('muted')
+    # c1 = palette[0]
+    # c2 = palette[1]
+    # c3 = palette[2]
+    c1 = (1, 0, 0)
+    c2 = (0, 0, 0)
+    c3 = (0, 0, 1)
+    RGBA_alpha = 0.7
+    c1_alp = (c1[0], c1[1], c1[2], RGBA_alpha)
+    c2_alp = (c2[0], c2[1], c2[2], RGBA_alpha)
+    c3_alp = (c3[0], c3[1], c3[2], RGBA_alpha)
+
+    p = [c1, c2, c3]
+    pa = [c3, c2]
+    pb = [c1, c2]
+
+
+    # """
+	# ~~~~Initialize the page layout~~~~
+	# """
+    # Layout settings
+    col_num = 3
+    row_num = 6
+    # Sub_axs_1 settings
+    col_num_s1 = 1
+    row_num_s1 = 2
+    index_s1 = [7, 8, 10, 11, 13, 14, 16, 17]
+
+
+    # Layout implementation
+    print("\n")
+    print("Preparing layout")
+    tot_width = col_num * 4
+    tot_height = row_num * 3
+    all_figures, page = plt.subplots(1, 1, figsize=(tot_width, tot_height))
+
+    grids = []
+    axs = []
+    axs_s1_bg = []
+    axs_s1 = []
+    axs_s1_base = []
+    axs_s1_slave = []
+    for i in range(col_num*row_num):
+        r = i // col_num
+        c = i % col_num
+        w = 1 / col_num
+        h = 1 / row_num
+        x0 = c * w
+        y0 = 1 - (r+1) * h
+
+        # Generate Grids
+        grids.append(page.inset_axes([x0, y0, w, h]))
+
+        # Generate individual axs
+        axs.append(grids[i].inset_axes([0.33, 0.33, 0.6, 0.6]))
+
+        # Customize axs_s1
+        if i in index_s1:
+            axs_s1_bg.append(axs[i])
+            for i_s1 in range(col_num_s1*row_num_s1):
+                r_s1 = i_s1 // col_num_s1
+                c_s1 = i_s1 % col_num_s1
+                w_s1 = 1 / col_num_s1
+                h_s1 = 1 / row_num_s1
+                x0_s1 = c_s1 * w_s1
+                y0_s1 = 1 - (r_s1+1) * h_s1
+                # Generate axs_s1, axs_s1_base, axs_s1_slave
+                temp = axs[i].inset_axes([x0_s1, y0_s1, w_s1, h_s1])
+                axs_s1.append(temp)
+                if y0_s1 == 0:
+                    axs_s1_base.append(temp)
+                else:
+                    axs_s1_slave.append(temp)
+
+    # """
+	# ~~~~format figures~~~~
+	# """
+    print("\n")
+    print("Formating figures")
+    # Format page
+    for ax in [page]:
+        ax.set_xticks([]);
+        ax.set_yticks([])
+
+    # Format grids
+    for ax in grids:
+        ax.set_xticks([]);
+        ax.set_yticks([])
+        for spine in ['top', 'bottom', 'left', 'right']:
+            ax.spines[spine].set_visible(False)
+
+    for ax in [
+            grids[3], grids[4], grids[5],
+            grids[9], grids[10], grids[11],
+            ]:
+        for spine in ['bottom']:
+            ax.spines[spine].set_visible(True)
+
+    # Format axs
+    for ax in axs:
+        format_spine(ax, spine_linewidth=0.5)
+        format_tick(ax, tk_width=0.5)
+        format_tklabel(ax, tklabel_fontsize=10)
+        format_label(ax, label_fontsize=10)
+
+    for ax in [axs[3]]:
+        ax.set_xticks([]);
+        ax.set_yticks([])
+        for spine in ['top', 'bottom', 'left', 'right']:
+            ax.spines[spine].set_visible(False)
+
+    # Format axs_s1_bg
+    for ax in axs_s1_bg:
+        ax.set_xticks([])
+        ax.set_yticks([])
+        for spine in ['top', 'bottom', 'left', 'right']:
+            ax.spines[spine].set_visible(False)
+
+    # Format axs_s1
+    for ax in axs_s1:
+        format_spine(ax, spine_linewidth=0.5)
+        format_tick(ax, tk_width=0.5)
+        format_tklabel(ax, tklabel_fontsize=10)
+        format_label(ax, label_fontsize=10)
+        ax.set_yticks([])
+
+    # Format axs_s1_slave
+    for ax in axs_s1_slave:
+        # labels = [item.get_text() for item in ax.get_xticklabels()]
+        # empty_string_labels = ['']*len(labels)
+        # ax.set_xticklabels(empty_string_labels)
+        #
+        # labels = [item.get_text() for item in ax.get_yticklabels()]
+        # empty_string_labels = ['']*len(labels)
+        # ax.set_yticklabels(empty_string_labels)
+        ax.set_xticks([])
+
+
+
+
+    # """
 	# ~~~~Prepare df for the whole page~~~~
 	# """
-    print("Preparing data")
     print("\n")
+    print("Preparing data")
     if not df.empty:
         # """
-        # ~~~~traj_length filter~~~~
+        # ~~~~Filters applied to df~~~~
         # """
+
+        # traj_length filter
         if 'traj_length' in df:
             df = df[ df['traj_length']>=20 ]
 
-        # """
-        # ~~~~travel_dist filter~~~~
-        # """
+        # travel_dist filter
         if 'travel_dist' in df:
             travel_dist_min = 0
             travel_dist_max = 7
             df = df[ (df['travel_dist']>=travel_dist_min) & \
             					(df['travel_dist']<=travel_dist_max) ]
 
-        # """
-        # ~~~~add particle type filter~~~~
-        # """
+        # add particle type filter
         if 'particle_type' in df:
         	df = df[ df['particle_type']!='--none--']
 
 
-
-
+        # """
+        # ~~~~Divide df into sub_dfs~~~~
+        # """
         df['date'] = df['raw_data'].astype(str).str[0:6]
-        df_mal = df[ df['date'].isin(['200205']) ]
-        df_mal_A = df_mal[ df_mal['particle_type']=='A' ]
-        df_mal_B = df_mal[ df_mal['particle_type']=='B' ]
-        df_cas9 = df[ df['date'].isin(['200220']) ]
-        df_cas9_A = df_cas9[ df_cas9['particle_type']=='A' ]
-        df_cas9_B = df_cas9[ df_cas9['particle_type']=='B' ]
 
-        # get df_particle, which drop duplicates of 'particle'
-        df_particle = df.drop_duplicates('particle')
+        # dfs for msd mean msd curve
+        dm = df[ df['date'].isin(['200205']) ] #df_mal
+        dm = add_particle_num(dm)
+        dma = dm[ dm['particle_type']=='A' ] #df_mal_A
+        dma = add_particle_num(dma)
+        dmb = dm[ dm['particle_type']=='B' ] #df_mal_B
+        dmb = add_particle_num(dmb)
 
-        dmp = df_mal.drop_duplicates('particle')
-        dmp_KN = dmp[ dmp['exp_label']=='MalKN' ]
-        dmp_WT = dmp[ dmp['exp_label']=='WT' ]
-        dmp_OE = dmp[ dmp['exp_label']=='MalOE' ]
+        # dfs for particle_num comparion between exp_label
+        dmr = dm.drop_duplicates('raw_data')
+        dmrb = dmb.drop_duplicates('raw_data')
+        dmra = dma.drop_duplicates('raw_data')
+        dmrb_OEWT = dmrb[ dmrb['exp_label']!='MalKN']
+        dmra_KNWT = dmra[ dmra['exp_label']!='MalOE']
 
-        dmpA = df_mal_A.drop_duplicates('particle')
-        dmpA_KN = dmpA[ dmpA['exp_label']=='MalKN' ]
-        dmpA_WT = dmpA[ dmpA['exp_label']=='WT' ]
-        dmpA_OE = dmpA[ dmpA['exp_label']=='MalOE' ]
+        # dfs D and alpha
+        dmpa = dma.drop_duplicates('particle')
+        dmpa_OE = dmpa[ dmpa['exp_label']=='MalOE' ]
+        dmpa_WT = dmpa[ dmpa['exp_label']=='WT' ]
+        dmpa_KN = dmpa[ dmpa['exp_label']=='MalKN' ]
+        dmpa_OEWT = dmpa[ dmpa['exp_label']!='MalKN' ]
+        dmpa_KNWT = dmpa[ dmpa['exp_label']!='MalOE' ]
 
-        dmpB = df_mal_B.drop_duplicates('particle')
-        dmpB_KN = dmpB[ dmpB['exp_label']=='MalKN' ]
-        dmpB_WT = dmpB[ dmpB['exp_label']=='WT' ]
-        dmpB_OE = dmpB[ dmpB['exp_label']=='MalOE' ]
-
-        df_cas9_particle = df_cas9.drop_duplicates('particle')
-        df_cas9_A_particle = df_cas9_A.drop_duplicates('particle')
-        df_cas9_B_particle = df_cas9_B.drop_duplicates('particle')
-
-
-    # """
-	# ~~~~Initialize the colors~~~~
-	# """
-    print("Preparing colors")
-    print("\n")
-    palette = sns.color_palette('muted')
-    c1 = palette[0]
-    c2 = palette[1]
-    c3 = palette[2]
-    # c1 = (0, 0, 1)
-    # c2 = (0, 0, 0)
-    # c3 = (1, 0, 0)
-    RGBA_alpha = 0.4
-    c1_alp = (c1[0], c1[1], c1[2], RGBA_alpha)
-    c2_alp = (c2[0], c2[1], c2[2], RGBA_alpha)
-    c3_alp = (c3[0], c3[1], c3[2], RGBA_alpha)
+        dmpb = dmb.drop_duplicates('particle')
+        dmpb_OE = dmpb[ dmpb['exp_label']=='MalOE' ]
+        dmpb_WT = dmpb[ dmpb['exp_label']=='WT' ]
+        dmpb_KN = dmpb[ dmpb['exp_label']=='MalKN' ]
+        dmpb_OEWT = dmpb[ dmpb['exp_label']!='MalKN' ]
+        dmpb_KNWT = dmpb[ dmpb['exp_label']!='MalOE' ]
 
 
     # """
-	# ~~~~Initialize the page layout~~~~
+	# ~~~~Plot particle number boxplot~~~~
 	# """
-    print("Preparing layout")
-    print("\n")
-    col_num = 3
-    row_num = 8
-    tot_width = col_num * 4
-    tot_height = row_num * 3
-    fig, page = plt.subplots(1, 1, figsize=(tot_width, tot_height))
-
-    grids = []
-    axs = []
-    axs_hist = []
-    s_hist = []
-    subaxs_base = []
-    subaxs_slave = []
-    for i in range(col_num*row_num):
-        r = i // col_num
-        c = i % col_num
-        grid_w = 1 / col_num
-        grid_h = 1 / row_num
-        x_start = c * grid_w
-        y_start = 1 - (r+1) * grid_h
-        grids.append(page.inset_axes([x_start, y_start, grid_w, grid_h]))
-        axs.append(grids[i].inset_axes([0.35, 0.35, 0.6, 0.6]))
-        if i%col_num!=0 and i not in [9,10,11,21,22,23]:
-            axs_hist.append(axs[i])
-            ratio = 1
-            temp = axs[i].inset_axes([0, 2*grid_w, 1, grid_w*ratio])
-            subaxs_slave.append(temp)
-            s_hist.append(temp)
-            temp = axs[i].inset_axes([0, grid_w, 1, grid_w*ratio])
-            subaxs_slave.append(temp)
-            s_hist.append(temp)
-            temp = axs[i].inset_axes([0, 0, 1, grid_w*ratio])
-            subaxs_base.append(temp)
-            s_hist.append(temp)
-
-
-
-    for axis in grids:
-        for spine in ['left', 'right']:
-            axis.spines[spine].set_visible(False)
-    for axis in axs_hist:
-        for spine in ['top', 'bottom', 'left', 'right']:
-            axis.spines[spine].set_visible(False)
-
-    for axis in grids + [page] + axs_hist:
-        axis.set_xticks([])
-        axis.set_yticks([])
-
-    for axis in subaxs_slave:
-        labels = [item.get_text() for item in axis.get_xticklabels()]
-        empty_string_labels = ['']*len(labels)
-        axis.set_xticklabels(empty_string_labels)
+    figs = [
+            axs[0], axs[1], axs[2],
+            axs[4], axs[5],
+            ]
+    datas = [
+            dmr, dmrb, dmra,
+            dmrb_OEWT, dmra_KNWT,
+            ]
+    palettes = [
+            p, p, p,
+            pb, pa,
+            ]
+    orders = [
+            ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'],
+            ['MalOE', 'WT'], ['MalKN', 'WT'],
+            ]
+    xlabels = [
+            '', '', '',
+            '', '',
+            ]
+    ylabels = [
+            'Antigen num per cell', 'Antigen num per cell', 'Antigen num cell',
+            'Antigen num per cell', 'Antigen num cell',
+            ]
+    for i, (fig, data, palette, order, xlabel, ylabel,) \
+    in enumerate(zip(figs, datas, palettes, orders, xlabels, ylabels,)):
+        print("\n")
+        print("Plotting (%d/%d)" % (i+1, len(figs)))
+        sns.boxplot(ax=fig,
+                    x='exp_label',
+                    y='particle_num',
+                    data=data,
+                    order=order,
+                    palette=palette,
+                    boxprops=dict(alpha=RGBA_alpha),
+                    saturation=1,
+                    fliersize=2,
+                    whis=5,
+                    )
+        sns.swarmplot(ax=fig,
+                    x='exp_label',
+                    y='particle_num',
+                    data=data,
+                    order=order,
+                    color="0",
+                    size=4,
+                    )
+        set_xylabel(fig,
+                    xlabel=xlabel,
+                    ylabel=ylabel,
+                    )
 
 
     # """
 	# ~~~~Plot msd~~~~
 	# """
-    figs = [axs[0], axs[3], axs[6], axs[12], axs[15], axs[18]]
-    datas = [df_mal, df_mal_A, df_mal_B, df_cas9, df_cas9_A, df_cas9_B]
-    order1 = ['MalKN', 'MalOE', 'WT']
-    order2 = ['Cas9C1', 'Cas9L1', 'Cas9P3']
-    cat_orders = [order1, order2]
+    figs = [axs[6], axs[9], axs[12], axs[15], ]
+    datas = [dmb, dma, dma, dmb, ]
+    palettes = [pb, pb, pa, pa, ]
+    orders = [['MalOE', 'WT'], ['MalOE', 'WT'], ['MalKN', 'WT'], ['MalKN', 'WT'], ]
 
-    for i in range(len(figs)):
+    for i, (fig, data, palette, order, ) \
+    in enumerate(zip(figs, datas, palettes, orders, )):
         print("\n")
         print("Plotting (%d/%d)" % (i+1, len(figs)))
 
-        add_mean_msd2(figs[i], datas[i],
+        add_mean_msd2(fig, data,
                     pixel_size=0.163,
                     frame_rate=2,
                     divide_num=5,
 
                     cat_col='exp_label',
-                    cat_order=cat_orders[i//3],
-                    color_order=[c1, c2, c3],
-                    RGBA_alpha=1,
+                    cat_order=order,
+                    color_order=palette,
+                    RGBA_alpha=RGBA_alpha,
 
                     fitting_linewidth=1.5,
                     )
-        set_xylabel(figs[i],
+        set_xylabel(fig,
                     xlabel='Time (s)',
                     ylabel=r'MSD (nm$^2$)',
                     )
 
-    # # """
-	# # ~~~~Plot hist~~~~
-	# # """
-    # figs = [s_hist[0], s_hist[1], s_hist[2],
-    #         s_hist[3], s_hist[4], s_hist[5]]
-    # datas = [dmp_KN, dmp_WT, dmp_OE,
-    #         dmp_KN, dmp_WT, dmp_OE,
-    #         ]
-    # data_cols = ['D', 'D', 'D',
-    #         'alpha', 'alpha', 'alpha',
-    #         ]
-    # colors = [c1, c2, c3,]
-    #
-    # for i in range(len(figs)):
-    #     print("\n")
-    #     print("Plotting (%d/%d)" % (i+1, len(figs)))
-    #
-    #     sns.distplot(datas[i][data_cols[i]],
-    #                 kde=False,
-    #                 color=colors[i%3],
-    #                 ax=figs[i],
-    #                 )
-    #     # set_xylabel(figs[i],
-    #     #             xlabel='Time (s)',
-    #     #             ylabel=r'MSD (nm$^2$)',
-    #     #             )
+    # """
+	# ~~~~Plot hist~~~~
+	# """
+    figs = axs_s1
+    datas = [
+            dmpb_OE, dmpb_WT, dmpb_OE, dmpb_WT,
+            dmpa_OE, dmpa_WT, dmpa_OE, dmpa_WT,
+            dmpa_KN, dmpa_WT, dmpa_KN, dmpa_WT,
+            dmpb_KN, dmpb_WT, dmpb_KN, dmpb_WT,
+            ]
+    data_cols = [
+            'D', 'D', 'alpha', 'alpha',
+            'D', 'D', 'alpha', 'alpha',
+            'D', 'D', 'alpha', 'alpha',
+            'D', 'D', 'alpha', 'alpha',
+            ]
+    colors = [
+            c1, c2, c1, c2,
+            c1, c2, c1, c2,
+            c3, c2, c3, c2,
+            c3, c2, c3, c2,
+            ]
+    for i, (fig, data, data_col, color, ) \
+    in enumerate(zip(figs, datas, data_cols, colors, )):
+        print("\n")
+        print("Plotting (%d/%d)" % (i+1, len(figs)))
 
-
+        sns.distplot(data[data_col],
+                    kde=False,
+                    color=color,
+                    ax=fig,
+                    hist_kws={"alpha": RGBA_alpha,
+                    'linewidth': 0.5, 'edgecolor': (0,0,0)},
+                    )
 
 
     # """
-	# ~~~~format figures~~~~
+	# ~~~~Add t test~~~~
 	# """
-    print("Formating figures")
-    print("\n")
-    for ax in axs + s_hist + subaxs_base + subaxs_slave:
-        format_spine(ax, spine_linewidth=0.5)
-        format_tick(ax, tk_width=0.5)
-        format_tklabel(ax, tklabel_fontsize=10)
-        format_label(ax, label_fontsize=12)
+    figs = [
+            axs[4], axs[5],
+            axs_s1[0], axs_s1[2], axs_s1[4], axs_s1[6],
+            axs_s1[8], axs_s1[10], axs_s1[12], axs_s1[14],
+            ]
+    datas = [
+            dmrb_OEWT, dmra_KNWT,
+            dmpb_OEWT, dmpb_OEWT, dmpa_OEWT, dmpa_OEWT,
+            dmpa_KNWT, dmpa_KNWT, dmpb_KNWT, dmpb_KNWT,
+            ]
+    data_cols = [
+            'particle_num', 'particle_num',
+            'D', 'alpha', 'D', 'alpha',
+            'D', 'alpha', 'D', 'alpha',
+            ]
+    text_poss = [
+            (0.98, 0.88), (0.98, 0.88),
+            (0.98, 0.78), (0.98, 0.78), (0.98, 0.78), (0.98, 0.78),
+            (0.98, 0.78), (0.98, 0.78), (0.98, 0.78), (0.98, 0.78),
+            ]
+    for i, (fig, data, data_col, text_pos, ) \
+    in enumerate(zip(figs, datas, data_cols, text_poss, )):
+        print("\n")
+        print("Plotting (%d/%d)" % (i+1, len(figs)))
 
-    for ax in [axs[0], axs[3], axs[6], axs[12], axs[15], axs[18]]:
+        add_t_test(fig,
+                    blobs_df=data,
+                    cat_col='exp_label',
+                    hist_col=data_col,
+                    drop_duplicates=False,
+                    text_pos=text_pos,
+                    color=(0,0,0,1),
+                    fontname='Liberation Sans',
+                    fontweight=9,
+                    fontsize=9,
+                    horizontalalignment='right',
+                    )
+
+    # """
+	# ~~~~Add figure text~~~~
+	# """
+    figs = [
+            grids[0], grids[1], grids[2], grids[4], grids[5],
+            grids[6], grids[7], grids[8], grids[9], grids[10], grids[11],
+            grids[12], grids[13], grids[14], grids[15], grids[16], grids[17],
+            ]
+    fig_texts = [
+            'Fig.1a. Antigen num (Boundary + Inside)',
+            'Fig.1b. Antigen num (Inside)',
+            'Fig.1c. Antigen num (Boundary)',
+            'Fig.1d. Antigen num (Inside + OE&WT)',
+            'Fig.1e. Antigen num (Boundary + KN&WT)',
+
+            'Fig.2a. MSD (Inside + OE&WT)',
+            'Fig.2b. D (Inside + OE&WT)',
+            'Fig.2c. alpha (Inside + OE&WT)',
+            'Fig.2d. MSD (Boundary + OE&WT)',
+            'Fig.2e. D (Boundary + OE&WT)',
+            'Fig.2f. alpha (Boundary + OE&WT)',
+
+            'Fig.3a. MSD (Boundary + KN&WT)',
+            'Fig.3b. D (Boundary + KN&WT)',
+            'Fig.3c. alpha (Boundary + KN&WT)',
+            'Fig.3d. MSD (Inside + KN&WT)',
+            'Fig.3e. D (Inside + KN&WT)',
+            'Fig.3f. alpha (Inside + KN&WT)',
+            ]
+    for i, (fig, fig_text, ) \
+    in enumerate(zip(figs, fig_texts, )):
+        print("\n")
+        print("Plotting (%d/%d)" % (i+1, len(figs)))
+
+        fig.text(0.1,
+                0.05,
+                fig_text,
+                horizontalalignment='left',
+                color=(0,0,0,1),
+                family='Liberation Sans',
+                fontweight=10,
+                fontsize=10,
+                transform=fig.transAxes,
+                )
+
+
+    # """
+	# ~~~~Additional figures format~~~~
+	# """
+    # Format legend
+    for ax in [axs[6], axs[9], axs[12], axs[15], ]:
         format_legend(ax,
                 show_legend=True,
                 legend_loc='lower right',
-                legend_fontweight=6,
-                legend_fontsize=6,
+                legend_fontweight=7,
+                legend_fontsize=7,
                 )
 
-    # figs = [fig1]
-    # xscales = [[0, 30, 5], ]
-    # yscales = [[125, 350, 50], ]
-    # for i in range(len(figs)):
-    #     format_scale(figs[i],
-    #             xscale=xscales[i],
-    #             yscale=yscales[i],
-    #             )
-
-
-
-
-
+    # Format scale
+    figs = axs_s1
+    xscales = [
+            [0, 15000], [0, 15000], [-0.5, 2], [-0.5, 2],
+            [0, 15000], [0, 15000], [-0.5, 2], [-0.5, 2],
+            [0, 15000], [0, 15000], [-0.5, 2], [-0.5, 2],
+            [0, 15000], [0, 15000], [-0.5, 2], [-0.5, 2],
+            ]
+    yscales = [
+            [None, None], [None, None], [None, None], [None, None],
+            [None, None], [None, None], [None, None], [None, None],
+            [None, None], [None, None], [None, None], [None, None],
+            [None, None], [None, None], [None, None], [None, None],
+            ]
+    for i, (fig, xscale, yscale, ) \
+    in enumerate(zip(figs, xscales, yscales,)):
+        format_scale(fig,
+                xscale=xscale,
+                yscale=yscale,
+                )
 
 
     # """
 	# ~~~~Save the figure into pdf file, preview the figure in webbrowser~~~~
 	# """
-    fig.savefig('/home/linhua/Desktop/Figure_1.pdf', dpi=300)
-    # import webbrowser
-    # webbrowser.open_new(r'/home/linhua/Desktop/Figure_1.pdf')
+    all_figures.savefig('/home/linhua/Desktop/Figure_1.pdf', dpi=300)
     plt.clf(); plt.close()
