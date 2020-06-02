@@ -4,6 +4,7 @@ Create a new conda environment
 
 ```
 conda create -n cq
+conda activate cq
 ```
 
 Install pip and its dependencies
