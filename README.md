@@ -28,3 +28,8 @@ Install cellquantifier from source in dev mode
 ```
 pip install -e .
 ```
+Optionally, if tensorflow-gpu will be used
+
+```
+conda install tensorflow-gpu=1.15.0
+```
