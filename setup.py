@@ -20,6 +20,6 @@ setup(
                      'matplotlib',
                      'pandas',
                      'scikit-learn',
-                     'tensorflow-gpu==1.15.0',
+                     'tensorflow-gpu==1.15.2',
                      'keras'],
 )
