@@ -100,7 +100,8 @@ def build_new_model(input_dir,
 		model.save(save_dir + '/model.h5')
 
 
-def make_prediction_batch(im_arr, model_weights):
+
+def make_prediction(stack, path_to_weights, output_path):
 
 	"""
 	Given an image and a model, makes a prediction for the segmentation
@@ -111,45 +112,35 @@ def make_prediction_batch(im_arr, model_weights):
 
 	Parameters
 	----------
-	im_arr: ndarray or list of ndarray
-		image or list of images for which to predict mask
+	im_arr: list
+		a stack of images to make predictions on
 	model: model weights
 		the weights to plugin to model generate by unet_model()
 
 	"""
 
-	im_arr = np.array(im_arr)
-	target_arr = np.zeros_like(im_arr)
-	pred_arr = np.zeros_like(im_arr)
-	for i,im in enumerate(im_arr):
-		pred = make_prediction(im_arr[i], model_weights)
-		pred_arr[i] = pred
+	if len(stack.shape) < 3:
+		stack = stack.reshape((1,) + stack.shape)
 
-	return pred_arr
+	# """
+	# ~~~~~~~~~~Read the collection of images~~~~~~~~~~~~~~
+	# """
 
+	dim1, dim2 = stack.shape[1], stack.shape[2]
+	stack = stack.reshape(stack.shape + (1,))
+	# """
+	# ~~~~~~~~~~Rebuild the u-net model, predict~~~~~~~~~~~~~~
+	# """
 
-def make_prediction(im, model_weights):
+	model = unet_model(input_size=(dim1, dim2))
+	model.load_weights(path_to_weights)
+	prediction = model.predict(stack, batch_size=1)
 
-	"""
-	Given an image and a model, makes a prediction for the segmentation
-	mask
+	# """
+	# ~~~~~~~~~~Output the predictions~~~~~~~~~~~~~~
+	# """
 
-	Pseudo code
-	----------
-
-	Parameters
-	----------
-	im_arr: ndarray or list of ndarray
-		image or list of images for which to predict mask
-	model: model weights
-		the weights to plugin to model generate by unet_model()
-
-	"""
-
-	dim1 = images.shape[1]
-	dim2 = images.shape[2]
-
-	model = unet_model(input_size=crop_size); model.summary()
-	prediction = model.predict(im, batch_size=1)
-
-	return prediction
+	prediction = img_as_ubyte(prediction); shape = prediction.shape
+	new_shape = (shape[0], 1, shape[-1], shape[1], shape[2])
+	prediction = prediction.reshape(new_shape)
+	imsave(output_path + '/prediction.tif', prediction)

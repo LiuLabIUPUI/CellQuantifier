@@ -13,12 +13,13 @@ setup(
 
     install_requires=['trackpy',
                      'pims',
+                     'requests',
                      'scikit-image',
                      'seaborn',
                      'matplotlib-scalebar',
                      'matplotlib',
                      'pandas',
                      'scikit-learn',
-                     'tensorflow-gpu==1.15',
+                     'tensorflow-gpu==1.15.0',
                      'keras'],
 )

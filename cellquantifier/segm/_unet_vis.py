@@ -1,9 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from ..plot.plotutil import format_ax
 
-def show_train_stats(df):
+def show_train_stats(path):
 
-    df = pd.read_csv('train_stats.csv')
+    df = pd.read_csv(path)
     fig,ax = plt.subplots(2,3)
 
 

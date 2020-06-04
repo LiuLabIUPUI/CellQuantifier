@@ -110,7 +110,7 @@ def request_and_extract(url, save_dir, name='images'):
 	with ZipFile(path_to_zip, 'r') as zipObj:
 	   zipObj.extractall(save_dir + '/%s' % (name))
 
-def normalize_bbbc_images(input_dir, output_dir):
+def normalize_images(input_dir, output_dir, clean=False):
 
 	"""
 	Normalizes images stored at input_dir and outputs to output_dir
@@ -133,8 +133,9 @@ def normalize_bbbc_images(input_dir, output_dir):
 	# ~~~~~~~~~~~Clean output_dir~~~~~~~~~~~~~~
 	# """
 
-	for f in os.listdir(output_dir):
-		os.remove(join(output_dir, f))
+	if clean:
+		for f in os.listdir(output_dir):
+			os.remove(join(output_dir, f))
 
 	# """
 	# ~~~~~~~~~~~Find images recursively~~~~~~~~~~~~~~
