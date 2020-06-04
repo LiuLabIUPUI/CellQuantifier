@@ -7,18 +7,17 @@ requires python=3.6.5. If conda is already installed, follow these instructions:
 Create a new conda environment
 
 ```
-conda create -n cq
+conda create --name cq python=3.6.5
 conda activate cq
 ```
-
-Install pip and its dependencies
+Ensure pip is installed
 
 ```
 conda install pip
 ```
 
 Change to cellquantifier directory. This MUST be the parent directory
-containing setup.py, not the cellquantifier subdirectory
+containing setup.py
 
 ```
 cd /path/to/cellquantifier/
