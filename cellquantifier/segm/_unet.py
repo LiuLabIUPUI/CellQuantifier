@@ -2,11 +2,13 @@ from ._unet_data_utils import *
 from ._unet_model import *
 from ._unet_model_utils import *
 from ._unet_vis import *
+from skimage.morphology import *
+from skimage.measure import label
 import keras
 import pandas as pd
 
-def build_new_model(input_dir,
-					target_dir,
+def build_new_model(input,
+					target,
 					crop_size,
 					save_dir=None,
 					metrics=None,
@@ -14,7 +16,6 @@ def build_new_model(input_dir,
 					loss=None,
 					batch_size=10,
 					epochs=10,
-					fraction_train=0.5,
 					fraction_validation=0.25,
 					callbacks=1,
 					verbose=1):
@@ -50,8 +51,6 @@ def build_new_model(input_dir,
 		number of images to train on in each epoch
 	epochs: int
 		number of epochs to train for
-	fraction_train: float
-		fraction of images to use for training purposes
 	fraction_validation: float
 		fraction of training data to use for validation
 	callbacks: str,
@@ -83,13 +82,8 @@ def build_new_model(input_dir,
 	# ~~~~~~~~~~Train the u-net model~~~~~~~~~~~~~~
 	# """
 
-	train_files = partition_files(input_dir,fraction_train=fraction_train)
-
 	model = unet_model(input_size=crop_size); model.summary()
 	model.compile(loss=weighted_crossentropy, metrics=metrics, optimizer=optimizer)
-
-	input, target = read_train_files(input_dir=input_dir, target_dir=target_dir,
-								     train_files=train_files,crop_size=crop_size)
 
 	statistics = model.fit(x=input, y=target, batch_size=batch_size,
 						  epochs=epochs, validation_split=fraction_validation)
@@ -101,7 +95,7 @@ def build_new_model(input_dir,
 
 
 
-def make_prediction(stack, path_to_weights, output_path):
+def make_prediction(stack, model, output_path):
 
 	"""
 	Given an image and a model, makes a prediction for the segmentation
@@ -119,28 +113,42 @@ def make_prediction(stack, path_to_weights, output_path):
 
 	"""
 
+	# """
+	# ~~~~~~~~~~Check input and reshape~~~~~~~~~~~~~~
+	# """
+
 	if len(stack.shape) < 3:
 		stack = stack.reshape((1,) + stack.shape)
 
-	# """
-	# ~~~~~~~~~~Read the collection of images~~~~~~~~~~~~~~
-	# """
-
-	dim1, dim2 = stack.shape[1], stack.shape[2]
 	stack = stack.reshape(stack.shape + (1,))
-	# """
-	# ~~~~~~~~~~Rebuild the u-net model, predict~~~~~~~~~~~~~~
-	# """
-
-	model = unet_model(input_size=(dim1, dim2))
-	model.load_weights(path_to_weights)
 	prediction = model.predict(stack, batch_size=1)
 
 	# """
-	# ~~~~~~~~~~Output the predictions~~~~~~~~~~~~~~
+	# ~~~~~~~~~~Transform prediction to label matrices~~~~~~~~
 	# """
 
-	prediction = img_as_ubyte(prediction); shape = prediction.shape
-	new_shape = (shape[0], 1, shape[-1], shape[1], shape[2])
-	prediction = prediction.reshape(new_shape)
-	imsave(output_path + '/prediction.tif', prediction)
+	for i in range(len(prediction)):
+		probmap = prediction[i].squeeze()
+		pred = probmap_to_pred(probmap)
+		out = pred_to_label(pred)
+
+		# """
+		# ~~~~~~~~~~Convert to ImageJ format, output~~~~~~~~
+		# """
+
+		out = img_as_ubyte(out); shape = out.shape
+		imsave(output_path + '/out%s.tif' % str(i), out)
+
+def probmap_to_pred(probmap, boundary_boost_factor=1):
+
+    pred = np.argmax(probmap * [1, 1, boundary_boost_factor], -1)
+
+    return pred
+
+
+def pred_to_label(pred, cell_label=1):
+
+    cell = (pred == cell_label)
+    [lbl, num] = label(cell, return_num=True)
+
+    return lbl

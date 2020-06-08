@@ -277,12 +277,12 @@ def preprocess_bbbc_masks(input_dir, proc_dir, valid_dir,
 		imsave(proc_dir + '/' + filename, binary_mask)
 
 
-def partition_files(input_dir, fraction_train=0.5):
+def partition_files(file_list, fraction_train=0.5):
 
 	"""
 
-	Finds all files within input_dir and paritions them into training,
-	testing, and validation subsets
+	Finds all files within input_dir and paritions them into training
+	and validation subsets
 
 	Pseudo code
 	----------
@@ -300,8 +300,6 @@ def partition_files(input_dir, fraction_train=0.5):
 
 	"""
 
-	file_list = os.listdir(input_dir)
-
 	# """
 	# ~~~~~~~~~~~Error Check~~~~~~~~~~~~~~
 	# """
@@ -316,19 +314,17 @@ def partition_files(input_dir, fraction_train=0.5):
 	# """
 
 	fraction_test = 1 - fraction_train
-	im_list = [x.split('.')[0] for x in file_list if x.endswith("tif") ]
-	random.shuffle(im_list)
+	file_list = [x.split('.')[0] for x in file_list if x.endswith("tif") ]
+	random.shuffle(file_list)
 
 	# """
 	# ~~~~~~~~~~~Split into training and testing~~~~~~~~~~~~~~
 	# """
 
-	ind_train_end = int(len(im_list)*fraction_train)
+	ind = int(len(file_list)*fraction_train)
+	train = file_list[:ind]; val = file_list[ind:]
 
-	im_list_train = im_list[:ind_train_end]
-	im_list_test = im_list[ind_train_end:]
-
-	return im_list_train
+	return (train, val)
 
 def write_path_files(input_dir, file_list, name='files'):
 
@@ -383,7 +379,7 @@ def get_random_crop(input, target, crop_size):
 	return input_patch, target_patch
 
 
-def read_train_files(input_dir, target_dir, train_files, crop_size):
+def read_train_files(train_dir, crop_size):
 
 
 	"""
@@ -406,19 +402,20 @@ def read_train_files(input_dir, target_dir, train_files, crop_size):
 
 	"""
 
-	nimages = len(train_files)
-	input = np.zeros((nimages, *crop_size, 1))
-	target = np.zeros((nimages, *crop_size, 3))
+	input_dir = train_dir + 'raw/'; target_dir = train_dir + 'target/'
 
-	for i, file in enumerate(train_files):
+	files = glob(input_dir + '*.tif'); n = len(files)
+	input = np.zeros((n, *crop_size, 1))
+	target = np.zeros((n, *crop_size, 3))
 
+	for i, file in enumerate(files):
+
+		file = file.split('/')[-1].split('.')[0]
 		this_input = imread(join(input_dir, file + '.tif'))
 		this_target = imread(join(target_dir, file + '.png'))
 
-
 		this_input, this_target = get_random_crop(this_input, this_target,
 												  crop_size=crop_size)
-
 		input[i, :, :, 0] = this_input
 		target[i, :, :, :] = this_target
 
