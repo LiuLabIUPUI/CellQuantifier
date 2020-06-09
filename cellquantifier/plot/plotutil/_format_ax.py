@@ -451,3 +451,41 @@ def format_legend(ax,
     else:
         if ax.get_legend() != None:
             ax.get_legend().remove()
+
+def rename_legend(ax,
+
+    new_labels=[],
+    replace_ind=0,
+    replace_type='prefix',
+    legend_loc='upper left',
+    legend_frameon=False,
+    legend_fontname='Liberation Sans',
+    legend_fontweight='normal',
+    legend_fontsize='medium',
+
+    ):
+
+    # """
+    # ~~~~~~~~~~~rename legend~~~~~~~~~~~~~~
+    # """
+    if new_labels:
+        handles, labels = ax.get_legend_handles_labels()
+
+        modified_labels = []
+        for (label, new_label) in zip(labels, new_labels):
+            if replace_type == 'prefix':
+                modified_label = new_label + label[replace_ind:]
+            else:
+                modified_label = label[:replace_ind] + new_label
+            modified_labels.append(modified_label)
+
+        ax.legend(
+                handles=handles,
+                labels=modified_labels,
+                loc=legend_loc,
+                frameon=legend_frameon,
+                fontsize=legend_fontsize,
+                prop={'family' : legend_fontname,
+                    'size' : legend_fontsize,
+                    'weight' : legend_fontweight},
+                )
