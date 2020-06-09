@@ -48,53 +48,52 @@ def relabel_particles(df, col1='raw_data', col2='particle'):
 
 def merge_physdfs(files, mode='basic'):
 
-    """
-    Relabel particles after merging dataframes from several experiments
+	"""
+	Relabel particles after merging dataframes from several experiments
 
-    Parameters
-    ----------
-    files: list
-        list of physData files to be merged
+	Parameters
+	----------
+	files: list
+	    list of physData files to be merged
 
-    Returns
-    -------
-    merged_df: DataFrame
-        DataFrame after merging
+	Returns
+	-------
+	merged_df: DataFrame
+	    DataFrame after merging
 
-    """
+	"""
+	temp_df = pd.read_csv(files[0], index_col=False)
+	columns = temp_df.columns.tolist()
+	merged_df = pd.DataFrame([], columns=columns)
 
-    temp_df = pd.read_csv(files[0], index_col=False)
-    columns = temp_df.columns.tolist()
-    merged_df = pd.DataFrame([], columns=columns)
+	ind = 1
+	tot = len(files)
+	for file in files:
+		print("\n")
+		print("Merging (%d/%d): %s" % (ind, tot, file))
+		ind = ind + 1
 
-    ind = 1
-    tot = len(files)
-    for file in files:
-        print("\n")
-        print("Merging (%d/%d): %s" % (ind, tot, file))
-        ind = ind + 1
+		df = pd.read_csv(file, index_col=False)
 
-        df = pd.read_csv(file, index_col=False)
-
-        # add 'rat_data' column to the merged df
-        root_name = file.split('/')[-1]
-        df = df.assign(raw_data=root_name)
+		# add 'rat_data' column to the merged df
+		root_name = file.split('/')[-1]
+		df = df.assign(raw_data=root_name)
 
 		# add 'exp_label' column to the merged df
 		if mode=='basic':
 			exp = re.findall(r'[a-zA-Z]{3}\d{1}', file)
-            df = df.assign(exp_label=exp[0][:-1])
+			df = df.assign(exp_label=exp[0][:-1])
 		if mode=='general':
-	        if 'cohort' in root_name:
-	            df = df.assign(exp_label=root_name[0:8])
-	        else:
-	            m = root_name.find('_') + 1
-	            n = root_name.find('_', m)
-	            df = df.assign(exp_label=root_name[m:n])
+		    if 'cohort' in root_name:
+		        df = df.assign(exp_label=root_name[0:8])
+		    else:
+		        m = root_name.find('_') + 1
+		        n = root_name.find('_', m)
+		        df = df.assign(exp_label=root_name[m:n])
 
-        merged_df = pd.concat([merged_df, df], sort=True, ignore_index=True)
+		merged_df = pd.concat([merged_df, df], sort=True, ignore_index=True)
 
-    return merged_df
+	return merged_df
 
 def merge_physdfs2(files):
 

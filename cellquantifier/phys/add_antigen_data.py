@@ -3,44 +3,74 @@ import numpy as np
 
 def add_antigen_data(df, sorters=None):
 
+    # """
+	# ~~~~Initialize df~~~~
+	# """
+    df = df.sort_values(['particle', 'frame'])
     for col in ['v', 'v_max', 'travel_dist', 'lifetime',
-                'particle_type']:
+                'boundary_type', 'particle_type']:
         if col in df:
             df = df.drop(col, axis=1)
 
-    avg_dist = df.groupby('particle')['dist_to_boundary'].mean()
-
-    df = df.sort_values(['particle', 'frame'])
+    # """
+	# ~~~~add 'v', the unit is px/frame~~~~
+	# """
     delta_x = (df.groupby('particle')['x'].apply(pd.Series.diff))
     delta_y = (df.groupby('particle')['y'].apply(pd.Series.diff))
-    # df['v'] = (delta_x**2 + delta_y**2) ** 0.5 * df['pixel_size']
     df['v'] = (delta_x**2 + delta_y**2) ** 0.5
 
+    # """
+	# ~~~~Iterate df by particle~~~~
+	# """
+    avg_dist = df.groupby('particle')['dist_to_boundary'].mean()
     particles = sorted(df['particle'].unique())
-
     for particle in particles:
         curr_df = df[ df['particle']==particle ]
+
+        # """
+    	# ~~~~add 'v_max'~~~~
+    	# """
         v_max = curr_df['v'].max()
-        # travel_dist = ((curr_df['x'].max() - curr_df['x'].min())**2 + \
-        #             (curr_df['y'].max() - curr_df['y'].min())**2) ** 0.5 \
-        #              * df['pixel_size']
+        df.loc[df['particle']==particle, 'v_max'] = v_max
+
+        # """
+    	# ~~~~add 'travel_dist'~~~~
+    	# """
         travel_dist = ((curr_df['x'].max() - curr_df['x'].min())**2 + \
                     (curr_df['y'].max() - curr_df['y'].min())**2) ** 0.5
-
-        df.loc[df['particle']==particle, 'v_max'] = v_max
         df.loc[df['particle']==particle, 'travel_dist'] = travel_dist
-        df.loc[df['particle']==particle, 'lifetime'] = curr_df['frame'].max() - \
-                                                    curr_df['frame'].min() + 1
 
+        # """
+    	# ~~~~add 'lifetime'~~~~
+    	# """
+        df.loc[df['particle']==particle, 'lifetime'] = \
+                    curr_df['frame'].max() - curr_df['frame'].min() + 1
 
-        # add 'particle_type' based on dist_to_boundary sorters
+        # """
+    	# ~~~~add 'boundary_type'~~~~
+    	# """
         if sorters!=None and sorters['DIST_TO_BOUNDARY'] != None:
             if avg_dist[particle] >= sorters['DIST_TO_BOUNDARY'][0] \
             and avg_dist[particle] <= sorters['DIST_TO_BOUNDARY'][1]:
-                df.loc[df['particle'] == particle, 'particle_type'] = 'A'
+                df.loc[df['particle']==particle, 'boundary_type'] = 'Boundary'
             elif avg_dist[particle] < sorters['DIST_TO_BOUNDARY'][0]:
-                df.loc[df['particle'] == particle, 'particle_type'] = 'B'
+                df.loc[df['particle']==particle, 'boundary_type'] = 'Inside'
             else:
-                df.loc[df['particle'] == particle, 'particle_type'] = '--none--'
+                df.loc[df['particle']==particle, 'boundary_type'] = '--none--'
+
+            # """
+        	# ~~~~add 'particle_type': Endocytosis~~~~
+        	# """
+            curr_df = curr_df.sort_values(by='frame', ascending=True)
+            n = len(curr_df.index)
+            m = int(round(len(curr_df.index)*0.1))
+            start_depth = curr_df.head(m)['dist_to_boundary'].mean()
+            end_depth = curr_df.tail(m)['dist_to_boundary'].mean()
+            if (start_depth-end_depth)>=5 \
+            and avg_dist[particle] <= sorters['DIST_TO_BOUNDARY'][1]:
+                df.loc[df['particle']==particle, 'particle_type'] = 'Endocytosis'
+            else:
+                df.loc[df['particle']==particle, 'particle_type'] = '--none--'
+
 
     return df
