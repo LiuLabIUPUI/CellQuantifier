@@ -26,7 +26,13 @@ def relabel_particles(df, col1='raw_data', col2='particle'):
 	file_names = df[col1].unique()
 	i = 0
 
+	ind = 1
+	tot = len(files)
 	for file_name in file_names:
+		print("\n")
+		print("Relabeling (%d/%d): %s" % (ind, tot, file))
+		ind = ind + 1
+
 		sub_df = df.loc[df[col1] == file_name]
 		particles = sub_df[col2].unique()
 
@@ -40,7 +46,7 @@ def relabel_particles(df, col1='raw_data', col2='particle'):
 
 	return df
 
-def merge_physdfs(files):
+def merge_physdfs(files, mode='basic'):
 
     """
     Relabel particles after merging dataframes from several experiments
@@ -74,19 +80,17 @@ def merge_physdfs(files):
         root_name = file.split('/')[-1]
         df = df.assign(raw_data=root_name)
 
-        # add 'exp_label' column to the merged df
-        if '50Nc' in root_name:
-            m = root_name.find('_') + 1
-            n = root_name.find('_', m)
-            df = df.assign(exp_label=root_name[m:n])
-        elif 'cohort' in root_name:
-            df = df.assign(exp_label=root_name[0:8])
-        else:
-            exp = re.findall(r'[a-zA-Z]{3}\d{1}', file)
+		# add 'exp_label' column to the merged df
+		if mode=='basic':
+			exp = re.findall(r'[a-zA-Z]{3}\d{1}', file)
             df = df.assign(exp_label=exp[0][:-1])
-            # m = root_name.find('_') + 1
-            # n = root_name.find('_', m)
-            # df = df.assign(exp_label=root_name[m:n])
+		if mode=='general':
+	        if 'cohort' in root_name:
+	            df = df.assign(exp_label=root_name[0:8])
+	        else:
+	            m = root_name.find('_') + 1
+	            n = root_name.find('_', m)
+	            df = df.assign(exp_label=root_name[m:n])
 
         merged_df = pd.concat([merged_df, df], sort=True, ignore_index=True)
 
