@@ -3,6 +3,11 @@ import numpy as np
 
 def add_antigen_data(df, sorters=None):
 
+    for col in ['v', 'v_max', 'travel_dist', 'lifetime',
+                'particle_type']:
+        if col in df:
+            df = df.drop(col, axis=1)
+
     avg_dist = df.groupby('particle')['dist_to_boundary'].mean()
 
     df = df.sort_values(['particle', 'frame'])
@@ -37,10 +42,5 @@ def add_antigen_data(df, sorters=None):
                 df.loc[df['particle'] == particle, 'particle_type'] = 'B'
             else:
                 df.loc[df['particle'] == particle, 'particle_type'] = '--none--'
-
-    # df_particle = df.drop_duplicates('particle')
-    # type_counts = df_particle['particle_type'].value_counts()
-    # print(len(particles))
-    # print(type_counts)
 
     return df
