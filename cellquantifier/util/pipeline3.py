@@ -751,29 +751,29 @@ class Pipeline3():
 		# """
 		# ~~~~~~~~traj_length filter~~~~~~~~
 		# """
-		if 'traj_length' in phys_df:
+		if 'traj_length' in phys_df and self.config.FILTERS['TRAJ_LEN_THRES']!=None:
 			phys_df = phys_df[ phys_df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
 
-		# """
-		# ~~~~~~~~'sort_flag_boundary' filter~~~~~~~~
-		# """
+		# # """
+		# # ~~~~~~~~'sort_flag_boundary' filter~~~~~~~~
+		# # """
 		# if 'sort_flag_boundary' in phys_df:
 		# 	phys_df = phys_df[ phys_df['sort_flag_boundary']==True]
 
 		# """
 		# ~~~~~~~~travel_dist filter~~~~~~~~
 		# """
-		if 'travel_dist' in phys_df:
+		if 'travel_dist' in phys_df and self.config.DICT['Sort travel_dist']!=None:
 			travel_dist_min = self.config.DICT['Sort travel_dist'][0]
 			travel_dist_max = self.config.DICT['Sort travel_dist'][1]
 			phys_df = phys_df[ (phys_df['travel_dist']>=travel_dist_min) & \
 								(phys_df['travel_dist']<=travel_dist_max) ]
 
-		# """
-		# ~~~~~~~~particle_type filter~~~~~~~~
-		# """
-		if 'particle_type' in phys_df:
-			phys_df = phys_df[ phys_df['particle_type']!='--none--']
+		# # """
+		# # ~~~~~~~~particle_type filter~~~~~~~~
+		# # """
+		# if 'particle_type' in phys_df:
+		# 	phys_df = phys_df[ phys_df['particle_type']!='--none--']
 
 
 		# """
@@ -825,8 +825,8 @@ class Pipeline3():
 					boundary_list=self.config.DICT['Sort dist_to_boundary'],
 					)
 		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.pdf')
-		plt.clf(); plt.close()
-		# plt.show()
+		# plt.clf(); plt.close()
+		plt.show()
 
 
 
@@ -875,7 +875,7 @@ class Pipeline3():
 		# """
 		# ~~~~~~~~traj_length filter~~~~~~~~
 		# """
-		if 'traj_length' in phys_df:
+		if 'traj_length' in phys_df and self.config.FILTERS['TRAJ_LEN_THRES']!=None:
 			phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
 
 		# # """
@@ -884,18 +884,18 @@ class Pipeline3():
 		# if 'sort_flag_boundary' in phys_df:
 		# 	phys_df = phys_df[ phys_df['sort_flag_boundary']==True]
 
-		# # """
-		# # ~~~~~~~~travel_dist filter~~~~~~~~
-		# # """
-		# if 'travel_dist' in phys_df:
-		# 	travel_dist_min = self.config.DICT['Sort travel_dist'][0]
-		# 	travel_dist_max = self.config.DICT['Sort travel_dist'][1]
-		# 	phys_df = phys_df[ (phys_df['travel_dist']>travel_dist_min) & \
-		# 						(phys_df['travel_dist']<travel_dist_max) ]
+		# """
+		# ~~~~~~~~travel_dist filter~~~~~~~~
+		# """
+		if 'travel_dist' in phys_df and self.config.DICT['Sort travel_dist']!=None:
+			travel_dist_min = self.config.DICT['Sort travel_dist'][0]
+			travel_dist_max = self.config.DICT['Sort travel_dist'][1]
+			phys_df = phys_df[ (phys_df['travel_dist']>travel_dist_min) & \
+								(phys_df['travel_dist']<travel_dist_max) ]
 
-		# """
-		# ~~~~~~~~particle_type filter~~~~~~~~
-		# """
+		# # """
+		# # ~~~~~~~~particle_type filter~~~~~~~~
+		# # """
 		# if 'particle_type' in phys_df:
 		# 	phys_df = phys_df[ phys_df['particle_type']!='--none--']
 
@@ -948,7 +948,7 @@ class Pipeline3():
 					show_traj_num=True,
 
 		            show_tail=True,
-					tail_length=50,
+					tail_length=500,
 
 					show_boundary=False,
 					boundary_masks=boundary_masks,
@@ -1196,7 +1196,7 @@ class Pipeline3():
 						curr_physdf = add_traj_length(curr_physdf)
 						curr_physdf.round(6).to_csv(file, index=False)
 
-				phys_df = merge_physdfs(phys_files)
+				phys_df = merge_physdfs(phys_files, mode='general')
 				phys_df = relabel_particles(phys_df)
 			else:
 				phys_df = pd.read_csv(phys_files[0])

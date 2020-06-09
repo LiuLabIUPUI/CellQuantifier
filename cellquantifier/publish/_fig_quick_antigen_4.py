@@ -566,6 +566,7 @@ def fig_quick_antigen_4(
                     fontweight=9,
                     fontsize=9,
                     horizontalalignment='right',
+                    mode='general',
                     )
 
     # """
