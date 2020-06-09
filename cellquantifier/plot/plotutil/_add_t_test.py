@@ -13,6 +13,7 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
                 fontsize=8,
                 prefix_str='',
                 horizontalalignment='right',
+                format='basic',
                 ):
 
     # """
@@ -36,17 +37,23 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
         else:
             t_stats = t_test(blobs_dfs[0][hist_col],
                             blobs_dfs[1][hist_col])
+        if mode=='basic':
+            if t_stats[1] < .0001:
+                t_test_str = prefix_str + 'P < .0001'
+            elif t_stats[1] >= .0001 and t_stats[1] < .001:
+                t_test_str = prefix_str + 'P < .001'
+            elif t_stats[1] >= .001 and t_stats[1] < .01:
+                t_test_str = prefix_str + 'P < .01'
+            elif t_stats[1] >= .01 and t_stats[1] < .05:
+                t_test_str = prefix_str + 'P < .05'
+            else:
+                t_test_str = prefix_str + 'P = %.2F' % (t_stats[1])
 
-        if t_stats[1] < .0001:
-            t_test_str = prefix_str + 'P < .0001'
-        elif t_stats[1] >= .0001 and t_stats[1] < .001:
-            t_test_str = prefix_str + 'P < .001'
-        elif t_stats[1] >= .001 and t_stats[1] < .01:
-            t_test_str = prefix_str + 'P < .01'
-        elif t_stats[1] >= .01 and t_stats[1] < .05:
-            t_test_str = prefix_str + 'P < .05'
-        else:
-            t_test_str = prefix_str + 'P = %.2F' % (t_stats[1])
+        if mode=='general':
+            if t_stats[1] >= .01:
+                t_test_str = prefix_str + 'P = %.2F' % (t_stats[1])
+            else:
+                t_test_str = prefix_str + 'P = %.1E' % (t_stats[1])
 
         ax.text(text_pos[0],
                 text_pos[1],
