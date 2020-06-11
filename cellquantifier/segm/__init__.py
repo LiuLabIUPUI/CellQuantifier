@@ -4,6 +4,8 @@ from .mask import *
 from ._regions import *
 from ._cc_mask import clr_code_mask
 from ._int_df import get_int_df
+# from ._dof import *
+from _log_watershed import *
 
 from ._unet_data_utils import *
 from ._unet_model_utils import *

@@ -5,11 +5,12 @@ import random
 import warnings
 from os.path import join
 from glob import glob
-from skimage.io import imread, imsave
+from skimage.io import *
 from skimage.morphology import *
 from skimage.segmentation import find_boundaries
 from skimage.util import img_as_ubyte
 from zipfile import ZipFile
+from numpy.random import randint
 
 
 def get_bbbc_training_data(parent_dir, get_metadata=True, preprocess=True):
@@ -277,11 +278,11 @@ def preprocess_bbbc_masks(input_dir, proc_dir, valid_dir,
 		imsave(proc_dir + '/' + filename, binary_mask)
 
 
-def partition_files(file_list, fraction_train=0.5):
+def partition_files(input_dir, target_dir, fraction_validation=0.25):
 
 	"""
 
-	Finds all files within input_dir and paritions them into training
+	Couples input_files to target_files and partitions into training
 	and validation subsets
 
 	Pseudo code
@@ -304,27 +305,31 @@ def partition_files(file_list, fraction_train=0.5):
 	# ~~~~~~~~~~~Error Check~~~~~~~~~~~~~~
 	# """
 
-	if fraction_train > 1:
+	if fraction_validation > 1:
 		print("fraction_train + fraction_validation is > 1!")
 		print("setting fraction_train = 0.5")
-		fraction_train = 0.5
+		fraction_validation = 0.5
 
 	# """
-	# ~~~~~~~~~~~Get image names and shuffle~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~
 	# """
 
-	fraction_test = 1 - fraction_train
-	file_list = [x.split('.')[0] for x in file_list if x.endswith("tif") ]
-	random.shuffle(file_list)
+	input_files = glob(input_dir + '*.tif')
+	target_files = glob(target_dir + '*.png')
+	all_files = np.array([sorted(input_files), \
+						  sorted(target_files)]).transpose()
+
+	random.shuffle(all_files)
 
 	# """
 	# ~~~~~~~~~~~Split into training and testing~~~~~~~~~~~~~~
 	# """
 
-	ind = int(len(file_list)*fraction_train)
-	train = file_list[:ind]; val = file_list[ind:]
+	fraction_train = 1 - fraction_validation
+	ind = int(len(all_files)*fraction_train)
+	train = all_files[:ind]; valid = all_files[ind:].transpose()
 
-	return (train, val)
+	return (train, valid)
 
 def write_path_files(input_dir, file_list, name='files'):
 
@@ -379,44 +384,71 @@ def get_random_crop(input, target, crop_size):
 	return input_patch, target_patch
 
 
-def read_train_files(train_dir, crop_size):
+def train_stack_gen(train_data, crop_size, batch_size=10, channels=3):
 
 
 	"""
 
 	Pseudo code
 	----------
-	1. Create buffer for input and target tensors
-	2. Populate input and target buffers
+	1. Create buffer for input and target images
+	2. Grab a random image (iteratively)
+	3. Extract a random crop from the randomly selected image
+	4. Add the random crop to the training buffer
 
 	Parameters
 	----------
-	input_dir: str,
-		directory where images are stored
-	target_dir: str,
-		directory where masks are stored
-	train_files: str,
-		list of files to use for training
+	train_data: list,
+		list of tuples containing (input, target) file names
 	crop_size: tuple,
 		dimensions for input_patch and target_patch
 
 	"""
 
-	input_dir = train_dir + 'raw/'; target_dir = train_dir + 'target/'
+	while True:
 
-	files = glob(input_dir + '*.tif'); n = len(files)
-	input = np.zeros((n, *crop_size, 1))
-	target = np.zeros((n, *crop_size, 3))
+		input_buffer = np.zeros((batch_size, *crop_size, 1))
+		target_buffer = np.zeros((batch_size, *crop_size, channels))
 
-	for i, file in enumerate(files):
+		for i in range(batch_size):
 
-		file = file.split('/')[-1].split('.')[0]
-		this_input = imread(join(input_dir, file + '.tif'))
-		this_target = imread(join(target_dir, file + '.png'))
+			rand_ind = randint(low=0, high=len(train_data))
+			input_path, target_path = train_data[rand_ind]
+			input = imread(input_path); target = imread(target_path)
 
-		this_input, this_target = get_random_crop(this_input, this_target,
-												  crop_size=crop_size)
-		input[i, :, :, 0] = this_input
-		target[i, :, :, :] = this_target
+			input, target = get_random_crop(input, target, crop_size=crop_size)
+			input_buffer[i, :, :, 0] = input; target_buffer[i, :, :, :] = target
 
-	return input, target
+		yield (input_buffer, target_buffer)
+
+def valid_stack_gen(valid_data, crop_size, channels=3):
+
+
+	"""
+
+	Generates a tuple of nump
+
+	Pseudo code
+	----------
+
+
+	Parameters
+	----------
+	val_data: list,
+		list of tuples containing (input, target) file names
+	crop_size: tuple,
+		dimensions for input_patch and target_patch
+
+	"""
+
+	n = len(valid_data[0])
+	input, target = valid_data
+	input = np.array([imread(f) for f in input])
+	target = np.array([imread(f) for f in target])
+
+	dim1, dim2 = crop_size
+	input = input[:, :dim1, :dim2]
+	input = input.reshape(input.shape + (1,))
+	target = target[:, :dim1, :dim2]
+
+	return (input, target)

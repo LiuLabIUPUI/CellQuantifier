@@ -34,27 +34,42 @@ Notes
 """
 
 # """
-# ~~~~~~~~~~~I/O~~~~~~~~~~~~~~
+# ~~~~~~~~~~Params~~~~~~~~~~~~~~
 # """
 
-root_dir = '/home/cwseitz/unet/'
+crop_size = (256, 256)
+batch_size = 10
+epochs = 15
+steps_per_epoch = 500
+fraction_validation = 0.25
+
+root_dir = '/home/cwseitz/Desktop/data-analysis/unet/'
 train_dir  = root_dir + 'train_input/'
 test_dir = root_dir + 'test_input/'
 
-# """
-# ~~~~~~~~~~~Train~~~~~~~~~~~~~~
-# """
+# # """
+# # ~~~~~~~~~~~Prep Training/Validation Data~~~~~~~~~~~~~~
+# # """
 
-#
-# crop_size = (256, 256)
-# input, target = read_train_files(train_dir, crop_size=crop_size)
-#
-# build_new_model(input,
-#                 target,
-#                 crop_size,
-#                 save_dir=root_dir,
-#                 epochs=100)
+input_dir = root_dir + 'train_input/raw/'
+target_dir = root_dir + 'train_input/target/'
+train, valid = partition_files(input_dir, target_dir, fraction_validation)
 
+train_gen = train_stack_gen(train, crop_size=crop_size, batch_size=batch_size)
+valid_gen = valid_stack_gen(valid, crop_size=crop_size)
+
+# # """
+# # ~~~~~~~~~~~Train~~~~~~~~~~~~~~
+# # """
+
+train_model(train_gen,
+            valid_gen,
+            crop_size,
+            save_dir=root_dir,
+            epochs=epochs,
+            steps_per_epoch=steps_per_epoch)
+
+show_train_stats(root_dir + 'train_stats.csv')
 
 # """
 # ~~~~~~~~~~~Test~~~~~~~~~~~~~~
@@ -66,5 +81,5 @@ stack = stack/stack.max()
 
 dim1, dim2 = stack.shape[1], stack.shape[2]
 model = unet_model(input_size=(dim1, dim2))
-weights = model.load_weights(root_dir + 'model.h5')
+model = model.load_weights(root_dir + 'model.h5')
 make_prediction(stack, weights, output_path=root_dir + 'test_output/')

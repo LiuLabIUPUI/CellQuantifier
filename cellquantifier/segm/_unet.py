@@ -7,18 +7,17 @@ from skimage.measure import label
 import keras
 import pandas as pd
 
-def build_new_model(input,
-					target,
-					crop_size,
-					save_dir=None,
-					metrics=None,
-					optimizer=None,
-					loss=None,
-					batch_size=10,
-					epochs=10,
-					fraction_validation=0.25,
-					callbacks=1,
-					verbose=1):
+def train_model(train_gen,
+				valid_gen,
+				crop_size,
+				save_dir=None,
+				metrics=None,
+				optimizer=None,
+				loss=None,
+				epochs=10,
+				steps_per_epoch=None,
+				callbacks=1,
+				verbose=1):
 
 	"""
 	Builds a new model that can be used to segment images
@@ -85,8 +84,10 @@ def build_new_model(input,
 	model = unet_model(input_size=crop_size); model.summary()
 	model.compile(loss=weighted_crossentropy, metrics=metrics, optimizer=optimizer)
 
-	statistics = model.fit(x=input, y=target, batch_size=batch_size,
-						  epochs=epochs, validation_split=fraction_validation)
+	statistics = model.fit(x=train_gen, epochs=epochs,
+						   steps_per_epoch=steps_per_epoch,
+						   validation_data=valid_gen)
+
 	stats_df = pd.DataFrame(statistics.history)
 
 	if save_dir:
