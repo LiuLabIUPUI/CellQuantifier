@@ -27,10 +27,10 @@ def relabel_particles(df, col1='raw_data', col2='particle'):
 	i = 0
 
 	ind = 1
-	tot = len(files)
+	tot = len(file_names)
 	for file_name in file_names:
 		print("\n")
-		print("Relabeling (%d/%d): %s" % (ind, tot, file))
+		print("Relabeling (%d/%d): %s" % (ind, tot, file_name))
 		ind = ind + 1
 
 		sub_df = df.loc[df[col1] == file_name]
