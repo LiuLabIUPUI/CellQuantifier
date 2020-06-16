@@ -755,25 +755,25 @@ class Pipeline3():
 			phys_df = phys_df[ phys_df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
 
 		# # """
-		# # ~~~~~~~~'sort_flag_boundary' filter~~~~~~~~
+		# # ~~~~~~~~boudary_type filter~~~~~~~~
 		# # """
-		# if 'sort_flag_boundary' in phys_df:
-		# 	phys_df = phys_df[ phys_df['sort_flag_boundary']==True]
-
-		# """
-		# ~~~~~~~~travel_dist filter~~~~~~~~
-		# """
-		if 'travel_dist' in phys_df and self.config.DICT['Sort travel_dist']!=None:
-			travel_dist_min = self.config.DICT['Sort travel_dist'][0]
-			travel_dist_max = self.config.DICT['Sort travel_dist'][1]
-			phys_df = phys_df[ (phys_df['travel_dist']>=travel_dist_min) & \
-								(phys_df['travel_dist']<=travel_dist_max) ]
+		# if 'boundary_type' in phys_df:
+		# 	phys_df = phys_df[ phys_df['boundary_type']!='--none--']
 
 		# # """
-		# # ~~~~~~~~particle_type filter~~~~~~~~
+		# # ~~~~~~~~travel_dist filter~~~~~~~~
 		# # """
-		# if 'particle_type' in phys_df:
-		# 	phys_df = phys_df[ phys_df['particle_type']!='--none--']
+		# if 'travel_dist' in phys_df and self.config.DICT['Sort travel_dist']!=None:
+		# 	travel_dist_min = self.config.DICT['Sort travel_dist'][0]
+		# 	travel_dist_max = self.config.DICT['Sort travel_dist'][1]
+		# 	phys_df = phys_df[ (phys_df['travel_dist']>=travel_dist_min) & \
+		# 						(phys_df['travel_dist']<=travel_dist_max) ]
+
+		# """
+		# ~~~~~~~~particle_type filter~~~~~~~~
+		# """
+		if 'particle_type' in phys_df:
+			phys_df = phys_df[ phys_df['particle_type']!='--none--']
 
 
 		# """
@@ -831,8 +831,8 @@ class Pipeline3():
 
 
 
-		self.config.DICT['Load existing analMeta'] = True
-		self.config.save_config()
+		# self.config.DICT['Load existing analMeta'] = True
+		# self.config.save_config()
 
 
 
@@ -879,25 +879,25 @@ class Pipeline3():
 			phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
 
 		# # """
-		# # ~~~~~~~~'sort_flag_boundary' filter~~~~~~~~
+		# # ~~~~~~~~boudary_type filter~~~~~~~~
 		# # """
-		# if 'sort_flag_boundary' in phys_df:
-		# 	phys_df = phys_df[ phys_df['sort_flag_boundary']==True]
-
-		# """
-		# ~~~~~~~~travel_dist filter~~~~~~~~
-		# """
-		if 'travel_dist' in phys_df and self.config.DICT['Sort travel_dist']!=None:
-			travel_dist_min = self.config.DICT['Sort travel_dist'][0]
-			travel_dist_max = self.config.DICT['Sort travel_dist'][1]
-			phys_df = phys_df[ (phys_df['travel_dist']>travel_dist_min) & \
-								(phys_df['travel_dist']<travel_dist_max) ]
+		# if 'boundary_type' in phys_df:
+		# 	phys_df = phys_df[ phys_df['boundary_type']!='--none--']
 
 		# # """
-		# # ~~~~~~~~particle_type filter~~~~~~~~
+		# # ~~~~~~~~travel_dist filter~~~~~~~~
 		# # """
-		# if 'particle_type' in phys_df:
-		# 	phys_df = phys_df[ phys_df['particle_type']!='--none--']
+		# if 'travel_dist' in phys_df and self.config.DICT['Sort travel_dist']!=None:
+		# 	travel_dist_min = self.config.DICT['Sort travel_dist'][0]
+		# 	travel_dist_max = self.config.DICT['Sort travel_dist'][1]
+		# 	phys_df = phys_df[ (phys_df['travel_dist']>travel_dist_min) & \
+		# 						(phys_df['travel_dist']<travel_dist_max) ]
+
+		# """
+		# ~~~~~~~~particle_type filter~~~~~~~~
+		# """
+		if 'particle_type' in phys_df:
+			phys_df = phys_df[ phys_df['particle_type']!='--none--']
 
 		# """
 		# ~~~~~~~~check if phys_df is empty~~~~~~~~
