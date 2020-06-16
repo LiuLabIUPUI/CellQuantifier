@@ -63,12 +63,38 @@ def add_antigen_data(df, sorters=None):
         	# """
             curr_df = curr_df.sort_values(by='frame', ascending=True)
             n = len(curr_df.index)
-            m = int(round(len(curr_df.index)*0.1))
-            start_depth = curr_df.head(m)['dist_to_boundary'].mean()
-            end_depth = curr_df.tail(m)['dist_to_boundary'].mean()
-            if (start_depth-end_depth)>=5 \
-            and avg_dist[particle] <= sorters['DIST_TO_BOUNDARY'][1]:
-                df.loc[df['particle']==particle, 'particle_type'] = 'Endocytosis'
+            # m = int(round(len(curr_df.index)*0.1))
+            # start_depth = curr_df.head(m)['dist_to_boundary'].mean()
+            # end_depth = curr_df.tail(m)['dist_to_boundary'].mean()
+            # if (start_depth-end_depth)>=5 \
+            # and avg_dist[particle] <= sorters['DIST_TO_BOUNDARY'][1]:
+            #     df.loc[df['particle']==particle, 'particle_type'] = 'Endocytosis'
+            # else:
+            #     df.loc[df['particle']==particle, 'particle_type'] = '--none--'
+
+            d_start = curr_df.iloc[0]['dist_to_boundary']
+            d_end = curr_df.iloc[-1]['dist_to_boundary']
+            dn = int(round(len(curr_df.index)*0.05))
+            m0 = 0
+            m1 = int(round(len(curr_df.index)*0.1))
+            m2 = int(round(len(curr_df.index)*0.4))
+            m3 = int(round(len(curr_df.index)*0.6))
+            m4 = int(round(len(curr_df.index)*0.9))
+            d0 = curr_df.iloc[:dn]['dist_to_boundary'].mean()
+            d1 = curr_df.iloc[m1:m1+dn]['dist_to_boundary'].mean()
+            d2 = curr_df.iloc[m2:m2+dn]['dist_to_boundary'].mean()
+            d3 = curr_df.iloc[m3:m3+dn]['dist_to_boundary'].mean()
+            d4 = curr_df.iloc[-dn:]['dist_to_boundary'].mean()
+            # if d_start-d_end>=2 \
+            # and d_end<sorters['DIST_TO_BOUNDARY'][0] \
+            # and d_start>sorters['DIST_TO_BOUNDARY'][0]-3 \
+            # and df.loc[df['particle']==particle, 'lifetime'].mean()<350:
+            #     df.loc[df['particle']==particle, 'particle_type'] = 'Endocytosis'
+            if d_end-d_start>=2 \
+            and d_start<sorters['DIST_TO_BOUNDARY'][0] \
+            and d_end>sorters['DIST_TO_BOUNDARY'][0]-3 \
+            and df.loc[df['particle']==particle, 'lifetime'].mean()<350:
+                df.loc[df['particle']==particle, 'particle_type'] = 'Exocytosis'
             else:
                 df.loc[df['particle']==particle, 'particle_type'] = '--none--'
 
