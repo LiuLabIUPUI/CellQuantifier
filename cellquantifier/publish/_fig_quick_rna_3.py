@@ -9,8 +9,11 @@ from ..plot.plotutil import *
 from matplotlib.lines import Line2D
 from scipy.stats import sem
 
-def fig_quick_rna_3(merged_blobs_df, merged_int_df, norm_row_props,
-					norm_nest_col, typ_arr=['type1','type2','type3','type4']):
+def fig_quick_rna_3(merged_blobs_df,
+					merged_int_df,
+					norm_row_props,
+					norm_nest_col,
+					save_path=None):
 
 	"""
 
@@ -19,17 +22,9 @@ def fig_quick_rna_3(merged_blobs_df, merged_int_df, norm_row_props,
 	1. Build the figure
 	2. Group by 'label', 'cell_type' and 'prefix' columns
 
-	Parameters
-	----------
-	input_dir : str,
-		Directory containing the files of interest
-	typ_arr: list
-		List of unique types some of which may be in merged_xxx_df
-
 	"""
 
-	fig, ax = plt.subplots(1, 2)
-	path = '/home/clayton/Desktop/data-analysis/'
+	merged_blobs_df.to_csv(save_path + '200611_sHLA-DMB-merged-blobs-df.csv')
 
 	# """
 	# ~~~~~~~~~~~Copy number pivot table~~~~~~~~~~~~~~
@@ -49,9 +44,11 @@ def fig_quick_rna_3(merged_blobs_df, merged_int_df, norm_row_props,
 	count_df.columns = [''.join(col) for col in count_df.columns]
 	count_df['count_total'] = count_df['count_cyto'] + count_df['count_nuc']
 
+	count_df.to_csv(save_path + '200611_sHLA-DMB-count-df.csv')
+
 	# """
 	# ~~~~~~~~~~~Statistics~~~~~~~~~~~~~~
-	# """kkkk
+	# """
 
 	data_col = 'count_total'; cat_cols = ['cell_type', 'sample_type']
 	count_df_stat = count_df[[data_col] + cat_cols]
@@ -65,7 +62,7 @@ def fig_quick_rna_3(merged_blobs_df, merged_int_df, norm_row_props,
 					   nest_col=norm_nest_col)
 
 
-	count_df_stat.to_csv(path + '200611_HLA-DMB-count-df-stat.csv')
+	count_df_stat.to_csv(save_path + '200611_sHLA-DMB-count-df-pivot.csv')
 
 	# """
 	# ~~~~~~~~~~~Nucleus/Cytoplasm Fractions~~~~~~~~~~~~~~
@@ -76,9 +73,11 @@ def fig_quick_rna_3(merged_blobs_df, merged_int_df, norm_row_props,
 	frac_df['frac_cyto'] = frac_df['count_cyto']/frac_df['count_total']
 	frac_df['frac_nuc'] = frac_df['count_nuc']/frac_df['count_total']
 	frac_df = frac_df.drop(columns=['count_cyto', 'count_nuc', 'count_total'])
+
+	frac_df.to_csv(save_path + '200611_sHLA-DMB-frac-df.csv')
+
 	data_cols = ['frac_nuc', 'frac_cyto']
 	frac_df_stat = frac_df.groupby(cat_cols, sort=True)[data_cols].agg([np.mean, sem])
 	frac_df_stat = frac_df_stat.reset_index()
 
-
-	frac_df_stat.to_csv(path + '200611_HLA-DMB-frac-df-stat.csv')
+	frac_df_stat.to_csv(save_path + '200611_sHLA-DMB-frac-df-pivot.csv')
