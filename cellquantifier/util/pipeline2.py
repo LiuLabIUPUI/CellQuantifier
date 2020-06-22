@@ -349,20 +349,6 @@ class Pipeline2():
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-53bp1BlobMask.tif',
 				masks_53bp1_blob)
 
-
-	def segmentation(self, method):
-
-		print("######################################")
-		print("Segmenting Image Stack")
-		print("######################################")
-
-		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
-		mask, centroid = get_mask_batch(frames, method, min_size=self.config.MIN_SIZE,show_mask=self.config.PLTSHOW)
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-mask.tif', mask)
-
-		return centroid
-
-
 	def deno_gaus(self):
 
 		print("######################################")
