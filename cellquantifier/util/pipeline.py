@@ -9,7 +9,6 @@ import warnings
 import glob
 
 from ..deno import filter_batch
-from ..segm import get_mask_batch
 from ..segm import get_thres_mask_batch
 from ..regi import get_regi_params, apply_regi_params
 
@@ -35,19 +34,6 @@ class Pipeline():
 			frames = frames[list(config.TRANGE),:,:]
 			imsave(config.OUTPUT_PATH + config.ROOT_NAME + '-raw.tif', frames)
 			imsave(config.OUTPUT_PATH + config.ROOT_NAME + '-active.tif', frames)
-
-
-	def segmentation(self, method):
-
-		print("######################################")
-		print("Segmenting Image Stack")
-		print("######################################")
-
-		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
-		mask, centroid = get_mask_batch(frames, method, min_size=self.config.MIN_SIZE,show_mask=self.config.PLTSHOW)
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-mask.tif', mask)
-
-		return centroid
 
 
 	def register(self):

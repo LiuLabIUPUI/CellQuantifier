@@ -1,115 +1,251 @@
 import numpy as np
+import pandas as pd
+import trackpy as tp
 import matplotlib.pyplot as plt
 
-from ..io import imshow
+from scipy import ndimage as ndi
+from skimage.filters import threshold_otsu, gaussian
+from skimage.feature import peak_local_max
+from skimage.segmentation import watershed, clear_border, mark_boundaries
+from skimage.measure import label, regionprops_table
+from ..util import *
 
-from skimage.segmentation import clear_border, mark_boundaries
-from skimage.measure import label, regionprops
-from skimage.morphology import remove_small_objects
-from skimage.filters import unsharp_mask, gaussian
-from skimage import img_as_ubyte
+def find_nuclei(image,
+				min_distance=1,
+				threshold_rel=0.6,
+				pltshow=False):
 
+	"""
 
-def get_mask(image, method, min_size=50, show_mask=False):
-
-	"""Dispatches segmentation request for a single frame to appropriate function
+	Finds nuclei in an image by thresholding, applying distance transform
+	to a binary mask, and detecting local maxima in the distance image.
+	Note: this function does not perform segmentation.
 
 	Parameters
 	----------
-	image : 2D ndarray
 
-	method : string
-		the method to use when generating the object mask
+	image : ndarray,
+		a single frame or stack of frames
+	min_distance: int, optional
+		the minimum distance separating two nuclei
+	threshold_rel : float, optional
+		relative threshold between 0 and 1
+	pltshow: list, optional
+		whether or not to show a validation figure
 
 	Returns
 	-------
-	mask : 2D ndarray
-		The object mask
+	blobs_df: DataFrame,
+		a DataFrame containing coordinates of seeds for a segmentation routine
+	dist_map_arr: ndarray,
+		an ndarray containing distance maps
+
 	"""
 
-	if method == 'label':
-		mask = label_image(image)
-	elif method == 'threshold':
-		mask = threshold(image, min_size)
-	elif method == 'unsharp':
-		mask = unsharp(image)
+	# """
+	# ~~~~~~~~~~~Initialize data structs~~~~~~~~~~~~~
+	# """
 
-	centroid = regionprops(mask)[0].centroid
+	columns = ['frame', 'x', 'y']
+	blobs_df = pd.DataFrame([], columns=columns)
+	dist_map_arr = np.zeros_like(image)
 
-	if show_mask:
-		fig,ax = plt.subplots(1,2)
-		ax[0].imshow(mask, cmap='gray')
-		ax[1].imshow(mark_boundaries(image, mask))
-		ax[1].scatter(centroid[1],centroid[0])
-		plt.show()
+	# """
+	# ~~~~~~~~~~~Find nuclei~~~~~~~~~~~~~
+	# """
+	nframes = len(image)
+	for i in range(nframes):
 
-	return mask, centroid
+		print('Finding cells in frame %d/%d' % (i, nframes))
+		thresh = threshold_otsu(image[i])
+		binary = image[i] > thresh
+		dist_map = ndi.distance_transform_edt(binary)
+		dist_map = gaussian(dist_map)
 
-def get_mask_batch(image, method, min_size=50, show_mask=False):
+		coordinates = peak_local_max(dist_map,
+									 min_distance=min_distance,
+									 threshold_rel=threshold_rel,
+									 indices=True)
 
-	"""Dispatches segmentation request for a time-series to appropriate function
+		# """
+		# ~~~~~~~~~~~Scatter detections~~~~~~~~~~~~~
+		# """
+
+		if pltshow:
+			plt.imshow(image[i], cmap='gray')
+			plt.scatter(coordinates[:, 1],
+						coordinates[:, 0],
+						marker='^', s=7,
+						color='black')
+			plt.tight_layout(); plt.show()
+
+		# """
+		# ~~~~~~~~~~~Scatter detections~~~~~~~~~~~~~
+		# """
+
+		this_blob_df = pd.DataFrame(data=coordinates, columns=['x','y'])
+		this_blob_df = this_blob_df.assign(frame=i)
+		blobs_df = pd.concat([blobs_df, this_blob_df])
+		dist_map_arr[i] = dist_map
+
+	blobs_df = blobs_df.assign(r=1)
+
+
+	return blobs_df, dist_map_arr
+
+
+def do_watershed(image, min_distance=1, threshold_rel=0.6, pltshow=False):
+
+	"""
+
+	Performs a classic watershed segmentation by thresholding, finding seeds
+	from a distance map, and flooding
 
 	Parameters
 	----------
-	image : 2D ndarray
 
-	method : string
-		The method to use when generating the object mask
+	image : ndarray,
+		a single frame or stack of frames
+	min_distance: int, optional
+		the minimum distance separating two nuclei
+	threshold_rel : float, optional
+		relative threshold between 0 and 1
+	pltshow: list, optional
+		whether or not to show a validation figure
 
 	Returns
 	-------
-	mask : 3D ndarray
-		The object mask
+	blobs_df: DataFrame,
+		DataFrame containing coordinates, labels, and object areas
+	mask_arr: ndarray,
+		an ndarray of object masks
+
 	"""
-	mask = np.zeros_like(image)
-	for i in range(len(image)):
-		mask[i], centroid = get_mask(image[i], method, min_size, show_mask)
 
-	return mask, centroid
+	# """
+	# ~~~~~~~~~~Reshape the image if 2D~~~~~~~~~~~~
+	# """
 
-def threshold(image, min_size):
+	mask_arr = np.zeros_like(image)
 
-	"""Uses blurring/thresholding to create the object mask
+	# """
+	# ~~~~~~~~~~Find watershed seeds~~~~~~~~~~~~
+	# """
+
+	seed_df, dist_map_arr = find_nuclei(image,
+										min_distance=min_distance,
+	 					    			threshold_rel=threshold_rel,
+										pltshow=False)
+
+	# """
+	# ~~~~~~~~~~Perform watershed segmentation~~~~~~~~~~~~
+	# """
+
+	nframes = len(image)
+	for i in range(nframes):
+		print('Segmenting frame %d/%d' % (i, nframes))
+
+		this_df = seed_df.loc[seed_df['frame'] == i]
+		dist_map = dist_map_arr[i]; binary = dist_map > 0
+		coordinates = this_df[['x','y']].to_numpy()
+		seed_arr = np.zeros_like(image[i])
+		for coordinate in coordinates:
+			seed_arr[int(coordinate[0]), int(coordinate[1])] = 255
+
+		seed_arr = ndi.label(seed_arr)[0]
+		mask = watershed(-dist_map, seed_arr, mask=binary)
+		mask = clear_border(mask)
+		mask_arr[i] = mask
+
+		if pltshow:
+			fig, ax = plt.subplots(ncols=3, figsize=(9, 3),
+								   sharex=True, sharey=True)
+
+			marked = mark_boundaries(image[i], mask)
+			ax[0].imshow(marked, cmap=plt.cm.gray)
+			ax[0].scatter(coordinates[:, 1], coordinates[:, 0], color='red')
+			ax[2].imshow(mask, cmap='coolwarm')
+			ax[1].imshow(dist_map, cmap=plt.cm.nipy_spectral)
+			for a in ax:
+				a.set_axis_off()
+			plt.show()
+
+	return mask_arr
+
+def track_masks(mask_arr,
+				memory=5,
+				z_filter=0.5,
+				search_range=20,
+				min_traj_length=10,
+				do_filter=False):
+
+	"""
+
+	Builds a DataFrame from a movie of masks and runs the
+	tracking algorithm on that DataFrame
 
 	Parameters
 	----------
-	image : 2D ndarray
+	mask_arr : ndarray
+		ndarray containing the masks
 
-	min_size : int
-		The size of the smallest object that should be kept in the mask
+	search_range: int
+		the maximum distance the centroid of a mask can move between frames
+		and still be tracked
 
-	Returns
-	-------
-	mask : 2D ndarray
-		The object mask
-	"""
-	sigma=10
-	image = gaussian(image, sigma=sigma)
-	t = .1*image.max()
-	mask = image > t
-	mask = mask.astype(int)
-	mask = remove_small_objects(mask, min_size)
-	mask = label(mask)
+	memory: int
+		the number of frames to remember a mask that has disappeared
 
-	return mask
-
-def unsharp(image, min_size):
-
-	"""Uses unsharp intensity transformation to create the object mask
-
-	Parameters
-	----------
-	image : 2D ndarray
 
 	Returns
 	-------
-	mask : 2D ndarray
-		The object mask
+
 	"""
 
-	image = clear_border(image)
-	mask = unsharp_mask(image, radius=100, amount=100)
-	mask = remove_small_objects(mask, min_size)
-	mask = label(mask)
+	# """
+	# ~~~~~~~~~~~Extract mask_df from mask_arr~~~~~~~~~~~~~~
+	# """
 
-	return mask
+	mask_df = pd.DataFrame([])
+	nframes = mask_arr.shape[0]
+
+	for i in range(nframes):
+
+		props = regionprops_table(mask_arr[i], properties=('centroid', 'area', 'label'))
+		this_df = pd.DataFrame(props).assign(frame=i)
+		this_df = this_df.rename(columns={'centroid-0':'x', 'centroid-1':'y'})
+		mask_df = pd.concat([mask_df, this_df])
+
+	# """
+	# ~~~~~~~~~~~Link Trajectories~~~~~~~~~~~~~~
+	# """
+
+	mask_df = tp.link_df(mask_df, search_range=search_range, memory=memory)
+	mask_df = mask_df.reset_index(drop=True)
+
+	# """
+	# ~~~~~~~~~~~Apply filters~~~~~~~~~~~~~~
+	# """
+
+	if do_filter:
+
+		print("######################################")
+		print("Filtering out suspicious data points")
+		print("######################################")
+
+		grp = mask_df.groupby('particle')['area']
+		mask_df['z_score'] = grp.apply(lambda x: np.abs((x - x.mean()))/x.std())
+		mask_df = mask_df.loc[mask_df['z_score'] < z_filter]
+
+		mask_df = tp.filter_stubs(mask_df, min_traj_length)
+		mask_df = mask_df.reset_index(drop=True)
+
+	# """
+	# ~~~~~~~~~~~Check if DataFrame is empty~~~~~~~~~~~~~
+	# """
+
+	if mask_df.empty:
+		print('\n***Trajectories num is zero***\n')
+		return
+
+	return mask_df
