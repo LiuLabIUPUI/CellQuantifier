@@ -8,6 +8,7 @@ control = [
 # 'mask_53bp1',
 # 'mask_53bp1_blob',
 # 'deno_mean',
+# 'deno_median',
 # 'deno_box',
 # 'deno_gaus',
 # 'check_detect_fit',
@@ -18,8 +19,8 @@ control = [
 # 'phys_xy_global',
 # 'phys_dist2halfcilia',
 # 'phys_cilia_halfsign',
-'phys_cilia_otherinfo',
-# 'plot_traj',
+# 'phys_cilia_otherinfo',
+'plot_traj',
 # 'anim_traj',
 # 'merge_plot',
 
@@ -42,8 +43,8 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/output/', #cilia/200407_all-cilia-results/',
-  'IO output_path': '/home/linhua/Desktop/output/', #cilia/200407_all-cilia-results/',
+  'IO input_path': '/home/linhua/Desktop/old_data/',
+  'IO output_path': '/home/linhua/Desktop/old_data/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -66,13 +67,13 @@ settings = {
   'Segm threshold': '',
 
   #MASK_BOUNDARY SETTINGS
-  'Mask boundary_mask file label': 'bdr',
-  'Mask boundary_mask sig': 0,
-  'Mask boundary_mask thres_rel': 0.05,
+  'Mask boundary_mask file label': '',
+  'Mask boundary_mask sig': '',
+  'Mask boundary_mask thres_rel': '',
   #MASK_53BP1 SETTINGS
-  'Mask 53bp1_mask file label': '-ncs',
-  'Mask 53bp1_mask sig': 0,
-  'Mask 53bp1_mask thres_rel': 0.01,
+  'Mask 53bp1_mask file label': '',
+  'Mask 53bp1_mask sig': '',
+  'Mask 53bp1_mask thres_rel': '',
   #MASK_53BP1_BLOB SETTINGS
   'Mask 53bp1_blob_mask file label': '',
   'Mask 53bp1_blob_threshold': '',
@@ -85,37 +86,38 @@ settings = {
   'Mask 53bp1_blob_traj_length_thres': '',
 
   #DENOISE SETTINGS
+  'Deno mean_radius': '',
+  'Deno median_radius': 2,
   'Deno boxcar_radius': 10,
   'Deno gaus_blur_sig': 0.5,
-  'Deno mean_radius': 5,
 
   #DETECTION SETTINGS
-  'Det blob_threshold': 0.005,
-  'Det blob_min_sigma': 10,
-  'Det blob_max_sigma': 30,
-  'Det blob_num_sigma': 5,
-  'Det pk_thresh_rel': 0.8,
+  'Det blob_threshold': 0.01,
+  'Det blob_min_sigma': 2,
+  'Det blob_max_sigma': 10,
+  'Det blob_num_sigma': 9,
+  'Det pk_thresh_rel': 0.1,
 
   #TRACKING SETTINGS
-  'Trak frame_rate': 0.4,
+  'Trak frame_rate': 0.41,
   'Trak pixel_size': 0.04,
-  'Trak divide_num': 1,
+  'Trak divide_num': 3,
 
   ###############################################
-  'Trak search_range': 20,  # NO. 1
+  'Trak search_range': 8,  # NO. 1
   ###############################################
 
   'Trak memory': 3,
 
   #FILTERING SETTINGS
   'Filt max_dist_err': 5,
-  'Filt max_sig_to_sigraw': 2,
-  'Filt max_delta_area': 0.8,
+  'Filt max_sig_to_sigraw': 10,
+  'Filt max_delta_area': 4,
 
   ###############################################
-  'Filt traj_length_thres': 25, # NO. 2
+  'Filt traj_length_thres': 15, # NO. 2
   #SORTING SETTINGS
-  'Sort dist_to_boundary': None, # NO. 3
+  'Sort dist_to_boundary': [-15, 10], # NO. 3
   'Sort travel_dist': None, # NO. 4
   ###############################################
 
@@ -124,8 +126,16 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-from cellquantifier.util.pipeline3_cilia import *
-pipeline_batch(settings, control)
+# from cellquantifier.util.pipeline3_cilia2 import *
+# pipeline_batch(settings, control)
+
+import pandas as pd
+from cellquantifier.publish._fig_quick_cilia_5 import *
+from cellquantifier.phys.travel_dist import *
+df = pd.read_csv('/home/linhua/Desktop/phys/200619-physDataMerged.csv',
+                index_col=False)
+df = add_travel_dist(df)
+fig_quick_cilia_5(df)
 
 # from cellquantifier.publish import *
 # plot_fig_1()
