@@ -59,9 +59,12 @@ def filter_batch(image, method, arg):
 
 		elif method == 'boxcar':
 			denoised[i] = boxcar(image[i], arg)
-			
+
 		elif method == 'mean':
 			denoised[i] = mean(image[i], arg)
+
+		elif method == 'median':
+			denoised[i] = median(image[i], arg)
 
 	return denoised
 
@@ -83,10 +86,16 @@ def gaussian(image, sigma):
     """
 
 	from skimage.filters import gaussian
-	blurred = gaussian(image, sigma)
-	blurred = img_as_ubyte(blurred)
 
-	return blurred
+	image = image / image.max()
+	image = img_as_ubyte(image)
+
+	image = gaussian(image, sigma)
+
+	image = image / image.max()
+	image = img_as_ubyte(image)
+
+	return image
 
 
 def gain(image, gain):
@@ -192,6 +201,22 @@ def mean(image, disk_radius):
 
 	selem = disk(disk_radius)
 	image = rank.mean(image, selem=selem)
+
+	image = image / image.max()
+	image = img_as_ubyte(image)
+
+	return image
+
+
+def median(image, disk_radius):
+	from skimage.morphology import disk
+	from skimage.filters import median
+
+	image = image / image.max()
+	image = img_as_ubyte(image)
+
+	selem = disk(disk_radius)
+	image = median(image, selem=selem)
 
 	image = image / image.max()
 	image = img_as_ubyte(image)
