@@ -29,12 +29,9 @@ def fig_quick_msd(
 	# ~~~~Prepare df for the whole page~~~~
 	# """
     if not df.empty:
-        df = df.drop(['x', 'y'], axis=1)
-        df['x'] = 0
-        df['y'] = df['h_norm']
         pixel_size = df['pixel_size'].mean()
         frame_rate = df['frame_rate'].mean()
-        divide_num = 2.5
+        divide_num = 3
 
         im = tp.imsd(df,
                     mpp=pixel_size,
@@ -69,7 +66,7 @@ def fig_quick_msd(
     figs = [fig1]
     datas = [df]
     xlabels = ['Time (s)']
-    ylabels = ['MSD (a.u)']
+    ylabels = [r'MSD (nm$^2$)']
     for i in range(len(figs)):
         print("\n")
         print("Plotting (%d/%d)" % (i+1, len(figs)))
@@ -92,14 +89,14 @@ def fig_quick_msd(
         format_tklabel(figure, tklabel_fontsize=12)
         format_label(figure, label_fontsize=15)
 
-    figs = [fig1]
-    xscales = [[0, 30, 5], ]
-    yscales = [[125, 350, 50], ]
-    for i in range(len(figs)):
-        format_scale(figs[i],
-                xscale=xscales[i],
-                yscale=yscales[i],
-                )
+    # figs = [fig1]
+    # xscales = [[1.5, 20.5, 5], ]
+    # yscales = [[15000, 48000, 10000], ]
+    # for i in range(len(figs)):
+    #     format_scale(figs[i],
+    #             xscale=xscales[i],
+    #             yscale=yscales[i],
+    #             )
 
 
 
