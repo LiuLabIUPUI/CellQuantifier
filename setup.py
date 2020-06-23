@@ -11,15 +11,16 @@ setup(
     author_email='cwseitz@iu.edu',
     packages=['cellquantifier'],
 
-    install_requires=['trackpy',
+    install_requires=[
+                     'trackpy',
                      'pims',
                      'requests',
-                     'scikit-image',
                      'seaborn',
                      'matplotlib-scalebar',
                      'matplotlib',
                      'pandas',
                      'scikit-learn',
-                     'tensorflow-gpu==1.15.0',
-                     'keras'],
+                     'scikit-image==0.16.2',
+                     'keras'
+                     ],
 )

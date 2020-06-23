@@ -10,7 +10,8 @@ Create a new conda environment
 conda create --name cq python=3.6.5
 conda activate cq
 ```
-Ensure pip is installed
+Ensure pip is installed. Failure to run this command can result in installation
+of outdated packages!
 
 ```
 conda install pip

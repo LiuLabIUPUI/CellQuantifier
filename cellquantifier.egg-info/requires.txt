@@ -1,10 +1,10 @@
 trackpy
 pims
-scikit-image
+requests
 seaborn
 matplotlib-scalebar
 matplotlib
 pandas
 scikit-learn
-tensorflow-gpu==1.15
+scikit-image==0.16.2
 keras

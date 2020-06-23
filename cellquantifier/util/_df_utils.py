@@ -459,14 +459,33 @@ def merge_rna_dfs(input_dir, prefixes):
 		int_df = pd.read_csv(str + '_ins-gluc-intensity-lbld.csv')
 		blobs_df = blobs_df.rename(columns={'region_label': 'label'})
 
+		# """
+		# ~~~~~~~~~~~Make sure there is only one frame~~~~~~~~~~~~~~
+		# """
+
 		if len(blobs_df['frame'].unique()) > 1:
 			blobs_df = blobs_df.loc[blobs_df['frame'] == 0]
+
+		# """
+		# ~~~~~~~~~~~Assign cell type from int_df to detections~~~~~~~~~~~~~~
+		# """
 
 		labels = int_df['label'].unique()
 		for label in labels:
 			cell_type = int_df.loc[int_df['label'] == label, \
 								   'cell_type'].to_numpy()[0]
 			blobs_df.loc[blobs_df['label'] == label, 'cell_type'] = cell_type
+
+		# """
+		# ~~~~~~~~~~~Filter detections in cells not in int_df~~~~~~~~~~~~~~
+		# """
+
+		blobs_df['cell_type'].replace('', np.nan, inplace=True)
+		blobs_df = blobs_df.dropna()
+
+		# """
+		# ~~~~~~~~~~~Assign prefix and concatenate~~~~~~~~~~~~~~
+		# """
 
 		blobs_df = blobs_df.assign(prefix=prefix)
 		int_df = int_df.assign(prefix=prefix)
