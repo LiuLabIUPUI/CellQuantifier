@@ -37,7 +37,7 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
         else:
             t_stats = t_test(blobs_dfs[0][hist_col],
                             blobs_dfs[1][hist_col])
-        if mode=='basic':
+        if format=='basic':
             if t_stats[1] < .0001:
                 t_test_str = prefix_str + 'P < .0001'
             elif t_stats[1] >= .0001 and t_stats[1] < .001:
@@ -49,7 +49,7 @@ def add_t_test(ax, blobs_df, cat_col, hist_col,
             else:
                 t_test_str = prefix_str + 'P = %.2F' % (t_stats[1])
 
-        if mode=='general':
+        if format=='general':
             if t_stats[1] >= .01:
                 t_test_str = prefix_str + 'P = %.2F' % (t_stats[1])
             else:
