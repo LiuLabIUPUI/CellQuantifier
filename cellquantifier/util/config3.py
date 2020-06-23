@@ -31,6 +31,7 @@ class Config():
 		self.BOXCAR_RADIUS = config['Deno boxcar_radius']
 		self.GAUS_BLUR_SIG = config['Deno gaus_blur_sig']
 		self.MEAN_RADIUS = config['Deno mean_radius']
+		self.MEDIAN_RADIUS = config['Deno median_radius']
 
 		#DETECTION SETTINGS
 		self.THRESHOLD = config['Det blob_threshold']
