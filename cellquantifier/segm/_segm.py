@@ -12,7 +12,8 @@ from ..util import *
 
 def find_nuclei(image,
 				min_distance=1,
-				threshold_rel=0.6,
+				seed_thres_rel=0.6,
+				mask=None,
 				pltshow=False):
 
 	"""
@@ -53,18 +54,28 @@ def find_nuclei(image,
 	# """
 	# ~~~~~~~~~~~Find nuclei~~~~~~~~~~~~~
 	# """
+
 	nframes = len(image)
 	for i in range(nframes):
 
 		print('Finding cells in frame %d/%d' % (i, nframes))
-		thresh = threshold_otsu(image[i])
-		binary = image[i] > thresh
+
+		# """
+		# ~~~~~~~~~~~Threshold~~~~~~~~~~~~~
+		# """
+
+		if mask:
+			binary = mask
+		else:
+			thresh = threshold_otsu(image[i])
+			binary = image[i] > thresh
+
 		dist_map = ndi.distance_transform_edt(binary)
 		dist_map = gaussian(dist_map)
 
 		coordinates = peak_local_max(dist_map,
 									 min_distance=min_distance,
-									 threshold_rel=threshold_rel,
+									 threshold_rel=seed_thres_rel,
 									 indices=True)
 
 		# """
@@ -94,7 +105,11 @@ def find_nuclei(image,
 	return blobs_df, dist_map_arr
 
 
-def do_watershed(image, min_distance=1, threshold_rel=0.6, pltshow=False):
+def do_watershed(image,
+				 min_distance=1,
+				 seed_thres_rel=0.6,
+				 mask=None,
+				 pltshow=False):
 
 	"""
 
@@ -134,7 +149,8 @@ def do_watershed(image, min_distance=1, threshold_rel=0.6, pltshow=False):
 
 	seed_df, dist_map_arr = find_nuclei(image,
 										min_distance=min_distance,
-	 					    			threshold_rel=threshold_rel,
+	 					    			seed_thres_rel=seed_thres_rel,
+										mask=mask,
 										pltshow=False)
 
 	# """
@@ -177,6 +193,7 @@ def track_masks(mask_arr,
 				z_filter=0.5,
 				search_range=20,
 				min_traj_length=10,
+				min_size=None,
 				do_filter=False):
 
 	"""
@@ -237,6 +254,10 @@ def track_masks(mask_arr,
 		mask_df['z_score'] = grp.apply(lambda x: np.abs((x - x.mean()))/x.std())
 		mask_df = mask_df.loc[mask_df['z_score'] < z_filter]
 
+		if min_size:
+			mask_df = mask_df.loc[mask_df['area'] > min_size]
+
+		mask_df = tp.link_df(mask_df, search_range=search_range, memory=memory)
 		mask_df = tp.filter_stubs(mask_df, min_traj_length)
 		mask_df = mask_df.reset_index(drop=True)
 
