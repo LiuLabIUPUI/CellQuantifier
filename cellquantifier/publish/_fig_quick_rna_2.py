@@ -3,91 +3,81 @@ import pandas as pd
 import numpy as np
 
 from ..phys import *
-from ..phys.physutil import *
+from ..util import get_frac_df
 from ..plot.plotutil import *
 
-from itertools import combinations
-from scipy import stats
+from matplotlib.lines import Line2D
+from scipy.stats import sem
 
-
-def fig_quick_rna_2(input_dir, typ_arr=['type1','type2','type3','type4'],
-					sample_type=None):
+def fig_quick_rna_2(merged_blobs_df,
+					merged_int_df,
+					norm_row_props,
+					norm_nest_col,
+					save_path=None):
 
 	"""
-
-	Table that shows the number of cells detected for each sample type
 
 	Pseudo code
 	----------
 	1. Build the figure
-	2. Build the table
-
-	Parameters
-	----------
-	input_dir : str,
-		Directory containing the files of interest
-	typ_arr: list
-		List of unique types some of which may be in merged_xxx_df
-	sample_type : str, optional
-		A specific sample type to generate the table for
+	2. Group by 'label', 'cell_type' and 'prefix' columns
 
 	"""
 
-	fig, ax = plt.subplots(figsize=(10,2))
+	merged_blobs_df.to_csv(save_path + '200611_sHLA-DMB-merged-blobs-df.csv')
 
 	# """
-	# ~~~~~~~~~~~Merge blobs_dfs and int_dfs~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Copy number pivot table~~~~~~~~~~~~~~
 	# """
 
-	prefixes = get_unique_prefixes(input_dir, tag='hla-fittData-lbld.csv')
-	merged_blobs_df, merged_int_df = merge_physdfs3(input_dir, prefixes)
+	cols = ['cell_type', 'sample_type', 'label']
+	merged_blobs_df = merged_blobs_df[cols + ['region_type', 'prefix']]
+	merged_blobs_df = merged_blobs_df.rename(columns={'prefix':'count_'})
 
-	if sample_type:
-		merged_int_df = merged_int_df.loc[merged_int_df['sample_type'] == sample_type]
+	count_df_pivot = pd.pivot_table(merged_blobs_df,
+									index=cols,
+									columns=['region_type'],
+									aggfunc='count',
+									fill_value=0)
 
-	merged_int_df = merged_int_df.reindex()
+	count_df = count_df_pivot.reset_index()
+	count_df.columns = [''.join(col) for col in count_df.columns]
+	count_df['count_total'] = count_df['count_cyto'] + count_df['count_nuc']
 
-
-	# """
-	# ~~~~~~~~~~~Generate table~~~~~~~~~~~~~
-	# """
-
-	for i, row in merged_int_df.iterrows():
-		row['prefix'] = row['prefix'].split('_')[-2]
-
-	count_df = merged_int_df.groupby(['cell_type','prefix'] \
-									 ).size().reset_index(name="count")
-
-	pivoted = pd.pivot_table(count_df,
-					   index=['cell_type','prefix'],
-					   values='count',
-					   fill_value = 0,
-					   dropna=False,
-					   aggfunc=np.sum)
-
-	count_df = pd.DataFrame(pivoted.to_records())
+	count_df.to_csv(save_path + '200611_sHLA-DMB-count-df.csv')
 
 	# """
-	# ~~~~~~~~~~~Cell counts table by patient, cell_types~~~~~~~~~~~~~~
+	# ~~~~~~~~~~~Statistics~~~~~~~~~~~~~~
 	# """
 
-	count_df2 = pd.DataFrame(columns=['prefix']+typ_arr)
-	patients = count_df['prefix'].unique()
-	for i, patient in enumerate(patients):
-		counts = count_df.loc[count_df['prefix'] == patient, \
-							 'count'].to_numpy()
-		count_df2.loc[i] = [patient] + list(counts)
+	data_col = 'count_total'; cat_cols = ['cell_type', 'sample_type']
+	count_df_stat = count_df[[data_col] + cat_cols]
+	count_df_stat = count_df_stat.groupby(cat_cols, sort=True)[data_col].agg([np.mean, sem])
+	count_df_stat = count_df_stat.reset_index()
 
-	count_df2['sum'] = count_df2[typ_arr].sum(axis=1)
-	count_df2.loc['Total']= count_df2[typ_arr+['sum']].sum(axis=0)
+	count_df_stat = norm_df(count_df_stat,
+					   col='mean',
+					   col_arr=['mean', 'sem'],
+					   row_props=norm_row_props,
+					   nest_col=norm_nest_col)
 
-	cell_text = []
-	for row in range(len(count_df2)):
-		cell_text.append(count_df2.iloc[row])
 
-	table = ax.table(cellText=cell_text, colLabels=count_df2.columns, \
-					  loc='center')
+	count_df_stat.to_csv(save_path + '200611_sHLA-DMB-count-df-pivot.csv')
 
-	# table.scale(1,2)
-	ax.axis('off')
-	plt.tight_layout()
+	# """
+	# ~~~~~~~~~~~Nucleus/Cytoplasm Fractions~~~~~~~~~~~~~~
+	# """
+
+
+	frac_df = count_df.copy();
+	frac_df['frac_cyto'] = frac_df['count_cyto']/frac_df['count_total']
+	frac_df['frac_nuc'] = frac_df['count_nuc']/frac_df['count_total']
+	frac_df = frac_df.drop(columns=['count_cyto', 'count_nuc', 'count_total'])
+
+	frac_df.to_csv(save_path + '200611_sHLA-DMB-frac-df.csv')
+
+	data_cols = ['frac_nuc', 'frac_cyto']
+	frac_df_stat = frac_df.groupby(cat_cols, sort=True)[data_cols].agg([np.mean, sem])
+	frac_df_stat = frac_df_stat.reset_index()
+
+	frac_df_stat.to_csv(save_path + '200611_sHLA-DMB-frac-df-pivot.csv')

@@ -13,7 +13,7 @@ setup(
 
     install_requires=[
                      'trackpy',
-                     'pims',
+                     'pims==0.4.1',
                      'requests',
                      'seaborn',
                      'matplotlib-scalebar',
