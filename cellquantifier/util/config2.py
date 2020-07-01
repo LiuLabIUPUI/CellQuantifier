@@ -6,8 +6,8 @@ class Config():
 	def __init__(self, config):
 
 		#I/O
-		self.INPUT_PATH = config['IO input_path']
-		self.OUTPUT_PATH = config['IO output_path']
+		self.INPUT_PATH = self.to_posix_path(config['IO input_path'])
+		self.OUTPUT_PATH = self.to_posix_path(config['IO output_path'])
 		self.ROOT_NAME = ''
 		self.START_FRAME = config['Start frame index']
 		self.TRANGE = range(config['Start frame index'], config['End frame index'])
@@ -94,6 +94,11 @@ class Config():
 		#DICT
 		self.DICT = config.copy()
 
+	def to_posix_path(self, path):
+		path = os.path.abspath(path)
+		if not path.endswith('/'):
+			path += '/'
+		return path
 
 	def save_config(self):
 
