@@ -90,6 +90,11 @@ def merge_physdfs(files, mode='basic'):
 		        m = root_name.find('_') + 1
 		        n = root_name.find('_', m)
 		        df = df.assign(exp_label=root_name[m:n])
+		if mode=='mengdi':
+			m = root_name.find('_') + 1
+			m = root_name.find('_', m) + 1
+			n = root_name.find('-', m)
+			df = df.assign(exp_label=root_name[m:n])
 
 		merged_df = pd.concat([merged_df, df], sort=True, ignore_index=True)
 
