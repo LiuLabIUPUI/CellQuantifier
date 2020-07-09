@@ -777,14 +777,14 @@ class Pipeline3():
 			cb_min, cb_max, cb_major_ticker, cb_minor_ticker = None, None, None, None
 
 
-		# """
-		# ~~~~~~~~Prepare the boundary_masks~~~~~~~~
-		# """
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif'):
-			boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
-			boundary_masks = boundary_masks // 255
-		else:
-			boundary_masks = self.get_boundary_mask()
+		# # """
+		# # ~~~~~~~~Prepare the boundary_masks~~~~~~~~
+		# # """
+		# if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif'):
+		# 	boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
+		# 	boundary_masks = boundary_masks // 255
+		# else:
+		# 	boundary_masks = self.get_boundary_mask()
 
 
 		fig, ax = plt.subplots()
@@ -806,9 +806,9 @@ class Pipeline3():
 
 					show_particle_label=False,
 
-					show_boundary=True,
-					boundary_mask=boundary_masks[0],
-					boundary_list=self.config.DICT['Sort dist_to_boundary'],
+					# show_boundary=True,
+					# boundary_mask=boundary_masks[0],
+					# boundary_list=self.config.DICT['Sort dist_to_boundary'],
 					)
 		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.pdf')
 		# plt.clf(); plt.close()
@@ -1182,7 +1182,7 @@ class Pipeline3():
 						curr_physdf = add_traj_length(curr_physdf)
 						curr_physdf.round(6).to_csv(file, index=False)
 
-				phys_df = merge_physdfs(phys_files, mode='general')
+				phys_df = merge_physdfs(phys_files, mode='mengdi')
 				phys_df = relabel_particles(phys_df)
 			else:
 				phys_df = pd.read_csv(phys_files[0])

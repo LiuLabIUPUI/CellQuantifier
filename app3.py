@@ -20,7 +20,7 @@ control = [
 # 'phys_dist2halfcilia',
 # 'phys_cilia_halfsign',
 # 'phys_cilia_otherinfo',
-'plot_traj',
+# 'plot_traj',
 # 'anim_traj',
 # 'merge_plot',
 
@@ -43,8 +43,8 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/old_data/',
-  'IO output_path': '/home/linhua/Desktop/old_data/',
+  'IO input_path': '/home/linhua/Desktop/mb/',
+  'IO output_path': '/home/linhua/Desktop/mb/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -99,23 +99,23 @@ settings = {
   'Det pk_thresh_rel': 0.1,
 
   #TRACKING SETTINGS
-  'Trak frame_rate': 0.41,
-  'Trak pixel_size': 0.04,
-  'Trak divide_num': 3,
+  'Trak frame_rate': 20,
+  'Trak pixel_size': 0.163,
+  'Trak divide_num': 5,
 
   ###############################################
-  'Trak search_range': 8,  # NO. 1
+  'Trak search_range': 2,  # NO. 1
   ###############################################
 
   'Trak memory': 3,
 
   #FILTERING SETTINGS
-  'Filt max_dist_err': 5,
-  'Filt max_sig_to_sigraw': 10,
-  'Filt max_delta_area': 4,
+  'Filt max_dist_err': 1,
+  'Filt max_sig_to_sigraw': 2,
+  'Filt max_delta_area': 0.8,
 
   ###############################################
-  'Filt traj_length_thres': 15, # NO. 2
+  'Filt traj_length_thres': 40, # NO. 2
   #SORTING SETTINGS
   'Sort dist_to_boundary': [-15, 10], # NO. 3
   'Sort travel_dist': None, # NO. 4
@@ -126,28 +126,13 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-# from cellquantifier.util.pipeline3_cilia2 import *
+# from cellquantifier.util.pipeline3 import *
 # pipeline_batch(settings, control)
-
-import pandas as pd
-from cellquantifier.publish._fig_quick_cilia_5 import *
-from cellquantifier.phys.travel_dist import *
-df = pd.read_csv('/home/linhua/Desktop/phys/200619-physDataMerged.csv',
-                index_col=False)
-df = add_travel_dist(df)
-fig_quick_cilia_5(df)
-
-# from cellquantifier.publish import *
-# plot_fig_1()
-
-
 
 # from cellquantifier.publish import *
 # import pandas as pd
 # df = pd.read_csv('/home/linhua/Desktop/temp/200303_50NcBLM-physDataMerged.csv',
 #                 index_col=False)
-#
-# print(len(df))
 # df= df[ ~df['raw_data'].isin(['200211_50NcLiving_D1-HT-physData.csv',
 #                         '200211_50NcLiving_A2-HT-physData.csv',
 #                         '200206_50NcLiving_L2-HT-physData.csv',
@@ -176,71 +161,11 @@ fig_quick_cilia_5(df)
 # print(len(df))
 # fig_quick_nucleosome(df)
 
-
-# from cellquantifier.publish import *
-# import pandas as pd
-# df = pd.read_csv('/home/linhua/Desktop/temp/200407-physDataMerged.csv',
-#                 index_col=False)
-# fig_quick_cilia(df)
-
-# from cellquantifier.phys import *
-# import pandas as pd
-# df = pd.read_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged.csv',
-#                 index_col=False)
-# df = add_cilia_liftime(df)
-# df.round(6).to_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged-lifetime.csv',
-#                 index=False)
-
-
-# from cellquantifier.publish import *
-# import pandas as pd
-# df_glb = pd.read_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged-lifetime.csv',
-#                 index_col=False)
-# df_loc = pd.read_csv('/home/linhua/Desktop/temp/200505_localPhysDataMerged-lifetime.csv',
-#                 index_col=False)
-# fig_quick_cilia_2(df_glb, df_loc)
-
-
-# from cellquantifier.phys import add_d_alpha
-# import pandas as pd
-# df = pd.read_csv('/home/linhua/Desktop/temp/df.csv',
-#                 index_col=False)
-# df = add_d_alpha(df, divide_num=3, unified_pixel_size=0.1)
-# df.round(6).to_csv('/home/linhua/Desktop/temp/df_newD.csv',
-#                 index=False)
-
-
-
-# from cellquantifier.plot import plot_msd_fitting
-# import pandas as pd
-# df = pd.read_csv('/home/linhua/Desktop/temp/df_newD.csv',
-#                 index_col=False)
-# df = df[ df['particle'].isin([0,1,2,3,5,9,10,12,14,15,17,20,25,29,30,31,32,
-#         38,39,43,46,50,51,53,55,58,62,65,66])]
-# plot_msd_fitting(df, output_path='/home/linhua/Desktop/temp/')
-
-
-# from cellquantifier.plot import plot_1dfft
-# import pandas as pd
-# df = pd.read_csv('/home/linhua/Desktop/temp/df_newD.csv',
-#                 index_col=False)
-# # df = df[ df['particle'].isin([0,1,2,3,4])]
-# # df = df[ df['exp_label'].isin(['cohort a'])]
-# # df = df[ ~df['particle'].isin([14, 25, 26, 35, 36, 37])]
-# df = df[ df['exp_label'].isin(['cohort b'])]
-# df = df[ ~df['particle'].isin([41,42,45,54,55,60,63,69,70])]
-# plot_1dfft(df, output_path='/home/linhua/Desktop/temp/')
-
-
-# from cellquantifier.publish import *
-# import pandas as pd
-# df_glb = pd.read_csv('/home/linhua/Desktop/temp/200407_globalPhysDataMerged-lifetime.csv',
-#                 index_col=False)
-# df_loc = pd.read_csv('/home/linhua/Desktop/temp/df_newD.csv',
-#                 index_col=False)
-# df_loc = df_loc[ df_loc['particle'].isin([0,1,3,5,9,10,12,14,15,17,20,25,29,30,31,32,
-#         38,39,43,46,50,51,53,55,58,62,65,66])]
-# fig_quick_cilia_4(df_glb, df_loc)
+import pandas as pd
+from cellquantifier.publish._fig_quick_merge import *
+df = pd.read_csv('/home/linhua/Desktop/mb/200708_50NcLiving-MvsBphysDataMerged.csv',
+                index_col=False)
+fig_quick_merge(df)
 
 
 # from cellquantifier.publish import *
@@ -248,6 +173,14 @@ fig_quick_cilia_5(df)
 # df = pd.read_csv('/home/linhua/Desktop/output/cilia-physData.csv',
 #                 index_col=False)
 # fig_quick_msd(df)
+
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_cilia_5 import *
+# from cellquantifier.phys.travel_dist import *
+# df = pd.read_csv('/home/linhua/Desktop/phys/200619-physDataMerged.csv',
+#                 index_col=False)
+# df = add_travel_dist(df)
+# fig_quick_cilia_5(df)
 
 
 # from skimage.io import imread, imsave
@@ -259,7 +192,6 @@ fig_quick_cilia_5(df)
 #                 index_col=False)
 # df = df[ df['traj_length']>20 ]
 # fig_quick_antigen(df)
-
 
 
 # df = pd.read_csv('/home/linhua/Desktop/temp-E/200205_MalKN-E-physData.csv',
@@ -275,7 +207,6 @@ fig_quick_cilia_5(df)
 #                 show_image=False)
 # imsave('/home/linhua/Desktop/temp-E/anim-traj-result.tif', anim_tif)
 # fig_quick_antigen(df)
-
 
 
 # from cellquantifier.publish import *

@@ -121,12 +121,12 @@ def add_mean_msd2(ax, df,
                     label=cats_label[i],
                     linewidth=fitting_linewidth,
                     )
-            # ax.errorbar(x, fit_of_mean_msd, yerr=yerr,
-            #         linestyle='None',
-            #         marker='.',
-            #         markersize=markersize,
-            #         elinewidth=elinewidth,
-            #         capsize=capsize,
-            #         color=colors[i],
-            #         )
+            ax.errorbar(x, fit_of_mean_msd, yerr=yerr,
+                    linestyle='None',
+                    marker='.',
+                    markersize=markersize,
+                    elinewidth=elinewidth,
+                    capsize=capsize,
+                    color=colors[i],
+                    )
             ax.legend()
