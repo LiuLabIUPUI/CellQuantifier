@@ -13,7 +13,7 @@ control = [
 # 'deno_gaus',
 # 'check_detect_fit',
 # 'detect',
-# 'fit',
+'fit',
 
 # 'filt_track',
 # 'phys_xy_global',
@@ -43,8 +43,8 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/mb/',
-  'IO output_path': '/home/linhua/Desktop/mb/',
+  'IO input_path': '/home/linhua/Desktop/temp-All/',
+  'IO output_path': '/home/linhua/Desktop/temp-All/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -126,8 +126,8 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-# from cellquantifier.util.pipeline3 import *
-# pipeline_batch(settings, control)
+from cellquantifier.util.pipeline3 import *
+pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
 # import pandas as pd
@@ -161,11 +161,11 @@ settings = {
 # print(len(df))
 # fig_quick_nucleosome(df)
 
-import pandas as pd
-from cellquantifier.publish._fig_quick_merge import *
-df = pd.read_csv('/home/linhua/Desktop/mb/200708_50NcLiving-MvsBphysDataMerged.csv',
-                index_col=False)
-fig_quick_merge(df)
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_merge import *
+# df = pd.read_csv('/home/linhua/Desktop/mb/200708_50NcLiving-MvsBphysDataMerged.csv',
+#                 index_col=False)
+# fig_quick_merge(df)
 
 
 # from cellquantifier.publish import *

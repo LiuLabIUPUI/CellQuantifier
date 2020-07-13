@@ -69,17 +69,6 @@ class Pipeline3():
 		else:
 			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 
-		# sides_pixel_num = 100
-		# if sides_pixel_num:
-		# 	new_shape = (frames.shape[0],
-		# 				frames.shape[1] + sides_pixel_num*2,
-		# 				frames.shape[2] + sides_pixel_num*2)
-		# 	new_frames = np.zeros(new_shape, dtype=frames.dtype)
-		# 	new_frames[:,
-		# 		sides_pixel_num:sides_pixel_num+frames.shape[1],
-		# 		sides_pixel_num:sides_pixel_num+frames.shape[2]] = frames
-		# 	frames = new_frames
-
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
 
 		if frames.ndim == 3 and self.config.DICT['End frame index'] <= len(frames):
@@ -570,18 +559,27 @@ class Pipeline3():
 
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif')
 
-		psf_df, fit_plt_array = fit_psf_batch(frames_deno,
-		            blobs_df,
-		            diagnostic=False,
-		            pltshow=False,
-		            diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
-		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
-		            truth_df=None,
-		            segm_df=None)
-		# imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fitVideo.tif', fit_plt_array)
+		# psf_df, fit_plt_array = fit_psf_batch(frames_deno,
+		#             blobs_df,
+		#             diagnostic=False,
+		#             pltshow=False,
+		#             diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
+		#             diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
+		#             truth_df=None,
+		#             segm_df=None)
+		# # imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fitVideo.tif', fit_plt_array)
+
+		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
+
 		psf_df = psf_df.apply(pd.to_numeric)
+		psf_df['slope'] = psf_df['A'] / (9 * np.pi * psf_df['sig_x'] * psf_df['sig_y'])
 		psf_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-fittData.csv', index=False)
+
+		foci_prop_hist_fig = plot_foci_prop_hist(psf_df)
+		foci_prop_hist_fig.savefig(self.config.OUTPUT_PATH + \
+						self.config.ROOT_NAME + '-foci-prop-hist.pdf')
+
 
 	# helper function for filt and track()
 	def track_blobs_twice(self):
