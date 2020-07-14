@@ -24,8 +24,8 @@ settings = {
   'Load existing analMeta': False,
 
   #IO
-  'IO input_path': '/home/clayton/Desktop/input/',
-  'IO output_path': '/home/clayton/Desktop/temp/',
+  'IO input_path': '/home/cwseitz/Desktop/input/',
+  'IO output_path': '/home/cwseitz/Desktop/temp/',
 
   #REGISTRATION SETTINGS
   'Regi reference file label': '',
