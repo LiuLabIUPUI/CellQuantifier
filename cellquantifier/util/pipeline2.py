@@ -456,6 +456,8 @@ class Pipeline2():
 		psf_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-fittData.csv', index=False)
 
+		self.config.save_config()
+
 
 	def filt_track(self):
 
