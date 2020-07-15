@@ -12,6 +12,7 @@ from ..deno import filter_batch
 from ..io import *
 from ..segm import *
 from ..regi import get_regi_params, apply_regi_params
+from ..plot.plotutil import anno_raw
 
 from ..smt.detect import detect_blobs, detect_blobs_batch
 from ..smt.fit_psf import fit_psf, fit_psf_batch
@@ -66,12 +67,14 @@ class Pipeline2():
 		else:
 			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 
-		frames = frames / frames.max()
-		frames = img_as_ubyte(frames)
+		# frames = frames / frames.max()
+		# frames = img_as_ubyte(frames)
+
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
 
 		if frames.ndim == 3 and self.config.DICT['End frame index'] <= len(frames):
 			frames = frames[list(self.config.TRANGE),:,:]
+
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
 
 		print('\tRegi_ref_file: [%s]' % self.config.REF_FILE_NAME)
@@ -424,7 +427,7 @@ class Pipeline2():
 
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
 
-		blobs_df, det_plt_array = detect_blobs_batch(frames,
+		blobs_df, det_plt_array = detect_blobs_batch(frames_deno,
 									min_sig=self.config.MIN_SIGMA,
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
@@ -436,6 +439,9 @@ class Pipeline2():
 									pltshow=False,
 									plot_r=False,
 									truth_df=None)
+
+
+		det_plt_array = anno_raw(frames_deno, blobs_df)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
 
 		psf_df, fit_plt_array = fit_psf_batch(frames_deno,

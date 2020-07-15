@@ -382,3 +382,37 @@ def anno_traj(ax, df,
     set_ylim_reverse(ax)
     ax.set_xticks([])
     ax.set_yticks([])
+
+def anno_raw(im, df, color=(255,0,0)):
+
+    """
+    Annotate scatter on the original image or movie
+    The scatter coordinates are obtained from df.
+
+    Parameters
+    ----------
+    ax : object
+        matplotlib axis to annotate ellipse.
+    df : DataFrame
+        df has columns of 'x', 'y'.
+    color: tuple, optional
+        Color of the marker and circle.
+
+    """
+
+    from skimage.io import imsave
+    im = np.array(im)
+    im_rgb = []
+
+    for frame in df['frame'].unique():
+        this_df = df.loc[df['frame'] == frame]
+        this_frame = im[frame]
+        this_frame_rgb = np.dstack((this_frame, this_frame, this_frame))
+        for i in this_df.index:
+            y, x = int(this_df.at[i, 'x']), int(this_df.at[i, 'y'])
+            this_frame_rgb[y, x, :] = np.array(color)
+        im_rgb.append(this_frame_rgb)
+
+    im_rgb = np.array(im_rgb)
+
+    return im_rgb
