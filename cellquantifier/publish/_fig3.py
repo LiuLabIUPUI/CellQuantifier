@@ -7,11 +7,9 @@ from matplotlib.gridspec import GridSpec
 from skimage.io import imread
 from skimage.color import gray2rgb
 
-from ..qmath import interpolate_lin
+from ..math import interpolate_lin
 from ..util import bin_df
-from ..plot.plotutil import *
-from ..segm import get_thres_mask, get_dist2boundary_mask
-
+from ..plot import *
 
 
 def plot_fig_3(df,
@@ -45,7 +43,7 @@ def plot_fig_3(df,
 	import pandas as pd
 	from cellquantifier.publish import plot_fig_2
 	from cellquantifier.phys.physutil import add_avg_dist
-	from cellquantifier.plot.plotutil import *
+	from cellquantifier.plot import *
 
 	df = pd.read_csv('cellquantifier/data/physDataMerged.csv')
 	df = add_avg_dist(df)

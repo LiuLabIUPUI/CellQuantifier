@@ -2,7 +2,7 @@ import numpy as np; import pandas as pd
 import matplotlib.pyplot as plt
 import trackpy as tp
 
-from ...qmath import msd, fit_msd
+from ..math import msd, fit_msd
 
 def add_mean_msd(ax, df,
                 pixel_size,
@@ -40,7 +40,7 @@ def add_mean_msd(ax, df,
 	--------
 	import matplotlib.pyplot as plt
     import pandas as pd
-    from cellquantifier.plot.plotutil import add_mean_msd
+    from cellquantifier.plot import add_mean_msd
     path = 'cellquantifier/data/physDataMerged.csv'
     df = pd.read_csv(path, index_col=None, header=0)
     fig, ax = plt.subplots()

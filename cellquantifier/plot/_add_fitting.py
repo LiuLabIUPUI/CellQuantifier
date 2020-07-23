@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from scipy.stats import pearsonr
-from cellquantifier.qmath import fit_linear
+from ..math import fit_linear
 
 def add_fitting(ax,
 				df,

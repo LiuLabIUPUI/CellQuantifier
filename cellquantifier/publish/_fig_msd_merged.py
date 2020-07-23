@@ -10,9 +10,9 @@ mpl.rcParams['font.weight'] = 'bold'
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib_scalebar.scalebar import ScaleBar
-from ..qmath import msd, fit_msd, t_test
+from ..math import msd, fit_msd, t_test
 from skimage.io import imsave
-from ..plot.plotutil import plt2array
+from ..plot import plt2array
 
 
 def plot_msd_merged(blobs_df,

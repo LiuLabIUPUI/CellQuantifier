@@ -1,14 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from cellquantifier.plot.plotutil import format_ax
+from cellquantifier.plot import format_ax
 from skimage.measure import regionprops
 from skimage.segmentation import mark_boundaries
 from skimage.filters import gaussian
 from skimage.transform import rotate
 from skimage.exposure import adjust_gamma
 from skimage.transform import SimilarityTransform, warp
-from ..qmath.ransac import ransac_polyfit
-from ..plot.plotutil import anno_ellipse
+from ..math.ransac import ransac_polyfit
+from ..plot import anno_ellipse
 from ..segm.mask import get_thres_mask as get_mask
 
 

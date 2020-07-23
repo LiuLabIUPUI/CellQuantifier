@@ -1,6 +1,6 @@
 import numpy as np; import pandas as pd; import pims
-from ..plot.plotutil import anno_blob, anno_scatter
-from ..plot.plotutil import plot_end
+from ..plot import anno_blob, anno_scatter
+from ..plot import plot_end
 from matplotlib_scalebar.scalebar import ScaleBar
 from skimage.feature import blob_log
 import matplotlib.pyplot as plt

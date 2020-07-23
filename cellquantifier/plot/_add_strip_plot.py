@@ -2,10 +2,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as  np
-
 from distutils.util import strtobool
-from cellquantifier.plot.plotutil import *
-
 
 def add_strip_plot(ax,
 				   df,

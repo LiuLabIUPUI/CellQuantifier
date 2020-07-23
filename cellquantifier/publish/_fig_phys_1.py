@@ -1,4 +1,4 @@
-from .plotutil import *
+from ..plot import *
 from datetime import date
 
 def plot_phys_1(blobs_df,

@@ -2,11 +2,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
+import pandas as pd
+import re
 
 from sklearn import mixture
 from scipy import stats
 from skimage.measure import label
-
+from scipy.ndimage import distance_transform_edt
 
 def add_obj_lbl(df, mask, is_labeled=True, col_name='region_label'):
 
@@ -187,7 +189,6 @@ def norm_df(df, col, col_arr, row_props, nest_col=None):
 	df = pd.concat(norm_df_arr)
 
 	return df
-
 
 def nest_df(df, cat_cols, count=-1, data_col=None):
 
@@ -498,7 +499,6 @@ def merge_rna_dfs(input_dir, prefixes):
 
 	return merged_blobs_df, merged_int_df
 
-
 def add_bool_col(df, data_col, sorters=None):
 
 	"""
@@ -553,8 +553,6 @@ def add_bool_col(df, data_col, sorters=None):
 			sorted_df.loc[sorted_df['particle'] == particle, 'sort_flag_53bp1'] = bool
 
 	return sorted_df
-
-from scipy.ndimage import distance_transform_edt
 
 def add_distmap_val(df, mask, colname='distmap_val'):
 
@@ -653,7 +651,6 @@ def add_travel_dist(df):
 
     return df
 
-
 def add_traj_area(physdf):
     """
     Add columns to physdf: 'traj_sigx', 'traj_sigy', 'traj_lc', 'traj_area'
@@ -713,10 +710,6 @@ def add_avg_dist(df):
 		df.loc[df['particle'] == particle, 'avg_dist_bound'] = dist_bound
 
 	return df
-
-
-import pandas as pd
-import re
 
 def relabel_particles(df, col1='raw_data', col2='particle'):
 
@@ -994,8 +987,6 @@ def compute_force(df):
     df = df.fillna(0)
 
     return df
-
-import numpy as np
 
 def compute_ang_vel(df, frame_rate=1):
 

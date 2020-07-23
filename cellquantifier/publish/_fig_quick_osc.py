@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-from ..plot.plotutil import *
+from ..plot import *
 from ..smt import get_d_values
 from scipy.stats import norm, expon
 import numpy as np
-from ..qmath import t_test
+from ..math import t_test
 import pandas as pd
 
 

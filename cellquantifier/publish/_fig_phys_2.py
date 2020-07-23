@@ -1,4 +1,4 @@
-from .plotutil import *
+from ..plot import *
 import matplotlib.pyplot as plt
 
 def plot_phys_2(phys_df, cat_col):

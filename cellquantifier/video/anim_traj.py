@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib_scalebar.scalebar import ScaleBar
-from ..plot.plotutil import *
+from ..plot import *
 from skimage.morphology import binary_dilation, binary_erosion, disk
 from functools import reduce; import operator; import math
 

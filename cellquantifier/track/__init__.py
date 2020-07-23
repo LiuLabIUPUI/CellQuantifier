@@ -1,3 +1,3 @@
 from ._track import *
 from ._detect import *
-from ._fit_psf import *
+from ._fit import *

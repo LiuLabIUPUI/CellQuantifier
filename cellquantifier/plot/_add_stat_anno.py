@@ -1,4 +1,4 @@
-from ...util import flatten
+from ..util import flatten
 
 def add_stat_anno(ax, x_arr,
 				  y_arr,

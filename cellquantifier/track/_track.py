@@ -2,8 +2,7 @@ import numpy as np
 import pandas as pd
 import trackpy as tp
 import sys
-
-from ..qmath import fit_msd
+from ..math import fit_msd
 
 def get_d_values(traj_df, im, divide_num):
 

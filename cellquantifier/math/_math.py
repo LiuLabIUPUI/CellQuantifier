@@ -1,77 +1,21 @@
 import scipy.optimize as op
 import numpy as np
 import math
+from scipy.optimize import curve_fit
 
 # """
-# ~~~~~~~~~~~~~~General Functions~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~General Functions~~~~~~~~~~~~~~
 # """
-
-def fit_expdecay(x,y):
-
-	"""Exponential decay fitting function
-
-	Parameters
-	----------
-	x: 1d ndarray
-		raw x data
-
-	y: 1d ndarray
-		raw y data
-
-	Returns
-	-------
-	popt, pcov: 1d ndarray
-		optimal parameters and covariance matrix
-	"""
-
-	def exp_decay(x,a,b,c):
-
-		return a*(np.exp(-(x-b)/c))
-
-	popt, pcov = op.curve_fit(exp_decay, x, y)
-
-	return popt, pcov
-
-def fit_sigmoid(x,y):
-
-	"""Sigmoid fitting function
-
-	Parameters
-	----------
-	x: 1d ndarray
-		raw x data
-
-	y: 1d ndarray
-		raw y data
-
-	Returns
-	-------
-	popt, pcov: 1d ndarray
-		optimal parameters and covariance matrix
-	"""
-
-	def sigmoid(x, a, b, c, d):
-
-		return a/(1+np.exp(-b*(x-c))) + d
-
-	param_bounds=([0,1],[np.inf,1.5])
-
-	popt, pcov = op.curve_fit(sigmoid, x, y)
-
-	return popt, pcov
 
 def fit_linear(x, y):
 
 	"""Perform linear regression on bivariate data
-
 	Parameters
 	----------
 	x: 1d ndarray
 		raw x data
-
 	y: 1d ndarray
 		raw y data
-
 	Returns
 	-------
 	popt, pcov: 1d ndarray
@@ -88,15 +32,12 @@ def fit_linear(x, y):
 def fit_gaussian1d(x, y):
 
 	"""1D Gaussian fitting function
-
 	Parameters
 	----------
 	x: 1d ndarray
 		raw x data
-
 	y: 1d ndarray
 		raw y data
-
 	Returns
 	-------
 	popt, pcov: 1d ndarray
@@ -117,18 +58,14 @@ def fit_poisson1d(x,y):
 
 
 	"""1D Scaled Poisson fitting function
-
 	Parameters
 	----------
 	x: 1d ndarray
 		raw x data
-
 	y: 1d ndarray
 		raw y data
-
 	scale: float
 		scaling factor for the poisson distribution
-
 	Returns
 	-------
 	popt, pcov: ndarray
@@ -144,40 +81,90 @@ def poisson1d(x, lambd, scale):
 	return scale*(lambd**x/factorial(x))*np.exp(-lambd)
 
 # """
-# ~~~~~~~~~~~~~~MSD Functions~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~MSD Functions~~~~~~~~~~~~~~
 # """
 
-def msd1(x, D, alpha):
-	return 4*D*(x**alpha)
+def fit_offset_msd(x,y, space='log'):
 
-def msd2(x, D, alpha, c):
+	"""Mean Squared Dispacement fitting
+	Parameters
+	----------
+	x: 1d array
+		raw x data
+	y: 1d array
+		raw y data
+	space: string
+		'log' for fitting in log space (default)
+		'linear' for sitting in linear space
+	Returns
+	-------
+	popt, pcov: 1d ndarray
+		optimal parameters and covariance matrix
+	"""
+
+	cmax = 1e6
+	popt, pcov = op.curve_fit(offset_msd, x, y,
+							  bounds=(0, [np.inf, np.inf, cmax]),
+							  maxfev=1000)
+
+	return popt
+
+def fit_msd(x,y, space='log'):
+
+	"""Mean Squared Dispacement fitting
+	Parameters
+	----------
+	x: 1d array
+		raw x data
+	y: 1d array
+		raw y data
+	space: string
+		'log' for fitting in log space (default)
+		'linear' for sitting in linear space
+	Returns
+	-------
+	popt, pcov: 1d ndarray
+		optimal parameters and covariance matrix
+	"""
+
+	def fit_msd_log(x, y):
+
+		from scipy import stats
+
+		x = [math.log(i) for i in x]
+		y = [math.log(i) for i in y]
+
+		slope, intercept, r, p, stderr = \
+			stats.linregress(x,y)
+
+		D = np.exp(intercept) / 4; alpha = slope
+		popt = (D, alpha)
+		return popt
+
+	def fit_msd_linear(x, y):
+
+		popt, pcov = op.curve_fit(msd, x, y,
+								  bounds=(0, [np.inf, np.inf]))
+
+		return popt
+
+	if space == 'log':
+		popt = fit_msd_log(x,y)
+	elif space == 'linear':
+		popt = fit_msd_linear(x,y)
+
+	return popt
+
+def offset_msd(x, D, alpha, c):
+
 	return 4*D*(x**alpha) + c
 
-def fit_msd1(x, y):
-	popt, pcov = opt.curve_fit(msd1, x, y,
-				  bounds=(0, [np.inf, np.inf]))
-	return popt
+def msd(x, D, alpha):
 
-def fit_msd1_log(x, y):
-	x = [math.log(i) for i in x]
-	y = [math.log(i) for i in y]
-
-	slope, intercept, r, p, stderr = \
-		stats.linregress(x,y)
-
-	D = np.exp(intercept) / 4; alpha = slope
-	popt = (D, alpha)
-
-	return popt
-
-def fit_msd2(x, y):
-	popt, pcov = opt.curve_fit(msd2, x, y,
-				  bounds=(0, [np.inf, np.inf, np.inf]),
-				  )
-	return popt
+	return 4*D*(x**alpha)
 
 # """
-# ~~~~~~~~~~~~~~Misc Functions~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~Miscellaneous Functions~~~~~~~~~~~~~~
 # """
 
 def spot_count(x,a,tau,c):
@@ -187,15 +174,12 @@ def spot_count(x,a,tau,c):
 def fit_spotcount(x, y):
 
 	"""Spot count fitting function
-
 	Parameters
 	----------
 	x: 1d ndarray
 		raw x data
-
 	y: 1d ndarray
 		raw y data
-
 	Returns
 	-------
 	popt, pcov: 1d ndarray
@@ -208,21 +192,65 @@ def fit_spotcount(x, y):
 
 	return popt
 
+def fit_expdecay(x,y):
+
+	"""Exponential decay fitting function
+	Parameters
+	----------
+	x: 1d ndarray
+		raw x data
+	y: 1d ndarray
+		raw y data
+	Returns
+	-------
+	popt, pcov: 1d ndarray
+		optimal parameters and covariance matrix
+	"""
+
+	def exp_decay(x,a,b,c):
+
+		return a*(np.exp(-(x-b)/c))
+
+	popt, pcov = op.curve_fit(exp_decay, x, y)
+
+	return popt, pcov
+
+def fit_sigmoid(x,y):
+
+	"""Sigmoid fitting function
+	Parameters
+	----------
+	x: 1d ndarray
+		raw x data
+	y: 1d ndarray
+		raw y data
+	Returns
+	-------
+	popt, pcov: 1d ndarray
+		optimal parameters and covariance matrix
+	"""
+
+	def sigmoid(x, a, b, c, d):
+
+		return a/(1+np.exp(-b*(x-c))) + d
+
+	param_bounds=([0,1],[np.inf,1.5])
+
+	popt, pcov = op.curve_fit(sigmoid, x, y)
+
+	return popt, pcov
+
 def interpolate_lin(x_discrete, f_discrete, resolution=100, pad_size=0):
 
 	"""Numpy wrapper for performing linear interpolation
-
 	Parameters
 	----------
 	x_discrete: 1d ndarray
 		discrete domain
-
 	y: 1d ndarray
 		discrete function of x_discrete
-
 	Returns
 	-------
-
 	"""
 
 	min_center, max_center = x_discrete[0], x_discrete[-1]
@@ -236,100 +264,163 @@ def interpolate_lin(x_discrete, f_discrete, resolution=100, pad_size=0):
 		x_cont = np.concatenate((x_pad, x_cont), axis=0)
 		f_cont = np.concatenate((f_cont_pad, f_cont), axis=0)
 
-	return x_cont, f_cont
+	return x_cont, f_con
 
-def ransac_polyfit(x_array_1d, y_array_1d, poly_deg,
-                  min_sample_num,
-                  residual_thres,
-                  max_trials,
-                  stop_sample_num=np.inf,
-                  random_seed=None):
+# """
+# ~~~~~~~~~~~PSF Fitting~~~~~~~~~~~~~~
+# """
+
+def gaussian_2d(X, A, x0, y0, sig_x, sig_y, phi):
     """
-    Run the RANSAC polynomial fitting.
+    2D Gaussian function
 
     Parameters
     ----------
-    x_array_1d : ndarray
-        xdata.
-    x_array_1d : ndarray
-        ydata.
-    poly_deg : int
-        Polynomial degree.
-    min_sample_num : int
-        Minimum samples numbers needed for RANSAC fitting.
-    residual_thres : float
-        Residual threshold for RANSAC fitting.
-    max_trials : int
-        Maximum trials number for RANSAC fitting.
-    stop_sample_num : int, optional
-        Stop sample number for RANSAC fitting.
-    random_seed : float, optional
-        Random seed for RANSAC fitting.
+    X : 3d ndarray
+        X = np.indices(img.shape).
+		X[0] is the row indices.
+        Y[1] is the column indices.
+    A : float
+        Amplitude.
+    x0 : float
+        x coordinate of the center.
+    y0 : float
+        y coordinate of the center.
+    sig_x : float
+        Sigma in x direction.
+    sig_y : float
+        Sigma in x direction.
+    phi : float
+        Angle between long axis and x direction.
+
+
+    Returns
+    -------
+    result_array_2d: 21d ndarray
+        2D gaussian.
+    """
+
+    x = X[0]
+    y = X[1]
+    a = (np.cos(phi)**2)/(2*sig_x**2) + (np.sin(phi)**2)/(2*sig_y**2)
+    b = -(np.sin(2*phi))/(4*sig_x**2) + (np.sin(2*phi))/(4*sig_y**2)
+    c = (np.sin(phi)**2)/(2*sig_x**2) + (np.cos(phi)**2)/(2*sig_y**2)
+    result_array_2d = A*np.exp(-(a*(x-x0)**2+2*b*(x-x0)*(y-y0)+c*(y-y0)**2))
+
+    return result_array_2d
+
+def get_moments(img):
+    """
+    Get gaussian parameters of a x2D distribution by calculating its moments
+
+    Parameters
+    ----------
+    img : 2d ndarray
+        image.
 
     Returns
     -------
     params_tuple_1d: tuple
-        1d tuple of the output parameters.
+        parameters (A, x0, y0, sig_x, sig_y, phi).
+    """
+
+    total = img.sum()
+    X, Y = np.indices(img.shape)
+    x0 = (X*img).sum()/total
+    y0 = (Y*img).sum()/total
+    col = img[:, int(y0)]
+    sig_x = np.sqrt(np.abs((np.arange(col.size)-y0)**2*col).sum()/col.sum())
+    row = img[int(x0), :]
+    sig_y = np.sqrt(np.abs((np.arange(row.size)-x0)**2*row).sum()/row.sum())
+    A = img.max()
+    phi = 0
+    params_tuple_1d = A, x0, y0, sig_x, sig_y, phi
+    return params_tuple_1d
+
+def fit_gaussian_2d(img, diagnostic=False):
+    """
+    Fit gaussian_2d
+
+    Parameters
+    ----------
+    img : 2d ndarray
+        image.
+    diagnostic : bool, optional
+        If True, show the diagnostic plot
+
+    Returns
+    -------
+    popt, pcov: 1d ndarray
+        optimal parameters and covariance matrix
 
     Examples
     --------
     import numpy as np
-    from cellquantifier.qmath.ransac import ransac_polyfit
-    a = np.array(range(10))
-    b = 1 + 2*a + 3*a ** 2
-    params = ransac_polyfit(x_array_1d=a, y_array_1d=b, poly_deg=2,
-                    min_sample_num=5, residual_thres=2, max_trials=100)
-    print(params)
+    import matplotlib.pyplot as plt
+    from cellquantifier.math.gaussian_2d import gaussian_2d, fit_gaussian_2d
+    from cellquantifier.io.imshow import imshow
+    X = np.indices((100,100))
+    A, x0, y0, sig_x, sig_y, phi = 1, 50, 80, 30, 10, 0.174
+    out_array_1d = gaussian_2d(X, A, x0, y0, sig_x, sig_y, phi)
+    img = out_array_1d.reshape((100,100))
+    fig, ax = plt.subplots()
+    ax.imshow(img)
+    plt.show()
+    popt, p_err = fit_gaussian_2d(img, diagnostic=True)
+    print(popt)
     """
 
     # """
-    # ~~~~~~~Generate a list. xdata as the 1st col, ydata as the 2nd col~~~~~~~
+    # ~~~~~~~~~~~~~~Prepare the input data and initial conditions~~~~~~~~~~~~~~
     # """
 
-    data = np.zeros((len(x_array_1d), 2))
-    data[:,0] = x_array_1d
-    data[:,1] = y_array_1d
-    datalist = list(data)
+    X = np.indices(img.shape)
+    x = np.ravel(X[0])
+    y = np.ravel(X[1])
+    xdata = np.array([x,y])
+    ydata = np.ravel(img)
+    p0 = get_moments(img)
 
     # """
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~Do the ransac fitting~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Fitting~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # """
 
-    best_inlier_count = 0
-    best_model = None
-    best_err = None
-    random.seed(random_seed)
-    for i in range(max_trials):
-        sample = random.sample(datalist, int(min_sample_num))
-        sample_ndarray = np.array(sample)
-        xdata_s = sample_ndarray[:,0]
-        ydata_s = sample_ndarray[:,1]
-        poly_params = np.polyfit(xdata_s, ydata_s, poly_deg)
-        p = np.poly1d(poly_params)
-
-        inlier_count = 0
-        for j in range(len(data)):
-            curr_x = data[j,0]
-            rms = np.abs(p(curr_x) - data[j, 1])
-            if rms < residual_thres:
-                inlier_count = inlier_count + 1
-
-        if inlier_count > best_inlier_count:
-            best_inlier_count = inlier_count
-            best_model = poly_params
-            if inlier_count > stop_sample_num:
-                break
+    popt, pcov = curve_fit(gaussian_2d, xdata, ydata, p0=p0)
+    p_sigma = np.sqrt(np.diag(pcov))
+    p_err = p_sigma
 
     # """
-    # ~~~~~~~~~~~~~~~~~~~~~Print the ransac fitting summary~~~~~~~~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Diagnostic~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # """
 
-    print("#" * 30)
-    print("Iteration_num: ", i+1)
-    print("Best_inlier_count: ", best_inlier_count)
-    print("Best_model: ", best_model)
-    print("#" * 30)
+    if diagnostic:
+        import matplotlib.pyplot as plt
 
-    params_tuple_1d = best_model
+        fig, ax = plt.subplots()
+        ax.imshow(img, cmap='gray')
 
-    return params_tuple_1d
+        (A, x0, y0, sig_x, sig_y, phi) = popt
+        (A_err, x0_err, y0_err, sigma_x_err, sigma_y_err, phi_err) = p_err
+        Fitting_data = gaussian_2d(X,A,x0,y0,sig_x,sig_y,phi)
+        ax.contour(Fitting_data, cmap='cool')
+        ax.text(0.95,
+                0.00,
+                """
+                x0: %.3f (\u00B1%.3f)
+                y0: %.3f (\u00B1%.3f)
+                sig_x: %.3f (\u00B1%.3f)
+                sig_y: %.3f (\u00B1%.3f)
+                phi: %.1f (\u00B1%.2f)
+                """ %(x0, x0_err,
+                      y0, y0_err,
+                      sig_x, sigma_x_err,
+                      sig_y, sigma_y_err,
+                      np.rad2deg(phi), np.rad2deg(phi_err)),
+                horizontalalignment='right',
+                verticalalignment='bottom',
+                fontsize = 12,
+                color = (1, 1, 1, 0.8),
+                transform=ax.transAxes)
+        plt.show()
+
+    return popt, p_err

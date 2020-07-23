@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from cellquantifier.io import *
+from ..io import *
 
 def add_hist(ax, df, data_col,
             cat_col=None,
@@ -52,7 +52,7 @@ def add_hist(ax, df, data_col,
 	--------
     import matplotlib.pyplot as plt
     import pandas as pd
-    from cellquantifier.plot.plotutil import add_hist
+    from cellquantifier.plot import add_hist
     filepath = 'cellquantifier/data/physDataMerged.csv'
     df = pd.read_csv(filepath, index_col=None, header=0)
     df = df.drop_duplicates('D')

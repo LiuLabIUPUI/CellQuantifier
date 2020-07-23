@@ -2,8 +2,8 @@ import pandas as pd; import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
-from ..phys.physutil import *
-from ..plot.plotutil import *
+from ..util import *
+from ..plot import *
 
 
 def fig_quick_nucleosome(df=pd.DataFrame([])):

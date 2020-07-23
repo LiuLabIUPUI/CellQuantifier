@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from .plotutil import *
+from ..util import *
 
 def plot_foci_prop_hist(
     df,

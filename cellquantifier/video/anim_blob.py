@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib_scalebar.scalebar import ScaleBar
-from ..plot.plotutil import *
+from ..plot import *
 
 def anim_blob(df, tif,
             pixel_size=None,

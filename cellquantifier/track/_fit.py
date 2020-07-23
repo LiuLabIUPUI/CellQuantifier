@@ -1,15 +1,14 @@
 import numpy as np
 import pandas as pd
 import math
-from cellquantifier.qmath.gaussian_2d import (gaussian_2d, get_moments,
-                                            fit_gaussian_2d)
-from ..plot.plotutil import anno_scatter, anno_blob
-from ..plot.plotutil import plot_end
+from ..math import *
+from ..plot import anno_scatter, anno_blob
+from ..plot import plot_end
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 
 
-def fit_psf(pims_frame,a
+def fit_psf(pims_frame,
             blobs_df,
             diagnostic=True,
             pltshow=True,

@@ -3,8 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
-from ..plot.plotutil import *
-from ..plot.plotutil._add_mean_msd2 import add_mean_msd2
+from ..plot import *
+from ..plot._add_mean_msd2 import add_mean_msd2
 from ..phys import *
 
 def fig_quick_merge(

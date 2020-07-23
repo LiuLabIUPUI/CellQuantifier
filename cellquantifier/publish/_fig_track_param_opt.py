@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-from .plotutil import *
+from ..plot import *
 
 def plot_track_param_opt(
 

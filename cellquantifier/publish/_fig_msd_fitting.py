@@ -1,9 +1,9 @@
 import trackpy as tp
 import numpy as np
-from ..qmath import *
+from ..math import *
 import matplotlib.pyplot as plt
 import seaborn as sns
-from .plotutil import *
+from ..plot import *
 
 def plot_msd_fitting(df, output_path):
     """

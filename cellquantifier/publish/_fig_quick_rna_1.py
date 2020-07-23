@@ -4,8 +4,8 @@ import pandas as pd
 
 from matplotlib.gridspec import GridSpec
 from matplotlib.patches import Rectangle
-from cellquantifier.segm import clr_code_mask
-from cellquantifier.plot.plotutil import format_ax
+from cellquantifier.segm import color_regions
+from cellquantifier.plot import format_ax
 from skimage.segmentation import mark_boundaries
 from skimage.util import img_as_ubyte
 from copy import deepcopy
@@ -79,7 +79,7 @@ def fig_quick_rna(blobs_df, int_df, im_arr, mask,
 	# ~~~~~~~~~~~Left Panel (3)~~~~~~~~~~~~~~
 	# """
 
-	mask_rgb = clr_code_mask(mask, int_df, typ_arr, typ_clr_arr)
+	mask_rgb = color_regions(mask, int_df, typ_arr, typ_clr_arr)
 	ax0.imshow(im_arr[0], alpha=0.5)
 	ax0.imshow(mask_rgb, alpha=0.5)
 	ax2.imshow(im_arr[1],alpha=0.5)

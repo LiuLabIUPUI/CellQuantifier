@@ -2,12 +2,10 @@ import numpy as np; import pandas as pd
 import matplotlib.pyplot as plt
 import trackpy as tp
 
-from ...qmath import fit_spotcount
-from ...qmath import spot_count as sc
 from scipy.stats import sem
-from ...qmath import msd, fit_msd
+from ..math import msd, fit_msd
 
-def add_53bp1_count(ax, df,
+def add_53bp1_diffusion(ax, df,
 					exp_col='exp_label',
 					cell_col='cell_num',
 					cycle_col='cycle_num',
@@ -19,10 +17,10 @@ def add_53bp1_count(ax, df,
 					markersize=None,
 					capsize=2,
 					set_format=True):
+
 	"""
-	Add mean spot count curve in matplotlib axis.
+	Add mean D curve in matplotlib axis.
 	For use with cycled imaging only
-	The spot counts are obtained from df.
 
 	Parameters
 	----------
@@ -53,7 +51,7 @@ def add_53bp1_count(ax, df,
 	exps = df[exp_col].unique()
 	# colors = plt.cm.coolwarm(np.linspace(0,1,len(exps)))
 	colors = ['blue', 'red']
-	spot_counts = [[] for exp in exps]
+	d_coeff = [[] for exp in exps]
 	exp_dfs = [df.loc[df[exp_col] == exp] for exp in exps]
 
 	for i, exp_df in enumerate(exp_dfs):
@@ -71,46 +69,39 @@ def add_53bp1_count(ax, df,
 		# ~~~~~~~~~~~Divide the data by cycle~~~~~~~~~~~~~~
 		# """
 
-			spot_counts[i].append([])
+			d_coeff[i].append([])
 			cycles = sorted(cell_df[cycle_col].unique())
 			cycle_dfs = [cell_df.loc[cell_df[cycle_col] == cycle]\
 									for cycle in cycles]
 
 			for k, cycle_df in enumerate(cycle_dfs):
-				spot_count = cycle_df['particle'].nunique()
-				spot_counts[i][j].append(spot_count)
+				D = cycle_df.drop_duplicates('particle')['D']
+				mean_D = D.mean()
+				d_coeff[i][j].append(mean_D)
 
 	# """
 	# ~~~~~~~~~~Compute the mean and add to axis~~~~~~~~~~~~~~
 	# """
 
-		yerr = sem(spot_counts[i], axis=0)
-		sc_mean = np.mean(spot_counts[i], axis=0)
+		mean_mean_D = np.mean(d_coeff[i], axis=0)
+		yerr = sem(d_coeff[i], axis=0)
 
 		if start:
 			trunc = cycles[start-1:] #truncate cycle array
 			delta = trunc[0]
 			shifted = np.array([cycle-delta for cycle in trunc])
 			shifted = shifted*dt_per_cycle
-			sc_mean = sc_mean[start-1:]
-			popt = fit_spotcount(shifted, sc_mean)
-			sc_mean_fit = sc(shifted, *popt)
+			mean_mean_D = mean_mean_D[start-1:]
 			yerr = yerr[start-1:]
 
-			tau_str = r': $\mathbf{\tau = %s}$' % round(popt[1], 2)
-			ax.plot(shifted, sc_mean_fit, color=colors[i], label=exps[i] + tau_str)
-			ax.errorbar(shifted, sc_mean, yerr=yerr, color=colors[i], linestyle='--')
+			ax.errorbar(shifted, mean_mean_D, yerr=yerr,
+						color=colors[i], linestyle='-', label=exps[i])
 
 		else:
 			cycles = np.array(cycles)
 			cycles = cycles*dt_per_cycle
-			popt = fit_spotcount(cycles, sc_mean)
-			sc_mean_fit = sc(cycles, *popt)
-
-			tau_str = r': $\mathbf{\tau = %s}$' % round(popt[1], 2)
-			ax.plot(cycles, sc_mean, color=colors[i], linestyle='--')
-			ax.plot(cycles, sc_mean_fit, color=colors[i], label=exps[i] + tau_str)
-			ax.errorbar(shifted, sc_mean, yerr=yerr, color=colors[i], linestyle='--')
+			ax.errorbar(shifted, mean_mean_D, yerr=yerr,
+						color=colors[i], linestyle='-', label=exps[i])
 
 
 	# """
@@ -128,5 +119,5 @@ def add_53bp1_count(ax, df,
 		ax.spines['bottom'].set_linewidth(2)
 		ax.tick_params(labelsize=13, width=2, length=5)
 		ax.set_xlabel(r'$\mathbf{Time (min)}$', fontsize=15)
-		ax.set_ylabel(r'$\mathbf{Spot Count}$', fontsize=15)
+		ax.set_ylabel(r'$\mathbf{D (nm^{2}/s)}$', fontsize=15)
 		ax.legend()

@@ -138,8 +138,8 @@ def get_int_df(im_arr, mask, im_names=['ch1', 'ch2']):
 def dof(im, winh=10, winw=10, stride=10):
 
 	"""Calculates the degree of focus (DOF) of an image over
-       local regions by using a sliding window approach and the
-       variance of laplacian operator
+	   local regions by using a sliding window approach and the
+	   variance of laplacian operator
 
 	Parameters
 	----------
@@ -170,17 +170,17 @@ def dof(im, winh=10, winw=10, stride=10):
 
 	dof_im = np.zeros_like(im)
 	win = sliding_window(im, stride=stride, win_size=(winw, winh))
-    for i in range(len(im)):
-    	for (x, y, window) in win:
-    		dof = np.std(cv2.Laplacian(window, cv2.CV_64F)) ** 2
-    		dof_im[y:y+winw, x:x+winh] = dof
+	for i in range(len(im)):
+		for (x, y, window) in win:
+			dof = np.std(cv2.Laplacian(window, cv2.CV_64F)) ** 2
+			dof_im[y:y+winw, x:x+winh] = dof
 
 	return dof_im
 
 def dof_mask(mask, dof_im):
 
 	"""Calculates the average degree of focus (DOF) over masked
-       regions, replacing object labels with the average
+	   regions, replacing object labels with the average
 
 	Parameters
 	----------
@@ -196,9 +196,9 @@ def dof_mask(mask, dof_im):
 
 	"""
 
-    dof_im[binary == 0] = 0
+	dof_im[binary == 0] = 0
 	props = regionprops(mask, dof_im)
 	for prop in props:
 		mask[mask == prop.label] = prop.mean_intensity
 
-    return dof_im
+	return dof_im

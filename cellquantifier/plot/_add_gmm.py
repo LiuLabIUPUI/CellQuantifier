@@ -30,7 +30,7 @@ def add_gmm(ax, blobs_df, cat_col,
 	--------
     import matplotlib.pyplot as plt
     import pandas as pd
-    from cellquantifier.plot.plotutil import add_D_hist, add_gmm
+    from cellquantifier.plot import add_D_hist, add_gmm
     path = 'cellquantifier/data/physDataMerged.csv'
     df = pd.read_csv(path, index_col=None, header=0)
     fig, ax = plt.subplots()

@@ -2,9 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-from ..phys import *
-from ..util import get_frac_df
-from ..plot.plotutil import *
+from ..util import *
+from ..plot import *
 
 from matplotlib.lines import Line2D
 from scipy.stats import sem

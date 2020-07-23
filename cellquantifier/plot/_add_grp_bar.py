@@ -1,6 +1,5 @@
 from ._format_ax import format_ax
-from ...phys import *
-from ...util import *
+from ..util import *
 import numpy as np
 
 def add_grp_bar(ax, df,
