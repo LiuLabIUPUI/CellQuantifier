@@ -1,4 +1,4 @@
 from ._regions import *
-from ._threshold import *
+from ._misc import *
 # from ._unet import *
 from ._watershed import *

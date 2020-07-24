@@ -27,7 +27,7 @@ def add_obj_lbl(df, mask, is_labeled=True, col_name='region_label'):
 
 	for i, row in df.iterrows():
 		df.at[i, col_name] = int(mask[int(round(df.at[i, 'x'])), \
-									    int(round(df.at[i, 'y']))])
+										int(round(df.at[i, 'y']))])
 	return df
 
 def add_obj_type(mask_arr, blobs_df, col_name='region_type',
@@ -495,7 +495,7 @@ def merge_rna_dfs(input_dir, prefixes):
 		merged_blobs_df = pd.concat([merged_blobs_df, blobs_df], axis=0, \
 									ignore_index=True)
 		merged_int_df = pd.concat([merged_int_df, int_df], axis=0, \
-		 							ignore_index=True)
+									ignore_index=True)
 
 	return merged_blobs_df, merged_int_df
 
@@ -556,136 +556,136 @@ def add_bool_col(df, data_col, sorters=None):
 
 def add_distmap_val(df, mask, colname='distmap_val'):
 
-    """
-    Label particles in a DataFrame based on dist2boundary_masks
+	"""
+	Label particles in a DataFrame based on dist2boundary_masks
 
-    Parameters
-    ----------
-    mask : 3D ndarray
-        Binary mask of cell video
-    df : DataFrame
-        DataFrame containing 'x', 'y', 'frame' columns
+	Parameters
+	----------
+	mask : 3D ndarray
+		Binary mask of cell video
+	df : DataFrame
+		DataFrame containing 'x', 'y', 'frame' columns
 
-    Returns
-    -------
-    df: DataFrame
-        DataFrame with added 'dist_to_boundary' column
+	Returns
+	-------
+	df: DataFrame
+		DataFrame with added 'dist_to_boundary' column
 
-    """
+	"""
 
-    if mask.shape == 2:
-        mask = np.reshape(mask, mask.shape + (1,))
+	if mask.shape == 2:
+		mask = np.reshape(mask, mask.shape + (1,))
 
-    distmap = distance_transform_edt(mask)
+	distmap = distance_transform_edt(mask)
 
-    for i in range(len(distmap)):
-        this_distmap = distmap[i]
-        this_df = df[df['frame'] == i]
-        for index in this_df.index:
-            r = int(round(df.at[index, 'x']))
-            c = int(round(df.at[index, 'y']))
-            df.at[index, 'distmap_val'] = this_distmap[r, c]
+	for i in range(len(distmap)):
+		this_distmap = distmap[i]
+		this_df = df[df['frame'] == i]
+		for index in this_df.index:
+			r = int(round(df.at[index, 'x']))
+			c = int(round(df.at[index, 'y']))
+			df.at[index, 'distmap_val'] = this_distmap[r, c]
 
-    return df
+	return df
 
 def add_traj_length(physdf):
-    """
-    Add column to physdf: 'traj_length'
+	"""
+	Add column to physdf: 'traj_length'
 
-    Parameters
-    ----------
-    physdf : DataFrame
-        DataFrame containing 'x', 'y', 'frame', 'particle'
+	Parameters
+	----------
+	physdf : DataFrame
+		DataFrame containing 'x', 'y', 'frame', 'particle'
 
-    Returns
-    -------
-    df: DataFrame
-        DataFrame with added 'traj_length' column
-    """
+	Returns
+	-------
+	df: DataFrame
+		DataFrame with added 'traj_length' column
+	"""
 
-    particles = physdf['particle'].unique()
+	particles = physdf['particle'].unique()
 
-    for particle in particles:
-        traj_length = len(physdf[ physdf['particle']==particle ])
-        physdf.loc[physdf['particle']==particle, 'traj_length'] = traj_length
+	for particle in particles:
+		traj_length = len(physdf[ physdf['particle']==particle ])
+		physdf.loc[physdf['particle']==particle, 'traj_length'] = traj_length
 
-    return physdf
+	return physdf
 
 def add_travel_dist(df):
 
-    # """
+	# """
 	# ~~~~Initialize df~~~~
 	# """
-    df = df.sort_values(['particle', 'frame'])
-    for col in ['travel_dist']:
-        if col in df:
-            df = df.drop(col, axis=1)
+	df = df.sort_values(['particle', 'frame'])
+	for col in ['travel_dist']:
+		if col in df:
+			df = df.drop(col, axis=1)
 
-    # # """
+	# # """
 	# # ~~~~add 'v', the unit is px/frame~~~~
 	# # """
-    # delta_x = (df.groupby('particle')['x'].apply(pd.Series.diff))
-    # delta_y = (df.groupby('particle')['y'].apply(pd.Series.diff))
-    # df['v'] = (delta_x**2 + delta_y**2) ** 0.5 * df['pixel_size'] * df['frame_rate']
+	# delta_x = (df.groupby('particle')['x'].apply(pd.Series.diff))
+	# delta_y = (df.groupby('particle')['y'].apply(pd.Series.diff))
+	# df['v'] = (delta_x**2 + delta_y**2) ** 0.5 * df['pixel_size'] * df['frame_rate']
 
-    # """
+	# """
 	# ~~~~Iterate df by particle~~~~
 	# """
-    particles = sorted(df['particle'].unique())
-    for particle in particles:
-        curr_df = df[ df['particle']==particle ]
+	particles = sorted(df['particle'].unique())
+	for particle in particles:
+		curr_df = df[ df['particle']==particle ]
 
-        # # """
-    	# # ~~~~add 'v_max'~~~~
-    	# # """
-        # v_max = curr_df['v'].max()
-        # df.loc[df['particle']==particle, 'v_max'] = v_max
+		# # """
+		# # ~~~~add 'v_max'~~~~
+		# # """
+		# v_max = curr_df['v'].max()
+		# df.loc[df['particle']==particle, 'v_max'] = v_max
 
-        # """
-    	# ~~~~add 'travel_dist'~~~~
-    	# """
-        travel_dist = ((curr_df['x'].max() - curr_df['x'].min())**2 + \
-                    (curr_df['y'].max() - curr_df['y'].min())**2) ** 0.5
-        df.loc[df['particle']==particle, 'travel_dist'] = travel_dist * \
-                    curr_df['pixel_size'].mean()
+		# """
+		# ~~~~add 'travel_dist'~~~~
+		# """
+		travel_dist = ((curr_df['x'].max() - curr_df['x'].min())**2 + \
+					(curr_df['y'].max() - curr_df['y'].min())**2) ** 0.5
+		df.loc[df['particle']==particle, 'travel_dist'] = travel_dist * \
+					curr_df['pixel_size'].mean()
 
-    return df
+	return df
 
 def add_traj_area(physdf):
-    """
-    Add columns to physdf: 'traj_sigx', 'traj_sigy', 'traj_lc', 'traj_area'
+	"""
+	Add columns to physdf: 'traj_sigx', 'traj_sigy', 'traj_lc', 'traj_area'
 
-    Parameters
-    ----------
-    physdf : DataFrame
-        DataFrame containing 'x', 'y', 'frame', 'particle'
+	Parameters
+	----------
+	physdf : DataFrame
+		DataFrame containing 'x', 'y', 'frame', 'particle'
 
-    Returns
-    -------
-    df: DataFrame
-        DataFrame with added 'traj_sigx', 'traj_sigy', 'traj_lc', 'traj_area' columns
-    """
+	Returns
+	-------
+	df: DataFrame
+		DataFrame with added 'traj_sigx', 'traj_sigy', 'traj_lc', 'traj_area' columns
+	"""
 
-    particles = physdf['particle'].unique()
+	particles = physdf['particle'].unique()
 
-    for particle in particles:
-        X_train = physdf[ physdf['particle']==particle ]
-        X_train = X_train.loc[:, ['x', 'y']].to_numpy()
+	for particle in particles:
+		X_train = physdf[ physdf['particle']==particle ]
+		X_train = X_train.loc[:, ['x', 'y']].to_numpy()
 
-        clf = mixture.GaussianMixture(n_components=1, covariance_type='full')
-        clf.fit(X_train)
+		clf = mixture.GaussianMixture(n_components=1, covariance_type='full')
+		clf.fit(X_train)
 
-        traj_sigx = np.sqrt(clf.covariances_[0, 0, 0])
-        traj_sigy = np.sqrt(clf.covariances_[0, 1, 1])
-        traj_lc = np.sqrt(clf.covariances_[0, 0, 0] + clf.covariances_[0, 1, 1])
-        traj_area = np.pi * traj_sigx * traj_sigy
+		traj_sigx = np.sqrt(clf.covariances_[0, 0, 0])
+		traj_sigy = np.sqrt(clf.covariances_[0, 1, 1])
+		traj_lc = np.sqrt(clf.covariances_[0, 0, 0] + clf.covariances_[0, 1, 1])
+		traj_area = np.pi * traj_sigx * traj_sigy
 
-        physdf.loc[physdf['particle']==particle, 'traj_sigx'] = traj_sigx
-        physdf.loc[physdf['particle']==particle, 'traj_sigy'] = traj_sigy
-        physdf.loc[physdf['particle']==particle, 'traj_lc'] = traj_lc
-        physdf.loc[physdf['particle']==particle, 'traj_area'] = traj_area
+		physdf.loc[physdf['particle']==particle, 'traj_sigx'] = traj_sigx
+		physdf.loc[physdf['particle']==particle, 'traj_sigy'] = traj_sigy
+		physdf.loc[physdf['particle']==particle, 'traj_lc'] = traj_lc
+		physdf.loc[physdf['particle']==particle, 'traj_area'] = traj_area
 
-    return physdf
+	return physdf
 
 def add_avg_dist(df):
 
@@ -764,12 +764,12 @@ def merge_physdfs(files, mode='basic'):
 	Parameters
 	----------
 	files: list
-	    list of physData files to be merged
+		list of physData files to be merged
 
 	Returns
 	-------
 	merged_df: DataFrame
-	    DataFrame after merging
+		DataFrame after merging
 
 	"""
 	temp_df = pd.read_csv(files[0], index_col=False)
@@ -794,12 +794,12 @@ def merge_physdfs(files, mode='basic'):
 			exp = re.findall(r'[a-zA-Z]{3}\d{1}', file)
 			df = df.assign(exp_label=exp[0][:-1])
 		if mode=='general':
-		    if 'cohort' in root_name:
-		        df = df.assign(exp_label=root_name[0:8])
-		    else:
-		        m = root_name.find('_') + 1
-		        n = root_name.find('_', m)
-		        df = df.assign(exp_label=root_name[m:n])
+			if 'cohort' in root_name:
+				df = df.assign(exp_label=root_name[0:8])
+			else:
+				m = root_name.find('_') + 1
+				n = root_name.find('_', m)
+				df = df.assign(exp_label=root_name[m:n])
 		if mode=='mengdi':
 			m = root_name.find('_') + 1
 			m = root_name.find('_', m) + 1
@@ -812,249 +812,91 @@ def merge_physdfs(files, mode='basic'):
 
 def merge_physdfs2(files):
 
-    """
-    Used for cycled 53bp1 imaging experiments. Merges physData.csv files
-    from all cycles and all cells at one time
+	"""
+	Used for cycled 53bp1 imaging experiments. Merges physData.csv files
+	from all cycles and all cells at one time
 
-    Parameters
-    ----------
-    files: list
-        list of physData files to be merged
+	Parameters
+	----------
+	files: list
+		list of physData files to be merged
 
-    Returns
-    -------
-    merged_df: DataFrame
-        DataFrame after merging
+	Returns
+	-------
+	merged_df: DataFrame
+		DataFrame after merging
 
-    """
+	"""
 
-    temp_df = pd.read_csv(files[0], index_col=False)
-    columns = temp_df.columns.tolist()
-    merged_df = pd.DataFrame([], columns=columns)
+	temp_df = pd.read_csv(files[0], index_col=False)
+	columns = temp_df.columns.tolist()
+	merged_df = pd.DataFrame([], columns=columns)
 
-    for file in files:
-        df = pd.read_csv(file, index_col=False)
+	for file in files:
+		df = pd.read_csv(file, index_col=False)
 
-        # add 'rat_data' column to the merged df
-        root_name = file.split('/')[-1]
-        df = df.assign(raw_data=root_name)
+		# add 'rat_data' column to the merged df
+		root_name = file.split('/')[-1]
+		df = df.assign(raw_data=root_name)
 
-        # add 'exp_label' column to the merged df
-        cell_num = ''.join(re.findall("cell\d{2}", file))
-        exp = file.split('_')[1]
-        exp = ''.join(re.findall("[a-zA-Z]+", exp))
+		# add 'exp_label' column to the merged df
+		cell_num = ''.join(re.findall("cell\d{2}", file))
+		exp = file.split('_')[1]
+		exp = ''.join(re.findall("[a-zA-Z]+", exp))
 
-        df = df.assign(exp_label=exp)
-        df = df.assign(cell_num=cell_num)
+		df = df.assign(exp_label=exp)
+		df = df.assign(cell_num=cell_num)
 
-        merged_df = pd.concat([merged_df, df], sort=True, ignore_index=True)
+		merged_df = pd.concat([merged_df, df], sort=True, ignore_index=True)
 
-    return merged_df
+	return merged_df
 
 def add_cycle_col(files):
 
-    """
-    Add cycle column for cycled imaging scenarios
+	"""
+	Add cycle column for cycled imaging scenarios
 
-    Parameters
-    ----------
-    files: list
-        list of physData files to be modified
+	Parameters
+	----------
+	files: list
+		list of physData files to be modified
 
-    """
+	"""
 
-    for file in files:
-        chunks = file.split('/')
-        folder = ''.join(chunks[:-1])
-        filename = chunks[-1]
-        df = pd.read_csv(file, index_col=False)
-        if 'cycle_num' not in df:
-            # add 'cycle_num' column to the merged df
-            str = filename.split('_')[1]
-            cycle_num = int(str.split('-')[-1])
-            df = df.assign(cycle_num=cycle_num)
-            df.to_csv(file)
+	for file in files:
+		chunks = file.split('/')
+		folder = ''.join(chunks[:-1])
+		filename = chunks[-1]
+		df = pd.read_csv(file, index_col=False)
+		if 'cycle_num' not in df:
+			# add 'cycle_num' column to the merged df
+			str = filename.split('_')[1]
+			cycle_num = int(str.split('-')[-1])
+			df = df.assign(cycle_num=cycle_num)
+			df.to_csv(file)
 
-def compute_lin_vel(df, pixel_size=1, frame_rate=1):
+def add_diff(df, col):
 
-    """
-    Compute the instantaneous linear velocity of each particle
+	"""
+	Compute the first difference of a column of a DataFrame
 
-    Parameters
-    ----------
-    df : DataFrame
-        DataFrame containing x,y columns
+	Parameters
+	----------
+	df : DataFrame
+		DataFrame containing x,y columns
 
-    pixel_size: float, optional
-        Size of each pixel in micrometers
+	col: float, optional
+		Column to calculate first differences
 
-    frame_rate: float, optional
-        Acquisition frequency in frames per second
+	Returns
+	-------
+	df: DataFrame
+		DataFrame with added first difference column
 
-    Returns
-    -------
-    df: DataFrame
-        DataFrame with added linear velocity columns
+	"""
 
-    Examples
-    --------
-    >>>import pandas as pd
-    >>>from cellquantifier.phys import compute_lin_vel
-    >>>df = pd.read_csv('cellquantifier/data/test_fittData.csv')
-    >>>df = compute_lin_vel(df)
-    >>>print(df[['particle', 'lin_vel_mag', 'lin_vel_x', 'lin_vel_y']])
+	diff_col = 'd' + col
+	df[diff_col] = df[col].diff()
+	df = df.fillna(0)
 
-    """
-
-    df = df.sort_values(['particle', 'frame'])
-    df['lin_vel_x'] = pixel_size*frame_rate*df['x'].diff()
-    df['lin_vel_y'] = pixel_size*frame_rate*df['y'].diff()
-    df['lin_vel_mag'] = np.sqrt((df['lin_vel_x'])**2 + (df['lin_vel_y'])**2)
-    df = df.fillna(0)
-
-    return df
-
-def compute_lin_acce(df, frame_rate=1):
-
-    """
-    Compute the instantaneous linear acceleration of each particle
-
-    Parameters
-    ----------
-    df : DataFrame
-        DataFrame containing x,y columns
-
-    frame_rate: float
-        Acquisition frequency in frames per second
-
-    Returns
-    -------
-    df: DataFrame
-        DataFrame with added linear acceleration columns
-
-    Examples
-    --------
-    >>>import pandas as pd
-    >>>from cellquantifier.phys import compute_lin_accce
-    >>>df = pd.read_csv('cellquantifier/data/test_fittData.csv')
-    >>>df = compute_lin_acce(df)
-    >>>print(df[['particle', 'lin_acce_mag', 'lin_acce_x', 'lin_acce_y']])
-    """
-
-    if not 'lin_vel_mag' in df.columns:
-        df = compute_lin_vel(df)
-
-    df = df.sort_values(['particle', 'frame'])
-    df['lin_acce_x'] = df['lin_vel_x'].diff()
-    df['lin_acce_y'] = df['lin_vel_y'].diff()
-    df['lin_acce_mag'] = frame_rate*np.sqrt((df['lin_acce_x'])**2 + (df['lin_acce_y'])**2)
-    df = df.fillna(0)
-
-    return df
-
-def compute_force(df):
-
-    """
-    Compute the instantaneous linear force on each particle
-
-    Parameters
-    ----------
-    df : DataFrame
-        DataFrame containing x,y columns
-
-    Returns
-    -------
-    df: DataFrame
-        DataFrame with added force columns
-
-    Examples
-    --------
-    >>>import pandas as pd
-    >>>from cellquantifier.phys import compute_force
-    >>>df = pd.read_csv('cellquantifier/data/test_fittData.csv')
-    >>>df = compute_force(df)
-    >>>print(df[['particle', 'force_x', 'force_y', 'force_mag']])
-
-    """
-
-    if not 'lin_acce_mag' in df.columns:
-        df = compute_lin_acce(df)
-
-    df = df.sort_values(['particle', 'frame'])
-    df['force_x'] = df['mass']*df['lin_acce_x']
-    df['force_y'] = df['mass']*df['lin_acce_y']
-    df['force_mag'] = np.sqrt((df['force_x'])**2 + (df['force_y'])**2)
-    df = df.fillna(0)
-
-    return df
-
-def compute_ang_vel(df, frame_rate=1):
-
-    """
-    Compute the instantaneous angular velocity of each particle
-
-    Parameters
-    ----------
-    df : DataFrame
-        DataFrame containing x,y columns
-
-    frame_rate: float
-        Acquisition frequency in frames per second
-
-    Returns
-    -------
-    df: DataFrame
-        DataFrame with added angular velocity columns
-
-    Examples
-    --------
-    >>>import pandas as pd
-    >>>from cellquantifier.phys import compute_ang_vel
-    >>>df = pd.read_csv('cellquantifier/data/test_fittData.csv')
-    >>>df = compute_ang_vel(df)
-    >>>print(df[['particle', 'ang_vel_mag']])
-
-    """
-
-    df = df.sort_values(['particle', 'frame'])
-    df['ang_vel_mag'] = frame_rate*df['phi'].diff()
-    df = df.fillna(0)
-
-    return df
-
-def compute_ang_acce(df, frame_rate=1):
-
-    """
-    Compute the instantaneous angular acceleration of each particle
-
-    Parameters
-    ----------
-    df : DataFrame
-        DataFrame containing x,y columns
-
-    frame_rate: float
-        Acquisition frequency in frames per second
-
-    Returns
-    -------
-    df: DataFrame
-        DataFrame with added angular acceleration columns
-
-    Examples
-    --------
-    >>>import pandas as pd
-    >>>from cellquantifier.phys import compute_ang_acce
-    >>>df = pd.read_csv('cellquantifier/data/test_fittData.csv')
-    >>>df = compute_ang_acce(df)
-    >>>print(df[['particle', 'ang_acce_mag']])
-
-    """
-
-    if not 'ang_vel_mag' in df.columns:
-        df = compute_ang_vel(df)
-
-    df = df.sort_values(['particle', 'frame'])
-    df['ang_acce_mag'] = frame_rate*df['ang_vel_mag'].diff()
-    df = df.fillna(0)
-
-    return df
+	return df

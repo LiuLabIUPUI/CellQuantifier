@@ -16,3 +16,5 @@ from ._fig_msd_merged import *
 from ._fig_phys_1 import *
 from ._fig_phys_2 import *
 from ._fig_track_param_opt import *
+from ._fig_trajectory_stats import *
+from ._fig_dvalue_estimate import *

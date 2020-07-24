@@ -10,6 +10,7 @@ def add_hist(ax, df, data_col,
             RGBA_alpha=1,
             bins=None,
             hist_kws=None,
+            show_legend=True,
             kde=True):
     """
     Add histogram in matplotlib axis.
@@ -120,4 +121,5 @@ def add_hist(ax, df, data_col,
                     hist=True, hist_kws=hist_kws, kde=kde,
                     color=curr_color, label=curr_cat, ax=ax)
 
-    ax.legend()
+    if show_legend:
+        ax.legend()
