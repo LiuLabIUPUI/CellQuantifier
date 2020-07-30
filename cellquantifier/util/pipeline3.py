@@ -1180,7 +1180,7 @@ class Pipeline3():
 						curr_physdf = add_traj_length(curr_physdf)
 						curr_physdf.round(6).to_csv(file, index=False)
 
-				phys_df = merge_physdfs(phys_files, mode='mengdi')
+				phys_df = merge_physdfs(phys_files, mode='general')
 				phys_df = relabel_particles(phys_df)
 			else:
 				phys_df = pd.read_csv(phys_files[0])

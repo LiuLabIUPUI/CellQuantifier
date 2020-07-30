@@ -13,7 +13,7 @@ control = [
 # 'deno_gaus',
 # 'check_detect_fit',
 # 'detect',
-'fit',
+# 'fit',
 
 # 'filt_track',
 # 'phys_xy_global',
@@ -35,7 +35,7 @@ control = [
 # 'anim_traj',
 
 # 'sort_plot',
-# 'merge_plot',
+'merge_plot',
 ]
 
 """Part II: CellQuantifier Parameter Settings"""
@@ -43,13 +43,13 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/temp-All/',
-  'IO output_path': '/home/linhua/Desktop/temp-All/',
+  'IO input_path': '/home/linhua/Desktop/josh/',
+  'IO output_path': '/home/linhua/Desktop/josh/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
   'Start frame index': 0,
-  'End frame index': 28,
+  'End frame index': 200,
   'Load existing analMeta': False,
 
   #REGISTRATION SETTINGS
@@ -115,9 +115,9 @@ settings = {
   'Filt max_delta_area': 0.8,
 
   ###############################################
-  'Filt traj_length_thres': 40, # NO. 2
+  'Filt traj_length_thres': 80, # NO. 2
   #SORTING SETTINGS
-  'Sort dist_to_boundary': [-15, 10], # NO. 3
+  'Sort dist_to_boundary': None, # NO. 3
   'Sort travel_dist': None, # NO. 4
   ###############################################
 
@@ -126,8 +126,8 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-from cellquantifier.util.pipeline3 import *
-pipeline_batch(settings, control)
+# from cellquantifier.util.pipeline3 import *
+# pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
 # import pandas as pd
@@ -161,11 +161,11 @@ pipeline_batch(settings, control)
 # print(len(df))
 # fig_quick_nucleosome(df)
 
-# import pandas as pd
-# from cellquantifier.publish._fig_quick_merge import *
-# df = pd.read_csv('/home/linhua/Desktop/mb/200708_50NcLiving-MvsBphysDataMerged.csv',
-#                 index_col=False)
-# fig_quick_merge(df)
+import pandas as pd
+from cellquantifier.publish._fig_quick_merge import *
+df = pd.read_csv('/home/linhua/Desktop/josh/200730_50NcFixed-physDataMerged.csv',
+                index_col=False)
+fig_quick_merge(df)
 
 
 # from cellquantifier.publish import *

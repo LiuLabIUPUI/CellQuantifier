@@ -21,15 +21,18 @@ def fig_quick_merge(
     # c2 = palette[1]
     # c3 = palette[2]
     c1 = (1, 0, 0)
-    c2 = (0, 0, 0)
+    c2 = (1, 0, 1)
     c3 = (0, 0, 1)
-    c4 = (0.5, 0.5, 0.5)
+    c4 = (0, 1, 1)
+    c5 = (0, 1, 0)
+    c6 = (0.5, 0.5, 0.5)
+    c7 = (0, 0, 0)
     RGBA_alpha = 0.8
     c1_alp = (c1[0], c1[1], c1[2], RGBA_alpha)
     c2_alp = (c2[0], c2[1], c2[2], RGBA_alpha)
     c3_alp = (c3[0], c3[1], c3[2], RGBA_alpha)
 
-    p = [c1, c2]
+    p = [c1, c2, c3, c4, c5, c6, c7]
 
 
     # """
@@ -42,7 +45,7 @@ def fig_quick_merge(
     hidden_index = []
     # Sub_axs_1 settings
     col_num_s1 = 1
-    row_num_s1 = 2
+    row_num_s1 = 7
     index_s1 = [
         1, 2,
         ]
@@ -195,10 +198,25 @@ def fig_quick_merge(
         # """
         # ~~~~Filters applied to df~~~~
         # """
+        df = df.drop(['sort_flag_53bp1', 'sort_flag_boundary'], axis=1)
 
         # traj_length filter
         if 'traj_length' in df:
-            df = df[ df['traj_length']>=40 ]
+            # df = df[ df['traj_length']>=80 ]
+
+            condition = ~((df['traj_length']<40) & \
+                    df['exp_label'].isin(['50NcLivingB', '50NcLivingM']))
+            df = df[condition]
+
+            condition = ~((df['traj_length']<80) & \
+                    ~df['exp_label'].isin(['50NcLivingB', '50NcLivingM']))
+            df = df[condition]
+
+
+            # df = df[not ( \
+            #         (df['traj_length']<80) & \
+            #         ~df['exp_label'].isin(['50NcLivingB', '50NcLivingM']) \
+            #         )]
 
         # # alpha filter
         # if 'alpha' in df:
@@ -216,8 +234,13 @@ def fig_quick_merge(
         # ~~~~Divide df into sub_dfs~~~~
         # """
         dfp = df.drop_duplicates('particle')
-        dfp_m = dfp[ dfp['exp_label']=='M' ]
-        dfp_b = dfp[ dfp['exp_label']=='B' ]
+        dfp_blm = dfp[ dfp['exp_label']=='50NcBLM' ]
+        dfp_liv = dfp[ dfp['exp_label']=='50NcLiving' ]
+        dfp_fix = dfp[ dfp['exp_label']=='50NcFixed' ]
+        dfp_moc = dfp[ dfp['exp_label']=='50NcMOCK' ]
+        dfp_atp = dfp[ dfp['exp_label']=='50NcATP' ]
+        dfp_livB = dfp[ dfp['exp_label']=='50NcLivingB' ]
+        dfp_livM = dfp[ dfp['exp_label']=='50NcLivingM' ]
 
         dfv = df.dropna()
 
@@ -239,7 +262,8 @@ def fig_quick_merge(
         'exp_label',
         ]
     orders = [
-        ['M', 'B'],
+        ['50NcBLM', '50NcLivingM', '50NcLiving', '50NcLivingB',
+        '50NcMOCK', '50NcATP', '50NcFixed', ],
         ]
 
     for i, (fig, data, palette, cat_col, order, ) \
@@ -273,16 +297,20 @@ def fig_quick_merge(
 	# """
     figs = axs_s1
     datas = [
-            dfp_m, dfp_b, dfp_m, dfp_b,
+            dfp_blm, dfp_livM, dfp_liv, dfp_livB, dfp_moc, dfp_atp, dfp_fix,
+            dfp_blm, dfp_livM, dfp_liv, dfp_livB, dfp_moc, dfp_atp, dfp_fix,
             ]
     bins = [
-            None, None, None, None,
+            None, None, None, None, None, None, None,
+            None, None, None, None, None, None, None,
             ]
     data_cols = [
-            'D', 'D', 'alpha', 'alpha',
+            'D', 'D', 'D', 'D', 'D',  'D',  'D',
+            'alpha', 'alpha', 'alpha', 'alpha', 'alpha', 'alpha', 'alpha',
             ]
     colors = [
-            c1, c2, c1, c2,
+            c1, c2, c3, c4, c5, c6, c7,
+            c1, c2, c3, c4, c5, c6, c7,
             ]
     for i, (fig, data, bin, data_col, color, ) \
     in enumerate(zip(figs, datas, bins, data_cols, colors, )):
@@ -301,42 +329,42 @@ def fig_quick_merge(
                     )
 
 
-    # """
-	# ~~~~Add t test~~~~
-	# """
-    figs = [
-            axs_s1[0], axs_s1[2],
-            ]
-    datas = [
-            dfp, dfp,
-            ]
-    data_cols = [
-            'D', 'alpha',
-            ]
-    cat_cols = [
-            'exp_label', 'exp_label',
-            ]
-    text_poss = [
-            (0.98, 0.78), (0.98, 0.78),
-            ]
-    for i, (fig, data, data_col, cat_col, text_pos, ) \
-    in enumerate(zip(figs, datas, data_cols, cat_cols, text_poss, )):
-        print("\n")
-        print("Plotting (%d/%d)" % (i+1, len(figs)))
-
-        add_t_test(fig,
-                    blobs_df=data,
-                    cat_col=cat_col,
-                    hist_col=data_col,
-                    drop_duplicates=False,
-                    text_pos=text_pos,
-                    color=(0,0,0,1),
-                    fontname='Liberation Sans',
-                    fontweight=9,
-                    fontsize=9,
-                    horizontalalignment='right',
-                    format='general',
-                    )
+    # # """
+	# # ~~~~Add t test~~~~
+	# # """
+    # figs = [
+    #         axs_s1[0], axs_s1[2],
+    #         ]
+    # datas = [
+    #         dfp, dfp,
+    #         ]
+    # data_cols = [
+    #         'D', 'alpha',
+    #         ]
+    # cat_cols = [
+    #         'exp_label', 'exp_label',
+    #         ]
+    # text_poss = [
+    #         (0.98, 0.78), (0.98, 0.78),
+    #         ]
+    # for i, (fig, data, data_col, cat_col, text_pos, ) \
+    # in enumerate(zip(figs, datas, data_cols, cat_cols, text_poss, )):
+    #     print("\n")
+    #     print("Plotting (%d/%d)" % (i+1, len(figs)))
+    #
+    #     add_t_test(fig,
+    #                 blobs_df=data,
+    #                 cat_col=cat_col,
+    #                 hist_col=data_col,
+    #                 drop_duplicates=False,
+    #                 text_pos=text_pos,
+    #                 color=(0,0,0,1),
+    #                 fontname='Liberation Sans',
+    #                 fontweight=9,
+    #                 fontsize=9,
+    #                 horizontalalignment='right',
+    #                 format='general',
+    #                 )
     # """
 	# ~~~~Add figure text~~~~
 	# """
@@ -370,9 +398,9 @@ def fig_quick_merge(
     for ax in msd_figs:
         format_legend(ax,
                 show_legend=True,
-                legend_loc='lower right',
-                legend_fontweight=7,
-                legend_fontsize=7,
+                legend_loc='upper left',
+                legend_fontweight=5,
+                legend_fontsize=5,
                 )
     # # Rename legend
     # for ax in rename_msd_figs:
@@ -385,12 +413,21 @@ def fig_quick_merge(
     #             legend_fontsize=7,
     #             )
     # Format scale
-    figs = [axs_s1[0], axs_s1[1], axs_s1[2], axs_s1[3], ]
+    figs = [
+            axs[0],
+            axs_s1[0], axs_s1[1], axs_s1[2], axs_s1[3], axs_s1[4], axs_s1[5], axs_s1[6],
+            axs_s1[7], axs_s1[8], axs_s1[9], axs_s1[10], axs_s1[11], axs_s1[12], axs_s1[13],
+            ]
     xscales = [
-            [0, 15000], [0, 15000], [0, 1], [0, 1],
+            [None, None],
+            [0, 15000], [0, 15000], [0, 15000], [0, 15000], [0, 15000], [0, 15000], [0, 15000],
+            [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1],
             ]
     yscales = [
-            [None, None], [None, None], [None, None], [None, None],
+            [0, 30000],
+            [None, None], [None, None], [None, None], [None, None], [None, None], [None, None], [None, None],
+            [None, None], [None, None], [None, None], [None, None], [None, None], [None, None], [None, None],
+
             ]
     for i, (fig, xscale, yscale, ) \
     in enumerate(zip(figs, xscales, yscales,)):
