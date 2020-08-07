@@ -268,15 +268,32 @@ def anno_traj(ax, df,
     # """
     # ~~~~~~~~~~~customized the colorbar, then add it~~~~~~~~~~~~~~
     # """
-    modified_df, colormap = add_outside_colorbar(ax, original_df,
-                        label_font_size=cb_fontsize,
-                        cb_min=cb_min,
-                        cb_max=cb_max,
-                        cb_major_ticker=cb_major_ticker,
-                        cb_minor_ticker=cb_minor_ticker,
-                        show_colorbar=show_colorbar,
-                        cb_pos=cb_pos,
-                        cb_tick_loc=cb_tick_loc)
+    if 'D' in original_df:
+        modified_df, colormap = add_outside_colorbar(ax, original_df,
+                    data_col='D',
+                    cb_colormap='coolwarm',
+                    label_font_size=cb_fontsize,
+                    cb_min=cb_min,
+                    cb_max=cb_max,
+                    cb_major_ticker=cb_major_ticker,
+                    cb_minor_ticker=cb_minor_ticker,
+                    show_colorbar=show_colorbar,
+                    label_str=r'D (nm$^2$/s)',
+                    cb_pos=cb_pos,
+                    cb_tick_loc=cb_tick_loc)
+    else:
+        modified_df, colormap = add_outside_colorbar(ax, original_df,
+                    data_col='particle',
+                    cb_colormap='jet',
+                    label_font_size=cb_fontsize,
+                    cb_min=cb_min,
+                    cb_max=cb_max,
+                    cb_major_ticker=cb_major_ticker,
+                    cb_minor_ticker=cb_minor_ticker,
+                    show_colorbar=show_colorbar,
+                    label_str='particle',
+                    cb_pos=cb_pos,
+                    cb_tick_loc=cb_tick_loc)
 
 
     # """
@@ -315,8 +332,12 @@ def anno_traj(ax, df,
                     ax.plot(temp[:,1], temp[:,0],
                             color=colormap(traj['D_norm'].mean()))
         else:
-            ax.plot(traj['y'], traj['x'], linewidth=1,
-            			color=colormap(traj['D_norm'].mean()))
+            if 'D_norm' in traj:
+                ax.plot(traj['y'], traj['x'], linewidth=1,
+                			color=colormap(traj['D_norm'].mean()))
+            else:
+                ax.plot(traj['y'], traj['x'], linewidth=1,
+                			color=colormap(traj['particle_norm'].mean()))
 
         if show_particle_label:
             ax.text(traj['y'].mean(), traj['x'].mean(),
