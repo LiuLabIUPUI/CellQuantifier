@@ -49,7 +49,12 @@ def filter_batch(image, method, arg):
 	"""
 
 	denoised = np.zeros(image.shape, dtype='uint8')
+
+	ind = 1
+	tot = len(image)
 	for i in range(len(image)):
+		print("Denoising (%d/%d)" % (ind, tot))
+		ind = ind + 1
 
 		if method == 'gaussian':
 			denoised[i] = gaussian(image[i], arg)
@@ -65,6 +70,9 @@ def filter_batch(image, method, arg):
 
 		elif method == 'median':
 			denoised[i] = median(image[i], arg)
+
+		elif method == 'minimum':
+			denoised[i] = minimum(image[i], arg)
 
 	return denoised
 
@@ -217,6 +225,22 @@ def median(image, disk_radius):
 
 	selem = disk(disk_radius)
 	image = median(image, selem=selem)
+
+	image = image / image.max()
+	image = img_as_ubyte(image)
+
+	return image
+
+
+def minimum(image, disk_radius):
+	from skimage.morphology import disk, erosion, dilation
+
+	image = image / image.max()
+	image = img_as_ubyte(image)
+
+	selem = disk(disk_radius)
+	image = erosion(image, selem=selem)
+	image = dilation(image, selem=selem)
 
 	image = image / image.max()
 	image = img_as_ubyte(image)
