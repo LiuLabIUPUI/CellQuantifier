@@ -29,6 +29,14 @@ def get_li_mask(img, sig=2):
 
     return mask_array_2d
 
+def get_li_mask_batch(tif, sig=2):
+    shape = (len(tif), tif[0].shape[0], tif[0].shape[1])
+    masks_array_3d = np.zeros(shape, dtype=np.uint8)
+    for i in range(len(tif)):
+        masks_array_3d[i] = get_li_mask(tif[i], sig=sig)
+
+    return masks_array_3d
+
 def get_thres_mask(img, sig=3, thres_rel=0.2):
     """
     Get a mask based on "gaussian blur" and "threshold".
