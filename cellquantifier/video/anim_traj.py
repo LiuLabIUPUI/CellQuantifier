@@ -27,6 +27,8 @@ def anim_traj(df, tif,
             cb_pos='right',
             cb_tick_loc='right',
 
+            plot_r=False,
+
             show_traj_num = False,
             fontname='Arial',
 
@@ -145,6 +147,8 @@ def anim_traj(df, tif,
             ax.set_ylim(df['x'].max()+0.1*y_range, df['x'].min()-0.1*y_range)
         else:
             ax.imshow(tif[i], cmap='gray', aspect='equal')
+            ax.set_xlim(0, tif[0].shape[1])
+            ax.set_ylim(0, tif[0].shape[0])
             for spine in ['top', 'bottom', 'left', 'right']:
                 ax.spines[spine].set_visible(False)
 
@@ -167,17 +171,34 @@ def anim_traj(df, tif,
         # """
         # ~~~~~~~~customized the colorbar, then add it~~~~~~~~
         # """
-        df, colormap = add_outside_colorbar(ax, df,
-                    cb_colormap='coolwarm',
-                    label_font_size=cb_fontsize,
-                    cb_min=cb_min,
-                    cb_max=cb_max,
-                    cb_major_ticker=cb_major_ticker,
-                    cb_minor_ticker=cb_minor_ticker,
-                    show_colorbar=show_colorbar,
-                    cb_pos=cb_pos,
-                    cb_tick_loc=cb_tick_loc,
-                    )
+        if 'D' in df:
+            df, colormap = add_outside_colorbar(ax, df,
+                        data_col='D',
+                        cb_colormap='coolwarm',
+                        label_font_size=cb_fontsize,
+                        cb_min=cb_min,
+                        cb_max=cb_max,
+                        cb_major_ticker=cb_major_ticker,
+                        cb_minor_ticker=cb_minor_ticker,
+                        show_colorbar=show_colorbar,
+                        label_str=r'D (nm$^2$/s)',
+                        cb_pos=cb_pos,
+                        cb_tick_loc=cb_tick_loc,
+                        )
+        else:
+            df, colormap = add_outside_colorbar(ax, df,
+                        data_col='particle',
+                        cb_colormap='jet',
+                        label_font_size=cb_fontsize,
+                        cb_min=cb_min,
+                        cb_max=cb_max,
+                        cb_major_ticker=cb_major_ticker,
+                        cb_minor_ticker=cb_minor_ticker,
+                        show_colorbar=show_colorbar,
+                        label_str='particle',
+                        cb_pos=cb_pos,
+                        cb_tick_loc=cb_tick_loc,
+                        )
 
         # """
         # ~~~~~~~~Add traj num~~~~~~~~
@@ -212,7 +233,7 @@ def anim_traj(df, tif,
         #                        linewidth=1, fill=False)
         #         ax.add_patch(c)
         # """
-        anno_blob(ax, curr_df, marker='^', markersize=3, plot_r=False,
+        anno_blob(ax, curr_df, marker='^', markersize=3, plot_r=plot_r,
                     color=(0,0,1))
 
         # """
@@ -232,8 +253,12 @@ def anim_traj(df, tif,
                     ax.plot(traj['y_global'], traj['x_global'], '-',
                             linewidth=0.5, color=(0,1,0))
 
-                ax.plot(traj['y'], traj['x'], linewidth=0.5,
-                			color=colormap(traj['D_norm'].mean()))
+                if 'D_norm' in traj:
+                    ax.plot(traj['y'], traj['x'], linewidth=0.5,
+                    			color=colormap(traj['D_norm'].mean()))
+                else:
+                    ax.plot(traj['y'], traj['x'], linewidth=0.5,
+                    			color=colormap(traj['particle_norm'].mean()))
 
         # """
         # ~~~~~~~~Animate boundary~~~~~~~~
