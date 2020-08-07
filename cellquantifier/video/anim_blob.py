@@ -11,8 +11,10 @@ def anim_blob(df, tif,
             scalebar_height=0.02,
             scalebar_boxcolor=(1,1,1),
             scalebar_boxcolor_alpha=0,
+            plot_r=False,
             show_image=True,
-            dpi=150,
+            figsize=(9, 9),
+            dpi=100,
             ):
     """
     Animate blob in the tif video.
@@ -27,7 +29,7 @@ def anim_blob(df, tif,
     Parameters
     ----------
     df : DataFrame
-		DataFrame containing 'x', 'y', 'frame'.
+		DataFrame containing 'x', 'y', 'r', 'frame'.
 
     tif : Numpy array
         tif stack in format of 3d numpy array.
@@ -88,7 +90,7 @@ def anim_blob(df, tif,
         # """
         # ~~~~~~~~Initialize fig, ax, and xlim, ylim based on df~~~~~~~~
         # """
-        fig, ax = plt.subplots(figsize=(8, 6), dpi=dpi)
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
         ax.set_xticks([]); ax.set_yticks([])
 
         if not show_image:
@@ -98,6 +100,8 @@ def anim_blob(df, tif,
             ax.set_ylim(df['x'].max()+0.1*y_range, df['x'].min()-0.1*y_range)
         else:
             ax.imshow(tif[i], cmap='gray', aspect='equal')
+            ax.set_xlim(0, tif[0].shape[1])
+            ax.set_ylim(0, tif[0].shape[0])
             for spine in ['top', 'bottom', 'left', 'right']:
                 ax.spines[spine].set_visible(False)
 
@@ -121,7 +125,7 @@ def anim_blob(df, tif,
         # """
         # ~~~~~~~~Animate curr blob~~~~~~~~
         # """
-        anno_blob(ax, curr_df, marker='^', markersize=3, plot_r=False,
+        anno_blob(ax, curr_df, marker='^', markersize=3, plot_r=plot_r,
                     color=(0,0,1))
 
 
