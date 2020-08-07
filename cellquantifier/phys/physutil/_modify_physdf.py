@@ -29,7 +29,6 @@ def relabel_particles(df, col1='raw_data', col2='particle'):
 	ind = 1
 	tot = len(file_names)
 	for file_name in file_names:
-		print("\n")
 		print("Relabeling (%d/%d): %s" % (ind, tot, file_name))
 		ind = ind + 1
 
@@ -69,7 +68,6 @@ def merge_physdfs(files, mode='basic'):
 	ind = 1
 	tot = len(files)
 	for file in files:
-		print("\n")
 		print("Merging (%d/%d): %s" % (ind, tot, file))
 		ind = ind + 1
 
