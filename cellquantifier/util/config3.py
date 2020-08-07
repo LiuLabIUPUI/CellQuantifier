@@ -32,6 +32,7 @@ class Config():
 		self.GAUS_BLUR_SIG = config['Deno gaus_blur_sig']
 		self.MEAN_RADIUS = config['Deno mean_radius']
 		self.MEDIAN_RADIUS = config['Deno median_radius']
+		self.MINIMUM_RADIUS = config['Deno minimum_radius']
 
 		#DETECTION SETTINGS
 		self.THRESHOLD = config['Det blob_threshold']
@@ -39,6 +40,15 @@ class Config():
 		self.MAX_SIGMA = config['Det blob_max_sigma']
 		self.NUM_SIGMA = config['Det blob_num_sigma']
 		self.PEAK_THRESH_REL = config['Det pk_thresh_rel']
+		self.R_TO_SIGRAW = config['Det r_to_sigraw']
+
+		#DETECTION_2ND SETTINGS
+		self.THRESHOLD_2ND = config['Det2nd blob_threshold']
+		self.MIN_SIGMA_2ND = config['Det2nd blob_min_sigma']
+		self.MAX_SIGMA_2ND = config['Det2nd blob_max_sigma']
+		self.NUM_SIGMA_2ND = config['Det2nd blob_num_sigma']
+		self.PEAK_THRESH_REL_2ND = config['Det2nd pk_thresh_rel']
+		self.R_TO_SIGRAW_2ND = config['Det2nd r_to_sigraw']
 
 	    #TRACKING SETTINGS
 		self.SEARCH_RANGE = config['Trak search_range']

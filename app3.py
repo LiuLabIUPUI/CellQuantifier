@@ -27,15 +27,22 @@ control = [
 # 'phys_dist253bp1',
 # 'phys_dist253bp1_blob',
 
-
 # 'filt_track',
 # 'phys_dist2boundary',
 # 'phys_antigen_data',
 # 'plot_traj',
 # 'anim_traj',
 
+# 'deno_minimum',
+# 'check_det_det2nd',
+# 'detect',
+'track_simple',
+'plot_traj_simple',
+# 'anim_traj_simple',
+'blob_segm',
+
 # 'sort_plot',
-'merge_plot',
+# 'merge_plot',
 ]
 
 """Part II: CellQuantifier Parameter Settings"""
@@ -43,13 +50,13 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/josh/',
-  'IO output_path': '/home/linhua/Desktop/josh/',
+  'IO input_path': '/home/linhua/Desktop/input/',
+  'IO output_path': '/home/linhua/Downloads/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
   'Start frame index': 0,
-  'End frame index': 200,
+  'End frame index': 600,
   'Load existing analMeta': False,
 
   #REGISTRATION SETTINGS
@@ -87,27 +94,37 @@ settings = {
 
   #DENOISE SETTINGS
   'Deno mean_radius': '',
-  'Deno median_radius': 2,
+  'Deno median_radius': 5,
   'Deno boxcar_radius': 10,
-  'Deno gaus_blur_sig': 0.5,
+  'Deno gaus_blur_sig': 20,
+  'Deno minimum_radius': 7,
 
   #DETECTION SETTINGS
-  'Det blob_threshold': 0.01,
-  'Det blob_min_sigma': 2,
-  'Det blob_max_sigma': 10,
-  'Det blob_num_sigma': 9,
-  'Det pk_thresh_rel': 0.1,
+  'Det blob_threshold': 0.001,
+  'Det blob_min_sigma': 20,
+  'Det blob_max_sigma': 25,
+  'Det blob_num_sigma': 3,
+  'Det pk_thresh_rel': 0.05,
+  'Det r_to_sigraw': 2,
+
+  #DETECTION_2ND SETTINGS
+  'Det2nd blob_threshold': 0.005,
+  'Det2nd blob_min_sigma': 2,
+  'Det2nd blob_max_sigma': 5,
+  'Det2nd blob_num_sigma': 3,
+  'Det2nd pk_thresh_rel': 0.1,
+  'Det2nd r_to_sigraw': 1,
 
   #TRACKING SETTINGS
-  'Trak frame_rate': 20,
-  'Trak pixel_size': 0.163,
+  'Trak frame_rate': 1,
+  'Trak pixel_size': 0.108,
   'Trak divide_num': 5,
 
   ###############################################
-  'Trak search_range': 2,  # NO. 1
+  'Trak search_range': 50,  # NO. 1
   ###############################################
 
-  'Trak memory': 3,
+  'Trak memory': 10,
 
   #FILTERING SETTINGS
   'Filt max_dist_err': 1,
@@ -115,7 +132,7 @@ settings = {
   'Filt max_delta_area': 0.8,
 
   ###############################################
-  'Filt traj_length_thres': 80, # NO. 2
+  'Filt traj_length_thres': 250, # NO. 2
   #SORTING SETTINGS
   'Sort dist_to_boundary': None, # NO. 3
   'Sort travel_dist': None, # NO. 4
@@ -126,8 +143,8 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-# from cellquantifier.util.pipeline3 import *
-# pipeline_batch(settings, control)
+from cellquantifier.util.pipeline3_stiffness import *
+pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
 # import pandas as pd
@@ -161,11 +178,11 @@ settings = {
 # print(len(df))
 # fig_quick_nucleosome(df)
 
-import pandas as pd
-from cellquantifier.publish._fig_quick_merge import *
-df = pd.read_csv('/home/linhua/Desktop/josh/200730_50NcFixed-physDataMerged.csv',
-                index_col=False)
-fig_quick_merge(df)
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_merge import *
+# df = pd.read_csv('/home/linhua/Desktop/josh/200730_50NcFixed-physDataMerged.csv',
+#                 index_col=False)
+# fig_quick_merge(df)
 
 
 # from cellquantifier.publish import *
