@@ -8,3 +8,4 @@ from .add_cilia_xy_global import *
 from .add_cilia_data import *
 from .add_antigen_data import *
 from .particle_num import *
+from .foci_num import *
