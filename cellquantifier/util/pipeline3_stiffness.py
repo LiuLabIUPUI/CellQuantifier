@@ -72,9 +72,9 @@ class Pipeline3():
 
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
 
-		if frames.ndim == 3 and self.config.DICT['End frame index'] <= len(frames):
-			frames = frames[list(self.config.TRANGE),:,:]
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
+		# if frames.ndim == 3 and self.config.DICT['End frame index'] <= len(frames):
+		# 	frames = frames[list(self.config.TRANGE),:,:]
+		# imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', frames)
 
 		print('\tRegi_ref_file: [%s]' % self.config.REF_FILE_NAME)
 		print('\tMask_dist2boundary_file: [%s]' % self.config.DIST2BOUNDARY_MASK_NAME)
@@ -489,29 +489,32 @@ class Pipeline3():
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif', filtered)
 
 
-	def check_det_det2nd(self):
+	def check_det(self):
 
 		print("######################################")
 		print("Check detection and detection_2nd")
 		print("######################################")
 
-		check_frame_ind = [0, 30, 60, 90, 120]
+		check_frame_ind = [0, 60, 120, 180, 283]
 
 		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
 									'-regi.tif', '-raw.tif')
 
 		for ind in check_frame_ind:
 			blobs_df, det_plt_array = detect_blobs(frames[ind],
+										# preprocess_median_r=2,
 										min_sig=self.config.MIN_SIGMA,
 										max_sig=self.config.MAX_SIGMA,
 										num_sig=self.config.NUM_SIGMA,
 										blob_thres=self.config.THRESHOLD,
 										peak_thres_rel=self.config.PEAK_THRESH_REL,
+										# mean_thres_rel=self.config.MEAN_THRESH_REL,
 										r_to_sigraw=self.config.R_TO_SIGRAW,
 										pixel_size=self.config.PIXEL_SIZE,
 										diagnostic=True,
 										pltshow=True,
-										plot_r=True,
+										blob_markersize=5,
+										plot_r=False,
 										truth_df=None)
 
 			# det2nd_df, det2nd_plt_array = detect_2nd(frames[ind], blobs_df,
@@ -543,6 +546,7 @@ class Pipeline3():
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif')
 
 		blobs_df, det_plt_array = detect_blobs_batch(frames,
+									preprocess_median_r=2,
 									min_sig=self.config.MIN_SIGMA,
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
@@ -568,35 +572,37 @@ class Pipeline3():
 		psf_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-fittData.csv', index=False)
 
-	# def detect(self):
-	#
-	# 	print("######################################")
-	# 	print("Detect")
-	# 	print("######################################")
-	#
-	# 	frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
-	# 								'-regi.tif', '-raw.tif')
-	#
-	# 	blobs_df, det_plt_array = detect_blobs_batch(frames,
-	# 								min_sig=self.config.MIN_SIGMA,
-	# 								max_sig=self.config.MAX_SIGMA,
-	# 								num_sig=self.config.NUM_SIGMA,
-	# 								blob_thres=self.config.THRESHOLD,
-	# 								peak_thres_rel=self.config.PEAK_THRESH_REL,
-	# 								r_to_sigraw=self.config.R_TO_SIGRAW,
-	# 								pixel_size=self.config.PIXEL_SIZE,
-	# 								diagnostic=True,
-	# 								pltshow=False,
-	# 								plot_r=True,
-	# 								truth_df=None)
-	# 	imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
-	#
-	# 	blobs_df = blobs_df.apply(pd.to_numeric)
-	# 	blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-	# 					'-detData.csv', index=False)
+	def detect_foci(self):
+
+		print("######################################")
+		print("Detect")
+		print("######################################")
+
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
+
+		blobs_df, det_plt_array = detect_blobs_batch(frames,
+									preprocess_median_r=2,
+									min_sig=self.config.MIN_SIGMA,
+									max_sig=self.config.MAX_SIGMA,
+									num_sig=self.config.NUM_SIGMA,
+									blob_thres=self.config.THRESHOLD,
+									peak_thres_rel=self.config.PEAK_THRESH_REL,
+									mean_thres_rel=self.config.MEAN_THRESH_REL,
+									r_to_sigraw=self.config.R_TO_SIGRAW,
+									pixel_size=self.config.PIXEL_SIZE,
+									diagnostic=True,
+									pltshow=False,
+									plot_r=False,
+									truth_df=None)
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
+
+		blobs_df = blobs_df.apply(pd.to_numeric)
+		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-detData.csv', index=False)
 
 
-	def detect(self):
+	def detect_cell(self):
 
 		print("######################################")
 		print("Detect")
@@ -632,6 +638,17 @@ class Pipeline3():
 		blobs_df = blobs_df.apply(pd.to_numeric)
 		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-detData.csv', index=False)
+
+	def plot_foci_dynamics(self):
+
+		print("######################################")
+		print("Plotting foci dynamics")
+		print("######################################")
+
+		blobs_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detData.csv')
+		foci_dynamics_fig = plot_foci_dynamics(blobs_df)
+		foci_dynamics_fig.savefig(self.config.OUTPUT_PATH + \
+						self.config.ROOT_NAME + '-foci-dynamics.pdf')
 
 
 	def fit(self):

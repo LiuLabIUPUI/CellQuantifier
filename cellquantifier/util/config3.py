@@ -40,6 +40,7 @@ class Config():
 		self.MAX_SIGMA = config['Det blob_max_sigma']
 		self.NUM_SIGMA = config['Det blob_num_sigma']
 		self.PEAK_THRESH_REL = config['Det pk_thresh_rel']
+		self.MEAN_THRESH_REL = config['Det mean_thresh_rel']
 		self.R_TO_SIGRAW = config['Det r_to_sigraw']
 
 		#DETECTION_2ND SETTINGS

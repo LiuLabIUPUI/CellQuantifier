@@ -26,6 +26,8 @@ control = [
 
 # 'phys_dist253bp1',
 # 'phys_dist253bp1_blob',
+# 'sort_plot',
+# 'merge_plot',
 
 # 'filt_track',
 # 'phys_dist2boundary',
@@ -33,16 +35,18 @@ control = [
 # 'plot_traj',
 # 'anim_traj',
 
+# 'load',
 # 'deno_minimum',
-# 'check_det_det2nd',
-# 'detect',
-'track_simple',
-'plot_traj_simple',
+# 'check_det',
+# 'detect_cell',
+# 'track_simple',
+# 'plot_traj_simple',
 # 'anim_traj_simple',
-'blob_segm',
+# 'blob_segm',
+'check_det',
+# 'detect_foci',
+# 'plot_foci_dynamics',
 
-# 'sort_plot',
-# 'merge_plot',
 ]
 
 """Part II: CellQuantifier Parameter Settings"""
@@ -51,7 +55,7 @@ settings = {
 
   #IO
   'IO input_path': '/home/linhua/Desktop/input/',
-  'IO output_path': '/home/linhua/Downloads/',
+  'IO output_path': '/home/linhua/Desktop/stiffness/200811_0.2kPa/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -94,51 +98,52 @@ settings = {
 
   #DENOISE SETTINGS
   'Deno mean_radius': '',
-  'Deno median_radius': 5,
-  'Deno boxcar_radius': 10,
-  'Deno gaus_blur_sig': 20,
+  'Deno median_radius': '',
+  'Deno boxcar_radius': '',
+  'Deno gaus_blur_sig': '',
   'Deno minimum_radius': 7,
 
   #DETECTION SETTINGS
   'Det blob_threshold': 0.001,
-  'Det blob_min_sigma': 20,
-  'Det blob_max_sigma': 25,
+  'Det blob_min_sigma': 2,
+  'Det blob_max_sigma': 5,
   'Det blob_num_sigma': 3,
-  'Det pk_thresh_rel': 0.05,
-  'Det r_to_sigraw': 2,
+  'Det pk_thresh_rel': 0.18,
+  'Det mean_thresh_rel': 0,
+  'Det r_to_sigraw': 1,
 
   #DETECTION_2ND SETTINGS
-  'Det2nd blob_threshold': 0.005,
-  'Det2nd blob_min_sigma': 2,
-  'Det2nd blob_max_sigma': 5,
-  'Det2nd blob_num_sigma': 3,
-  'Det2nd pk_thresh_rel': 0.1,
-  'Det2nd r_to_sigraw': 1,
+  'Det2nd blob_threshold': '',
+  'Det2nd blob_min_sigma': '',
+  'Det2nd blob_max_sigma': '',
+  'Det2nd blob_num_sigma': '',
+  'Det2nd pk_thresh_rel': '',
+  'Det2nd r_to_sigraw': '',
 
   #TRACKING SETTINGS
-  'Trak frame_rate': 1,
-  'Trak pixel_size': 0.108,
-  'Trak divide_num': 5,
+  'Trak frame_rate': '',
+  'Trak pixel_size': '',
+  'Trak divide_num': '',
 
   ###############################################
-  'Trak search_range': 50,  # NO. 1
+  'Trak search_range': '',  # NO. 1
   ###############################################
 
-  'Trak memory': 10,
+  'Trak memory': '',
 
   #FILTERING SETTINGS
-  'Filt max_dist_err': 1,
-  'Filt max_sig_to_sigraw': 2,
-  'Filt max_delta_area': 0.8,
+  'Filt max_dist_err': '',
+  'Filt max_sig_to_sigraw': '',
+  'Filt max_delta_area': '',
 
   ###############################################
-  'Filt traj_length_thres': 250, # NO. 2
+  'Filt traj_length_thres': '', # NO. 2
   #SORTING SETTINGS
-  'Sort dist_to_boundary': None, # NO. 3
-  'Sort travel_dist': None, # NO. 4
+  'Sort dist_to_boundary': '', # NO. 3
+  'Sort travel_dist': '', # NO. 4
   ###############################################
 
-  'Sort dist_to_53bp1': None,
+  'Sort dist_to_53bp1': '',
 
 }
 
