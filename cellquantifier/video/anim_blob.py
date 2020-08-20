@@ -11,6 +11,7 @@ def anim_blob(df, tif,
             scalebar_height=0.02,
             scalebar_boxcolor=(1,1,1),
             scalebar_boxcolor_alpha=0,
+            blob_markersize=3,
             plot_r=False,
             show_image=True,
             figsize=(9, 9),
@@ -125,7 +126,9 @@ def anim_blob(df, tif,
         # """
         # ~~~~~~~~Animate curr blob~~~~~~~~
         # """
-        anno_blob(ax, curr_df, marker='^', markersize=3, plot_r=plot_r,
+        anno_blob(ax, curr_df, marker='^',
+                    markersize=blob_markersize, 
+                    plot_r=plot_r,
                     color=(0,0,1))
 
 
