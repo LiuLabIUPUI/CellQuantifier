@@ -68,7 +68,7 @@ def fit_psf(pims_frame,
         print("ERROR: blobs_df is empty!!!")
         print("##############################################")
         print("\n"*3)
-        return
+        # return
 
     # """
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~Prepare the dataformat~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,9 +135,13 @@ def fit_psf(pims_frame,
         except:
             pass
 
-    print("Predict good fitting number and ratio in frame %d: [%d, %.2f]" %
+    try:
+        print("Predict good fitting number and ratio in frame %d: [%d, %.2f]" %
             (pims_frame.frame_no, good_fitting_num,
             good_fitting_num/len(blobs_df)))
+    except:
+        pass
+        
     psf_df = df
 
     # """
