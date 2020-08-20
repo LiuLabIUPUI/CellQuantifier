@@ -1,11 +1,9 @@
 import numpy as np
 from skimage.io import imsave
-from skimage.util import img_as_ubyte
-from ..segm import *
+from skimage.util import img_as_ubyte, img_as_float
+from .mask import blobs_df_to_mask
 
-def blob_segm(tif, blobs_df, output_path_prefix,
-    mask_sig=None,
-    mask_thres_rel=None,
+def blob_segm(tif, blobs_df, output_path_prefix
     ):
     """
     Segm raw tif file using blob information.
@@ -13,7 +11,7 @@ def blob_segm(tif, blobs_df, output_path_prefix,
     Pseudo code
     ----------
     1. Iterate the blobs_df by 'particle'
-    2. Generate a 3d ndarray with size of 6*r by 6*r
+    2. Generate a 3d ndarray with size of 2(r+10)+1 by 2(r+10)+1
     3. Crop patches from tif and paste in 3d ndarray, starting position 2*r
     4. Save the 3d ndarray as tif in the output_path
 
@@ -35,6 +33,15 @@ def blob_segm(tif, blobs_df, output_path_prefix,
     Examples
 	--------
     """
+    # """
+    # ~~~~XXX~~~~
+    # """
+    print("Generating blob masks")
+    masks = blobs_df_to_mask(tif, blobs_df)
+    print("Applying blob masks")
+    tif = tif * masks
+    print(tif.dtype)
+    print(tif.max(), tif.min())
 
     # """
     # ~~~~XXX~~~~
@@ -49,7 +56,7 @@ def blob_segm(tif, blobs_df, output_path_prefix,
 
         curr_df = blobs_df[ blobs_df['particle']==particle ]
         r = int(round(curr_df['r'].max()))
-        sub_tif = np.zeros((len(tif), 6*r, 6*r))
+        sub_tif = np.zeros((len(tif), 2*r+21, 2*r+21), dtype=tif.dtype)
 
         for index in curr_df.index:
             frame = int(curr_df.loc[index, 'frame'])
@@ -59,11 +66,13 @@ def blob_segm(tif, blobs_df, output_path_prefix,
             patch = tif[frame][x0-r0:x0+r0+1, y0-r0:y0+r0+1]
             try:
                 # sub_tif[frame][2*r:2*r+2*r0+1, 2*r:2*r+2*r0+1] = patch
-                sub_tif[frame][3*r-r0:3*r+r0+1, 3*r-r0:3*r+r0+1] = patch
+                sub_tif[frame][r+5-r0:r+5+r0+1, r+5-r0:r+5+r0+1] = patch
             except:
                 pass
 
-        sub_tif = sub_tif / sub_tif.max()
+        sub_tif = img_as_float(sub_tif)
+        print(sub_tif.min(), sub_tif.max())
         sub_tif = img_as_ubyte(sub_tif)
+        print(sub_tif.min(), sub_tif.max())
 
         imsave(output_path_prefix + '-' + str(particle) + '.tif', sub_tif)
