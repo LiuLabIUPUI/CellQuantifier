@@ -42,20 +42,37 @@ control = [
 # 'track_simple',
 # 'plot_traj_simple',
 # 'anim_traj_simple',
+
 # 'blob_segm',
+
 'check_det',
-# 'detect_foci',
-# 'plot_foci_dynamics',
+'deno_box',
+'detect_foci',
+'plot_foci_dynamics',
+
+'fit',
+'anim_foci',
+
+# 'plot_foci_hist',
+
 
 ]
 
 """Part II: CellQuantifier Parameter Settings"""
 
 settings = {
+    #DETECTION SETTINGS
+    'Det blob_threshold': 'auto',
+    'Det blob_min_sigma': 1.5,
+    'Det blob_max_sigma': 3,
+    'Det blob_num_sigma': 5,
+    'Det pk_thresh_rel': 'auto',
+    'Det mean_thresh_rel': 0,
+    'Det r_to_sigraw': 1,
 
   #IO
   'IO input_path': '/home/linhua/Desktop/input/',
-  'IO output_path': '/home/linhua/Desktop/stiffness/200811_0.2kPa/',
+  'IO output_path': '/home/linhua/Desktop/input/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -99,18 +116,11 @@ settings = {
   #DENOISE SETTINGS
   'Deno mean_radius': '',
   'Deno median_radius': '',
-  'Deno boxcar_radius': '',
-  'Deno gaus_blur_sig': '',
+  'Deno boxcar_radius': 10,
+  'Deno gaus_blur_sig': 0.5,
   'Deno minimum_radius': 7,
 
-  #DETECTION SETTINGS
-  'Det blob_threshold': 0.001,
-  'Det blob_min_sigma': 2,
-  'Det blob_max_sigma': 5,
-  'Det blob_num_sigma': 3,
-  'Det pk_thresh_rel': 0.18,
-  'Det mean_thresh_rel': 0,
-  'Det r_to_sigraw': 1,
+
 
   #DETECTION_2ND SETTINGS
   'Det2nd blob_threshold': '',
@@ -122,7 +132,7 @@ settings = {
 
   #TRACKING SETTINGS
   'Trak frame_rate': '',
-  'Trak pixel_size': '',
+  'Trak pixel_size': 0.163,
   'Trak divide_num': '',
 
   ###############################################
@@ -132,12 +142,12 @@ settings = {
   'Trak memory': '',
 
   #FILTERING SETTINGS
-  'Filt max_dist_err': '',
-  'Filt max_sig_to_sigraw': '',
+  'Filt max_dist_err': 1,
+  'Filt max_sig_to_sigraw': 2,
   'Filt max_delta_area': '',
 
   ###############################################
-  'Filt traj_length_thres': '', # NO. 2
+  'Filt traj_length_thres': 250, # NO. 2
   #SORTING SETTINGS
   'Sort dist_to_boundary': '', # NO. 3
   'Sort travel_dist': '', # NO. 4

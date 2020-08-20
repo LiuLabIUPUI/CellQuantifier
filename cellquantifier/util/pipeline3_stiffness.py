@@ -258,8 +258,7 @@ class Pipeline3():
 		phys_df['r'] = phys_df['sig_raw'] * 2.5
 		blob_segm(frames, phys_df,
 				output_path_prefix=self.config.OUTPUT_PATH + self.config.ROOT_NAME,
-				mask_sig=self.config.MASK_SIG_BOUNDARY,
-				mask_thres_rel=self.config.MASK_THRES_BOUNDARY)
+				)
 
 
 
@@ -423,8 +422,8 @@ class Pipeline3():
 		print('Applying Gaussian Filter')
 		print("######################################")
 
-		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
-		frames = frames / frames.max()
+		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif')
+		frames = img_as_float(frames)
 		frames = img_as_ubyte(frames)
 		filtered = filter_batch(frames, method='gaussian', arg=self.config.GAUS_BLUR_SIG)
 
@@ -438,12 +437,12 @@ class Pipeline3():
 		print('Applying Boxcar Filter')
 		print("######################################")
 
-		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
-		frames = frames / frames.max()
+		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+		frames = img_as_float(frames)
 		frames = img_as_ubyte(frames)
 		filtered = filter_batch(frames, method='boxcar', arg=self.config.BOXCAR_RADIUS)
+		# filtered = filter_batch(filtered, method='gaussian', arg=self.config.GAUS_BLUR_SIG)
 
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif', filtered)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif', filtered)
 
 	def deno_mean(self):
@@ -453,7 +452,7 @@ class Pipeline3():
 		print("######################################")
 
 		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
-		frames = frames / frames.max()
+		frames = img_as_float(frames)
 		frames = img_as_ubyte(frames)
 		filtered = filter_batch(frames, method='mean', arg=self.config.MEAN_RADIUS)
 
@@ -467,7 +466,7 @@ class Pipeline3():
 		print("######################################")
 
 		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-active.tif')
-		frames = frames / frames.max()
+		frames = img_as_float(frames)
 		frames = img_as_ubyte(frames)
 		filtered = filter_batch(frames, method='median', arg=self.config.MEDIAN_RADIUS)
 
@@ -482,8 +481,7 @@ class Pipeline3():
 		print("######################################")
 
 		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
-		# frames = frames / frames.max()
-		# frames = img_as_ubyte(frames)
+		frames = img_as_ubyte(frames)
 		filtered = filter_batch(frames, method='minimum', arg=self.config.MINIMUM_RADIUS)
 
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif', filtered)
@@ -495,20 +493,18 @@ class Pipeline3():
 		print("Check detection and detection_2nd")
 		print("######################################")
 
-		check_frame_ind = [0, 60, 120, 180, 283]
+		check_frame_ind = [0, 147, 283]
 
 		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
 									'-regi.tif', '-raw.tif')
 
 		for ind in check_frame_ind:
 			blobs_df, det_plt_array = detect_blobs(frames[ind],
-										# preprocess_median_r=2,
 										min_sig=self.config.MIN_SIGMA,
 										max_sig=self.config.MAX_SIGMA,
 										num_sig=self.config.NUM_SIGMA,
 										blob_thres=self.config.THRESHOLD,
 										peak_thres_rel=self.config.PEAK_THRESH_REL,
-										# mean_thres_rel=self.config.MEAN_THRESH_REL,
 										r_to_sigraw=self.config.R_TO_SIGRAW,
 										pixel_size=self.config.PIXEL_SIZE,
 										diagnostic=True,
@@ -546,7 +542,7 @@ class Pipeline3():
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif')
 
 		blobs_df, det_plt_array = detect_blobs_batch(frames,
-									preprocess_median_r=2,
+									# preprocess_median_r=2,
 									min_sig=self.config.MIN_SIGMA,
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
@@ -582,24 +578,37 @@ class Pipeline3():
 									'-regi.tif', '-raw.tif')
 
 		blobs_df, det_plt_array = detect_blobs_batch(frames,
-									preprocess_median_r=2,
 									min_sig=self.config.MIN_SIGMA,
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
 									blob_thres=self.config.THRESHOLD,
 									peak_thres_rel=self.config.PEAK_THRESH_REL,
-									mean_thres_rel=self.config.MEAN_THRESH_REL,
 									r_to_sigraw=self.config.R_TO_SIGRAW,
 									pixel_size=self.config.PIXEL_SIZE,
-									diagnostic=True,
+									diagnostic=False,
 									pltshow=False,
+									blob_markersize=5,
 									plot_r=False,
 									truth_df=None)
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
+
+		blobs_df = blobs_df[ blobs_df['frame']!=246 ]
+
+		det_plt_array = anim_blob(blobs_df, frames,
+									pixel_size=self.config.PIXEL_SIZE,
+									blob_markersize=5,
+									)
+
+		try:
+			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
+		except:
+			pass
 
 		blobs_df = blobs_df.apply(pd.to_numeric)
 		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-detData.csv', index=False)
+
+		self.config.DICT['Load existing analMeta'] = True
+		self.config.save_config()
 
 
 	def detect_cell(self):
@@ -661,17 +670,17 @@ class Pipeline3():
 
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif')
 
-		# psf_df, fit_plt_array = fit_psf_batch(frames_deno,
-		#             blobs_df,
-		#             diagnostic=False,
-		#             pltshow=False,
-		#             diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
-		#             diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
-		#             truth_df=None,
-		#             segm_df=None)
-		# # imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fitVideo.tif', fit_plt_array)
+		psf_df, fit_plt_array = fit_psf_batch(frames_deno,
+		            blobs_df,
+		            diagnostic=False,
+		            pltshow=False,
+		            diag_max_dist_err=self.config.FILTERS['MAX_DIST_ERROR'],
+		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
+		            truth_df=None,
+		            segm_df=None)
+		# imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fitVideo.tif', fit_plt_array)
 
-		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
+		# psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
 
 		psf_df = psf_df.apply(pd.to_numeric)
 		psf_df['slope'] = psf_df['A'] / (9 * np.pi * psf_df['sig_x'] * psf_df['sig_y'])
@@ -681,6 +690,46 @@ class Pipeline3():
 		foci_prop_hist_fig = plot_foci_prop_hist(psf_df)
 		foci_prop_hist_fig.savefig(self.config.OUTPUT_PATH + \
 						self.config.ROOT_NAME + '-foci-prop-hist.pdf')
+
+
+	def plot_foci_hist(self):
+		psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
+
+		foci_prop_hist_fig = plot_foci_prop_hist(psf_df)
+		foci_prop_hist_fig.savefig(self.config.OUTPUT_PATH + \
+						self.config.ROOT_NAME + '-foci-prop-hist.pdf')
+
+
+	def anim_foci(self):
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
+		fitt_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
+
+		fitt_df = fitt_df[fitt_df['dist_err'] < self.config.DICT['Filt max_dist_err']]
+		fitt_df = fitt_df[fitt_df['sigx_to_sigraw'] < self.config.DICT['Filt max_sig_to_sigraw']]
+		fitt_df = fitt_df[fitt_df['sigy_to_sigraw'] < self.config.DICT['Filt max_sig_to_sigraw']]
+
+		fitt_df = fitt_df[ fitt_df['frame']!=246 ]
+
+		fitt_plt_array = anim_blob(fitt_df, frames,
+									pixel_size=self.config.PIXEL_SIZE,
+									blob_markersize=5,
+									)
+		try:
+			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittVideo.tif', fitt_plt_array)
+		except:
+			pass
+
+		foci_dynamics_fig = plot_foci_dynamics(fitt_df)
+		foci_dynamics_fig.savefig(self.config.OUTPUT_PATH + \
+						self.config.ROOT_NAME + '-foci-dynamics2.pdf')
+
+
+
+		# frames = np.array(frames)
+		# frames = frames / frames.max()
+		# frames = img_as_ubyte(frames)
+		# imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-norm.tif', frames)
 
 
 	# helper function for filt and track()
