@@ -5,15 +5,26 @@ from matplotlib_scalebar.scalebar import ScaleBar
 from skimage.feature import blob_log
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
+from ..deno import median
+from ..io import imshow_gray
+from skimage.util import img_as_ubyte
+from scipy.ndimage import gaussian_laplace
+from skimage.filters.thresholding import _cross_entropy
+from skimage.util import img_as_float
+from skimage.feature import peak_local_max
+from skimage.filters import gaussian
 
 def detect_blobs(pims_frame,
+
 				min_sig=1,
 				max_sig=3,
 				num_sig=5,
 				blob_thres=0.1,
 				peak_thres_rel=0.1,
+
 				r_to_sigraw=3,
 				pixel_size = .1084,
+
 				diagnostic=True,
 				pltshow=True,
 				plot_r=True,
@@ -73,17 +84,53 @@ def detect_blobs(pims_frame,
 	# """
 
 	frame = pims_frame
+
+	# threshold automation
+	if blob_thres=='auto':
+		frame_f = img_as_float(frame)
+		frame_log = -gaussian_laplace(frame_f, sigma=min_sig) * min_sig**2
+
+		maxima = peak_local_max(frame_log,
+					threshold_abs=0,
+					footprint=None,
+					num_peaks=10)
+
+		columns = ['x', 'y', 'peak_log',]
+		maxima_df = pd.DataFrame([], columns=columns)
+		maxima_df['x'] = maxima[:, 0]
+		maxima_df['y'] = maxima[:, 1]
+		maxima_df['peak_log'] = frame_log[ maxima_df['x'], maxima_df['y'] ]
+
+		blob_thres_final = maxima_df['peak_log'].mean()*0.05
+	else:
+		blob_thres_final = blob_thres
+
+	# # peak_thres_rel automation
+	# if peak_thres_rel=='auto':
+	# 	maxima = peak_local_max(frame,
+	# 				threshold_abs=0,
+	# 				footprint=None,
+	# 				num_peaks=10)
+	#
+	# 	columns = ['x', 'y', 'peak',]
+	# 	maxima_df = pd.DataFrame([], columns=columns)
+	# 	maxima_df['x'] = maxima[:, 0]
+	# 	maxima_df['y'] = maxima[:, 1]
+	# 	maxima_df['peak'] = frame[ maxima_df['x'], maxima_df['y'] ]
+	#
+	# 	peak_thres_abs = maxima_df['peak'].mean()*0.05
+
 	blobs = blob_log(frame,
 					 min_sigma=min_sig,
 					 max_sigma=max_sig,
 					 num_sigma=num_sig,
-					 threshold=blob_thres)
+					 threshold=blob_thres_final)
 
 	# """
 	# ~~~~~~~~~~~~~~~~~~~~~~Prepare blobs_df and update it~~~~~~~~~~~~~~~~~~~~~~
 	# """
 
-	columns = ['frame', 'x', 'y', 'sig_raw', 'r', 'peak']
+	columns = ['frame', 'x', 'y', 'sig_raw', 'r', 'peak', 'mass']
 	blobs_df = pd.DataFrame([], columns=columns)
 	blobs_df['x'] = blobs[:, 0]
 	blobs_df['y'] = blobs[:, 1]
@@ -103,13 +150,36 @@ def detect_blobs(pims_frame,
 		r = int(round(blobs_df.at[i, 'r']))
 		blob = frame[x-r:x+r+1, y-r:y+r+1]
 		blobs_df.at[i, 'peak'] = blob.max()
+		blobs_df.at[i, 'mass'] = blob.sum()
 
 	# """
-	# ~~~~~~~Filter detections below peak_thres_abs~~~~~~~
+	# ~~~~~~~Filter detections~~~~~~~
 	# """
+	if peak_thres_rel=='auto' and blob_thres!='auto':
+		maxima = peak_local_max(frame,
+					threshold_abs=0,
+					footprint=None,
+					num_peaks=10)
 
-	peak_thres_abs = blobs_df['peak'].max() * peak_thres_rel
-	blobs_df = blobs_df[(blobs_df['peak'] > peak_thres_abs)]
+		columns = ['x', 'y', 'peak',]
+		maxima_df = pd.DataFrame([], columns=columns)
+		maxima_df['x'] = maxima[:, 0]
+		maxima_df['y'] = maxima[:, 1]
+		maxima_df['peak'] = frame[ maxima_df['x'], maxima_df['y'] ]
+
+		peak_thres_abs = maxima_df['peak'].mean()*0.05
+		blbdf_before_filter = blobs_df.copy
+		blobs_df = blobs_df[(blobs_df['peak'] > peak_thres_abs)]
+	elif peak_thres_rel=='auto' and blob_thres=='auto':
+		blobs_df['peak_times_r'] = blobs_df['peak'] * blobs_df['r']
+		blobs_df = blobs_df.sort_values(by='peak_times_r', ascending=False)
+		pk_by_r_thres = blobs_df.head(10)['peak_times_r'].mean()*0.25
+		blbdf_before_filter = blobs_df.copy
+		blobs_df = blobs_df[ (blobs_df['peak_times_r']>pk_by_r_thres) ]
+	else:
+		peak_thres_abs = blobs_df['peak'].max() * peak_thres_rel
+		blbdf_before_filter = blobs_df.copy
+		blobs_df = blobs_df[(blobs_df['peak'] > peak_thres_abs)]
 
 	# """
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~Print detection summary~~~~~~~~~~~~~~~~~~~~~~~~~
