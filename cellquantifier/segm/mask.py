@@ -213,6 +213,6 @@ def blobs_df_to_mask(tif, blobs_df):
             mask = np.logical_or(mask, curr_mask)
 
         masks_array_3d[i][mask] = 1
-        # print("Get blob_mask NO.%d is done!" % i)
+        print("Get blob_mask NO.%d is done!" % i)
 
     return masks_array_3d
