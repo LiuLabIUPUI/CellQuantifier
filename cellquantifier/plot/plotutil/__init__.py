@@ -20,3 +20,4 @@ from ._anno import *
 from ._add_colorbar import *
 from ._format_ax import *
 from ._add_hist import *
+from ._add_scatter_2d import *
