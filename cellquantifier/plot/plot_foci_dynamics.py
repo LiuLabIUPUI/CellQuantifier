@@ -177,8 +177,12 @@ def plot_foci_dynamics(
     print("\n")
     print("Preparing data")
     if not df.empty:
+        if 'foci_num' in df:
+            df.drop('foci_num')
+
         df = add_foci_num(df)
         dff = df.drop_duplicates('frame')
+        dff = dff.sort_values(by='frame')
 
 
     # """
