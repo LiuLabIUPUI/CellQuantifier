@@ -490,10 +490,11 @@ class Pipeline3():
 	def check_det(self):
 
 		print("######################################")
-		print("Check detection and detection_2nd")
+		print("Check detection")
 		print("######################################")
 
 		check_frame_ind = [0, 147, 283]
+		# check_frame_ind = [147]
 
 		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
 									'-regi.tif', '-raw.tif')
@@ -512,6 +513,10 @@ class Pipeline3():
 										blob_markersize=5,
 										plot_r=False,
 										truth_df=None)
+
+			# det_param_space_fig = plot_det_param_space(blobs_df, frames[ind])
+			# plt.show()
+
 
 			# det2nd_df, det2nd_plt_array = detect_2nd(frames[ind], blobs_df,
 			# 		min_sig=self.config.MIN_SIGMA_2ND,
@@ -542,7 +547,6 @@ class Pipeline3():
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif')
 
 		blobs_df, det_plt_array = detect_blobs_batch(frames,
-									# preprocess_median_r=2,
 									min_sig=self.config.MIN_SIGMA,
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
@@ -593,15 +597,14 @@ class Pipeline3():
 
 		blobs_df = blobs_df[ blobs_df['frame']!=246 ]
 
-		det_plt_array = anim_blob(blobs_df, frames,
-									pixel_size=self.config.PIXEL_SIZE,
-									blob_markersize=5,
-									)
-
-		try:
-			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
-		except:
-			pass
+		# det_plt_array = anim_blob(blobs_df, frames,
+		# 							pixel_size=self.config.PIXEL_SIZE,
+		# 							blob_markersize=5,
+		# 							)
+		# try:
+		# 	imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
+		# except:
+		# 	pass
 
 		blobs_df = blobs_df.apply(pd.to_numeric)
 		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
@@ -655,6 +658,9 @@ class Pipeline3():
 		print("######################################")
 
 		blobs_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detData.csv')
+
+		blobs_df = blobs_df[ blobs_df['frame']!=246 ]
+
 		foci_dynamics_fig = plot_foci_dynamics(blobs_df)
 		foci_dynamics_fig.savefig(self.config.OUTPUT_PATH + \
 						self.config.ROOT_NAME + '-foci-dynamics.pdf')
@@ -668,6 +674,8 @@ class Pipeline3():
 
 		blobs_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detData.csv')
 
+		blobs_df = blobs_df[ blobs_df['frame']!=246 ]
+
 		frames_deno = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif')
 
 		psf_df, fit_plt_array = fit_psf_batch(frames_deno,
@@ -678,8 +686,8 @@ class Pipeline3():
 		            diag_max_sig_to_sigraw = self.config.FILTERS['SIG_TO_SIGRAW'],
 		            truth_df=None,
 		            segm_df=None)
-		# imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fitVideo.tif', fit_plt_array)
 
+		# imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fitVideo.tif', fit_plt_array)
 		# psf_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittData.csv')
 
 		psf_df = psf_df.apply(pd.to_numeric)
@@ -687,9 +695,9 @@ class Pipeline3():
 		psf_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-fittData.csv', index=False)
 
-		foci_prop_hist_fig = plot_foci_prop_hist(psf_df)
-		foci_prop_hist_fig.savefig(self.config.OUTPUT_PATH + \
-						self.config.ROOT_NAME + '-foci-prop-hist.pdf')
+		# foci_prop_hist_fig = plot_foci_prop_hist(psf_df)
+		# foci_prop_hist_fig.savefig(self.config.OUTPUT_PATH + \
+		# 				self.config.ROOT_NAME + '-foci-prop-hist.pdf')
 
 
 	def plot_foci_hist(self):
@@ -725,11 +733,46 @@ class Pipeline3():
 						self.config.ROOT_NAME + '-foci-dynamics2.pdf')
 
 
+	def anim_traj(self):
 
-		# frames = np.array(frames)
-		# frames = frames / frames.max()
-		# frames = img_as_ubyte(frames)
-		# imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-norm.tif', frames)
+		print("######################################")
+		print("Animating trajectories")
+		print("######################################")
+
+		# """
+		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
+		# """
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		# """
+		# ~~~~~~~~traj_length filter~~~~~~~~
+		# """
+		if 'traj_length' in phys_df and self.config.FILTERS['TRAJ_LEN_THRES']!=None:
+			phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
+
+		# """
+		# ~~~~~~~~check if phys_df is empty~~~~~~~~
+		# """
+		if phys_df.empty:
+			print('phys_df is empty. No traj to animate!')
+			return
+
+		phys_df = phys_df[ phys_df['frame']!=246 ]
+
+		phys_plt_array = anim_blob(phys_df, frames,
+									pixel_size=self.config.PIXEL_SIZE,
+									blob_markersize=5,
+									)
+		try:
+			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physVideo.tif', phys_plt_array)
+		except:
+			pass
+
+		foci_dynamics_fig = plot_foci_dynamics(phys_df)
+		foci_dynamics_fig.savefig(self.config.OUTPUT_PATH + \
+						self.config.ROOT_NAME + '-foci-dynamics3.pdf')
 
 
 	# helper function for filt and track()
@@ -955,14 +998,6 @@ class Pipeline3():
 					)
 
 
-
-
-
-
-
-
-
-
 		# ax.imshow(frames[0], cmap='gray', aspect='equal')
 		# plt.box(False)
 		# add_scalebar(ax,
@@ -1054,6 +1089,67 @@ class Pipeline3():
 					dpi=100,
 					)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-animVideo.tif', anim_tif)
+
+
+	def plot_traj(self):
+		# """
+		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
+		# """
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		# """
+		# ~~~~~~~~traj_length filter~~~~~~~~
+		# """
+		if 'traj_length' in phys_df and self.config.FILTERS['TRAJ_LEN_THRES']!=None:
+			phys_df = phys_df[ phys_df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
+
+
+		# """
+		# ~~~~~~~~Optimize the colorbar format~~~~~~~~
+		# """
+		if len(phys_df.drop_duplicates('particle')) > 1:
+			D_max = phys_df['D'].quantile(0.9)
+			D_min = phys_df['D'].quantile(0.1)
+			D_range = D_max - D_min
+			cb_min=D_min
+			cb_max=D_max
+			cb_major_ticker=round(0.2*D_range)
+			cb_minor_ticker=round(0.2*D_range)
+		else:
+			cb_min, cb_max, cb_major_ticker, cb_minor_ticker = None, None, None, None
+
+
+		fig, ax = plt.subplots()
+		anno_traj(ax, phys_df,
+
+					show_image=True,
+					image = frames[0],
+
+					show_scalebar=True,
+					pixel_size=self.config.PIXEL_SIZE,
+
+					show_colorbar=True,
+					cb_min=cb_min,
+					cb_max=cb_max,
+	                cb_major_ticker=cb_major_ticker,
+					cb_minor_ticker=cb_minor_ticker,
+
+		            show_traj_num=True,
+
+					show_particle_label=False,
+
+					# show_boundary=True,
+					# boundary_mask=boundary_masks[0],
+					# boundary_list=self.config.DICT['Sort dist_to_boundary'],
+					)
+		# fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.pdf')
+		# plt.clf(); plt.close()
+		plt.show()
+
+		self.config.DICT['Load existing analMeta'] = True
+		self.config.save_config()
 
 
 	def phys(self):

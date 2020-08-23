@@ -1,40 +1,6 @@
 """Part I: CellQuantifier Sequence Control"""
 
 control = [
-# 'clean_dir',
-# 'load',
-# 'regi',
-# 'mask_boundary',
-# 'mask_53bp1',
-# 'mask_53bp1_blob',
-# 'deno_mean',
-# 'deno_median',
-# 'deno_box',
-# 'deno_gaus',
-# 'check_detect_fit',
-# 'detect',
-# 'fit',
-
-# 'filt_track',
-# 'phys_xy_global',
-# 'phys_dist2halfcilia',
-# 'phys_cilia_halfsign',
-# 'phys_cilia_otherinfo',
-# 'plot_traj',
-# 'anim_traj',
-# 'merge_plot',
-
-# 'phys_dist253bp1',
-# 'phys_dist253bp1_blob',
-# 'sort_plot',
-# 'merge_plot',
-
-# 'filt_track',
-# 'phys_dist2boundary',
-# 'phys_antigen_data',
-# 'plot_traj',
-# 'anim_traj',
-
 # 'load',
 # 'deno_minimum',
 # 'check_det',
@@ -42,7 +8,6 @@ control = [
 # 'track_simple',
 # 'plot_traj_simple',
 # 'anim_traj_simple',
-
 # 'blob_segm',
 
 # 'check_det',
@@ -80,55 +45,12 @@ settings = {
   'End frame index': 600,
   'Load existing analMeta': False,
 
-  #REGISTRATION SETTINGS
-  'Regi reference file label': '',
-  'Regi ref_ind_num': '',
-  'Regi sig_mask': '',
-  'Regi thres_rel': '',
-  'Regi poly_deg': '',
-  'Regi rotation_multiplier': '',
-  'Regi translation_multiplier': '',
-  'Regi use_ransac': '',
-
-  #SEGMENTATION SETTINGS
-  'Segm min_size': '',
-  'Segm threshold': '',
-
-  #MASK_BOUNDARY SETTINGS
-  'Mask boundary_mask file label': '',
-  'Mask boundary_mask sig': '',
-  'Mask boundary_mask thres_rel': '',
-  #MASK_53BP1 SETTINGS
-  'Mask 53bp1_mask file label': '',
-  'Mask 53bp1_mask sig': '',
-  'Mask 53bp1_mask thres_rel': '',
-  #MASK_53BP1_BLOB SETTINGS
-  'Mask 53bp1_blob_mask file label': '',
-  'Mask 53bp1_blob_threshold': '',
-  'Mask 53bp1_blob_min_sigma': '',
-  'Mask 53bp1_blob_max_sigma': '',
-  'Mask 53bp1_blob_num_sigma': '',
-  'Mask 53bp1_blob_pk_thresh_rel': '',
-  'Mask 53bp1_blob_search_range': '',
-  'Mask 53bp1_blob_memory': '',
-  'Mask 53bp1_blob_traj_length_thres': '',
-
   #DENOISE SETTINGS
   'Deno mean_radius': '',
   'Deno median_radius': '',
   'Deno boxcar_radius': 10,
   'Deno gaus_blur_sig': 0.5,
   'Deno minimum_radius': 7,
-
-
-
-  #DETECTION_2ND SETTINGS
-  'Det2nd blob_threshold': '',
-  'Det2nd blob_min_sigma': '',
-  'Det2nd blob_max_sigma': '',
-  'Det2nd blob_num_sigma': '',
-  'Det2nd pk_thresh_rel': '',
-  'Det2nd r_to_sigraw': '',
 
   #TRACKING SETTINGS
   'Trak frame_rate': 1,
