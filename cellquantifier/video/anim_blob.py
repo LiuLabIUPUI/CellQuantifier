@@ -127,9 +127,24 @@ def anim_blob(df, tif,
         # ~~~~~~~~Animate curr blob~~~~~~~~
         # """
         anno_blob(ax, curr_df, marker='^',
-                    markersize=blob_markersize, 
+                    markersize=blob_markersize,
                     plot_r=plot_r,
                     color=(0,0,1))
+
+
+        # """
+        # ~~~~~~~~Animate curr blob~~~~~~~~
+        # """
+        ax.text(0.95,
+                0.05,
+                "Foci_num: %d" %(len(curr_df)),
+                horizontalalignment='right',
+                verticalalignment='bottom',
+                fontsize=12,
+                color=(0.5, 0.5, 0.5, 0.5),
+                transform=ax.transAxes,
+                weight='bold',
+                )
 
 
         # """
