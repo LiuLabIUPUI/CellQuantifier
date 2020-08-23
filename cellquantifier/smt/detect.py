@@ -101,7 +101,7 @@ def detect_blobs(pims_frame,
 		maxima_df['y'] = maxima[:, 1]
 		maxima_df['peak_log'] = frame_log[ maxima_df['x'], maxima_df['y'] ]
 
-		blob_thres_final = maxima_df['peak_log'].mean()*0.05
+		blob_thres_final = maxima_df['peak_log'].mean()*0.005
 	else:
 		blob_thres_final = blob_thres
 
@@ -156,6 +156,8 @@ def detect_blobs(pims_frame,
 	# ~~~~~~~Filter detections~~~~~~~
 	# """
 	if peak_thres_rel=='auto' and blob_thres!='auto':
+		blobs_df_nofilter = blobs_df.copy()
+
 		maxima = peak_local_max(frame,
 					threshold_abs=0,
 					footprint=None,
@@ -168,17 +170,59 @@ def detect_blobs(pims_frame,
 		maxima_df['peak'] = frame[ maxima_df['x'], maxima_df['y'] ]
 
 		peak_thres_abs = maxima_df['peak'].mean()*0.05
-		blbdf_before_filter = blobs_df.copy
 		blobs_df = blobs_df[(blobs_df['peak'] > peak_thres_abs)]
 	elif peak_thres_rel=='auto' and blob_thres=='auto':
+		# blobs_df['peak_norm'] = (blobs_df['peak']-blobs_df['peak'].min()) \
+		# 				/ (blobs_df['peak'].max()-blobs_df['peak'].min()) * 10
+		# blobs_df['r_norm'] = (blobs_df['r']-blobs_df['r'].min()) \
+		# 				/ (blobs_df['r'].max()-blobs_df['r'].min())
+		# blobs_df['mass_norm'] = (blobs_df['mass']-blobs_df['mass'].min()) \
+		# 				/ (blobs_df['mass'].max()-blobs_df['mass'].min()) * 10
+		#
+		# blobs_df['peak_times_r'] = blobs_df['peak_norm'] * blobs_df['r_norm']
+		# blobs_df = blobs_df.sort_values(by='peak_times_r', ascending=False)
+		# pk_by_r_thres = blobs_df.head(10)['peak_times_r'].mean()*0.1
+		#
+		# blobs_df['mass_times_r'] = blobs_df['mass_norm'] * blobs_df['r_norm']
+		# blobs_df = blobs_df.sort_values(by='mass_times_r', ascending=False)
+		# mass_by_r_thres = blobs_df.head(10)['mass_times_r'].mean()*0
+		#
+		# blobs_df = blobs_df.sort_values(by='peak_norm', ascending=False)
+		# peak_thres_abs = blobs_df.head(10)['peak_norm'].mean()*0
+		#
+		# blobs_df = blobs_df.sort_values(by='mass_norm', ascending=False)
+		# mass_thres_abs = blobs_df.head(10)['mass_norm'].mean()*0
+		#
+		# blobs_df_nofilter = blobs_df.copy()
+		# blobs_df = blobs_df[ (blobs_df['peak_times_r']>=pk_by_r_thres) ]
+		# blobs_df = blobs_df[ (blobs_df['mass_times_r']>=mass_by_r_thres) ]
+		# blobs_df = blobs_df[ (blobs_df['peak_norm'] >= peak_thres_abs) ]
+		# blobs_df = blobs_df[ (blobs_df['mass_norm'] >= mass_thres_abs) ]
+
+
 		blobs_df['peak_times_r'] = blobs_df['peak'] * blobs_df['r']
 		blobs_df = blobs_df.sort_values(by='peak_times_r', ascending=False)
-		pk_by_r_thres = blobs_df.head(10)['peak_times_r'].mean()*0.25
-		blbdf_before_filter = blobs_df.copy
+		pk_by_r_thres = blobs_df.head(10)['peak_times_r'].mean()*0.15
+
+		blobs_df['mass_times_r'] = blobs_df['mass'] * blobs_df['r']
+		blobs_df = blobs_df.sort_values(by='mass_times_r', ascending=False)
+		mass_by_r_thres = blobs_df.head(10)['mass_times_r'].mean()*0.3
+
+		blobs_df = blobs_df.sort_values(by='peak', ascending=False)
+		peak_thres_abs = blobs_df.head(10)['peak'].mean()*0.7
+
+		blobs_df = blobs_df.sort_values(by='mass', ascending=False)
+		mass_thres_abs = blobs_df.head(10)['mass'].mean()*0.25
+
+		blobs_df_nofilter = blobs_df.copy()
 		blobs_df = blobs_df[ (blobs_df['peak_times_r']>pk_by_r_thres) ]
+		blobs_df = blobs_df[ (blobs_df['mass_times_r']>mass_by_r_thres) ]
+		blobs_df = blobs_df[ (blobs_df['peak'] > peak_thres_abs) ]
+		blobs_df = blobs_df[ (blobs_df['mass'] > mass_thres_abs) ]
 	else:
+		blobs_df_nofilter = blobs_df.copy()
+
 		peak_thres_abs = blobs_df['peak'].max() * peak_thres_rel
-		blbdf_before_filter = blobs_df.copy
 		blobs_df = blobs_df[(blobs_df['peak'] > peak_thres_abs)]
 
 	# """
@@ -201,20 +245,44 @@ def detect_blobs(pims_frame,
 
 	plt_array = []
 	if diagnostic:
-		fig, ax = plt.subplots(figsize=(9,9))
+		fig, ax = plt.subplots(2, 2, figsize=(12,12))
 
 		# """
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~Annotate the blobs~~~~~~~~~~~~~~~~~~~~~~~~~~
 		# """
-		ax.imshow(frame, cmap="gray", aspect='equal')
-		anno_blob(ax, blobs_df, marker=blob_marker, markersize=blob_markersize,
+		ax[0][0].imshow(frame, cmap="gray", aspect='equal')
+		anno_blob(ax[0][0], blobs_df_nofilter, marker=blob_marker, markersize=blob_markersize,
 				plot_r=plot_r, color=blob_markercolor)
+		ax[0][0].text(0.95,
+				0.05,
+				"Foci_num: %d" %(len(blobs_df_nofilter)),
+				horizontalalignment='right',
+				verticalalignment='bottom',
+				fontsize = 12,
+				color = (0.5, 0.5, 0.5, 0.5),
+				transform=ax[0][0].transAxes,
+				weight = 'bold',
+				)
+
+		ax[0][1].imshow(frame, cmap="gray", aspect='equal')
+		anno_blob(ax[0][1], blobs_df, marker=blob_marker, markersize=blob_markersize,
+				plot_r=plot_r, color=blob_markercolor)
+		ax[0][1].text(0.95,
+				0.05,
+				"Foci_num: %d" %(len(blobs_df)),
+				horizontalalignment='right',
+				verticalalignment='bottom',
+				fontsize = 12,
+				color = (0.5, 0.5, 0.5, 0.5),
+				transform=ax[0][1].transAxes,
+				weight = 'bold',
+				)
 
 		# """
 		# ~~~~~~~~~~~~~~~~~~~Annotate ground truth if needed~~~~~~~~~~~~~~~~~~~
 		# """
 		if isinstance(truth_df, pd.DataFrame):
-			anno_scatter(ax, truth_df, marker='o', color=(0,1,0,0.8))
+			anno_scatter(ax[0][0], truth_df, marker='o', color=(0,1,0,0.8))
 
 		# """
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~Add scale bar~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -224,7 +292,49 @@ def detect_blobs(pims_frame,
 			font_properties=font, box_color = 'black', color='white')
 		scalebar.length_fraction = .3
 		scalebar.height_fraction = .025
-		ax.add_artist(scalebar)
+		ax[0][0].add_artist(scalebar)
+
+		# """
+		# ~~~~Plot foci in parameter space~~~~
+		# """
+		# x2, y2 = blobs_df_nofilter['r_norm'], blobs_df_nofilter['peak_norm']
+		# ax[1][0].scatter(x2, y2, marker='^', c=[(0,0,1)])
+		#
+		# x3, y3 = blobs_df_nofilter['r_norm'], blobs_df_nofilter['mass_norm']
+		# ax[1][1].scatter(x3, y3, marker='^', c=[(0,0,1)])
+		#
+		# if peak_thres_rel=='auto' and blob_thres=='auto':
+		# 	x2_thres = np.linspace(0.05, 1, 50)
+		# 	y2_thres = pk_by_r_thres / x2_thres
+		# 	y2_peak = x2_thres / x2_thres * peak_thres_abs
+		# 	ax[1][0].plot(x2_thres, y2_thres, '--', c=(0,0,0,0.8), linewidth=3)
+		# 	ax[1][0].plot(x2_thres, y2_peak, '--', c=(0,0,0,0.8), linewidth=3)
+		#
+		# 	x3_thres = np.linspace(0.05, 1, 50)
+		# 	y3_thres = mass_by_r_thres / x3_thres
+		# 	y3_peak = x3_thres / x3_thres * mass_thres_abs
+		# 	ax[1][1].plot(x3_thres, y3_thres, '--', c=(0,0,0,0.8), linewidth=3)
+		# 	ax[1][1].plot(x3_thres, y3_peak, '--', c=(0,0,0,0.8), linewidth=3)
+
+
+		x2, y2 = blobs_df_nofilter['r'], blobs_df_nofilter['peak']
+		ax[1][0].scatter(x2, y2, marker='^', c=[(0,0,1)])
+
+		x3, y3 = blobs_df_nofilter['r'], blobs_df_nofilter['mass']
+		ax[1][1].scatter(x3, y3, marker='^', c=[(0,0,1)])
+
+		if peak_thres_rel=='auto' and blob_thres=='auto':
+			x2_thres = np.linspace(min_sig, max_sig, 50)
+			y2_thres = pk_by_r_thres / x2_thres
+			y2_peak = x2_thres / x2_thres * peak_thres_abs
+			ax[1][0].plot(x2_thres, y2_thres, '--', c=(0,0,0,0.8), linewidth=3)
+			ax[1][0].plot(x2_thres, y2_peak, '--', c=(0,0,0,0.8), linewidth=3)
+
+			x3_thres = np.linspace(min_sig, max_sig, 50)
+			y3_thres = mass_by_r_thres / x3_thres
+			y3_peak = x3_thres / x3_thres * mass_thres_abs
+			ax[1][1].plot(x3_thres, y3_thres, '--', c=(0,0,0,0.8), linewidth=3)
+			ax[1][1].plot(x3_thres, y3_peak, '--', c=(0,0,0,0.8), linewidth=3)
 
 		plt_array = plot_end(fig, pltshow)
 
