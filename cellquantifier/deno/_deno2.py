@@ -48,7 +48,10 @@ def filter_batch(image, method, arg):
 		The denoised image
 	"""
 
-	denoised = np.zeros(image.shape)
+	if method=='gaussian' or method=='gain':
+		denoised = np.zeros(image.shape)
+	else:
+		denoised = np.zeros(image.shape, dtype='uint8')
 
 	ind = 1
 	tot = len(image)
@@ -74,10 +77,13 @@ def filter_batch(image, method, arg):
 		elif method == 'minimum':
 			denoised[i] = minimum(image[i], arg)
 
-	denoised = denoised / denoised.max()
-	denoised = img_as_ubyte(denoised)
+	max = denoised.max()
+	deno_norm = np.zeros(denoised.shape, dtype='uint8')
+	for i in range(len(denoised)):
+		tmp = denoised[i] / max
+		deno_norm[i] = img_as_ubyte(tmp)
 
-	return denoised
+	return deno_norm
 
 def gaussian(image, sigma):
 
