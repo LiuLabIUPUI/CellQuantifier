@@ -65,14 +65,11 @@ def blob_segm(tif, blobs_df, output_path_prefix
             r0 = int(round(curr_df.at[index, 'r']))
             patch = tif[frame][x0-r0:x0+r0+1, y0-r0:y0+r0+1]
             try:
-                # sub_tif[frame][2*r:2*r+2*r0+1, 2*r:2*r+2*r0+1] = patch
                 sub_tif[frame][r+5-r0:r+5+r0+1, r+5-r0:r+5+r0+1] = patch
             except:
                 pass
 
-        sub_tif = img_as_float(sub_tif)
-        print(sub_tif.min(), sub_tif.max())
+        sub_tif = sub_tif / sub_tif.max()
         sub_tif = img_as_ubyte(sub_tif)
-        print(sub_tif.min(), sub_tif.max())
 
         imsave(output_path_prefix + '-' + str(particle) + '.tif', sub_tif)
