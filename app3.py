@@ -46,11 +46,11 @@ control = [
 # 'blob_segm',
 
 # 'check_det',
-'deno_box',
-'detect_foci',
-'plot_foci_dynamics',
-'fit',
-'anim_foci',
+# 'deno_box',
+# 'detect_foci',
+# 'plot_foci_dynamics',
+# 'fit',
+# 'anim_foci',
 # 'filt_track',
 # 'plot_traj',
 # 'anim_traj',
@@ -71,8 +71,8 @@ settings = {
     'Det r_to_sigraw': 1,
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/input/',
-  'IO output_path': '/home/linhua/Desktop/input/',
+  'IO input_path': '/home/linhua/Desktop/BMT/',
+  'IO output_path': '/home/linhua/Desktop/BMT/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -158,8 +158,8 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-from cellquantifier.util.pipeline3_stiffness import *
-pipeline_batch(settings, control)
+# from cellquantifier.util.pipeline3 import *
+# pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
 # import pandas as pd
@@ -199,6 +199,18 @@ pipeline_batch(settings, control)
 #                 index_col=False)
 # fig_quick_merge(df)
 
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_merge2 import *
+# df = pd.read_csv('/home/linhua/Desktop/phys/200830_NcUV-physDataMerged.csv',
+#                 index_col=False)
+# fig_quick_merge(df)
+
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_merge3 import *
+# df = pd.read_csv('/home/linhua/Desktop/phys/200831_NcBMT-physDataMerged.csv',
+#                 index_col=False)
+# fig_quick_merge(df)
+
 
 # from cellquantifier.publish import *
 # import pandas as pd
@@ -206,13 +218,16 @@ pipeline_batch(settings, control)
 #                 index_col=False)
 # fig_quick_msd(df)
 
-# import pandas as pd
-# from cellquantifier.publish._fig_quick_cilia_5 import *
-# from cellquantifier.phys.travel_dist import *
-# df = pd.read_csv('/home/linhua/Desktop/phys/200619-physDataMerged.csv',
-#                 index_col=False)
-# df = add_travel_dist(df)
-# fig_quick_cilia_5(df)
+import pandas as pd
+from cellquantifier.publish._fig_quick_cilia_5 import *
+from cellquantifier.phys import *
+df = pd.read_csv('/home/linhua/Desktop/phys/200619-physDataMerged.csv',
+                index_col=False)
+df = add_travel_dist(df)
+df = add_speed(df)
+df.to_csv('/home/linhua/Desktop/phys/200619-physDataMerged2.csv',
+                index=False)
+fig_quick_cilia_5(df)
 
 
 # from skimage.io import imread, imsave

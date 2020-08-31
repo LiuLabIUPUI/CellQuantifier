@@ -9,3 +9,5 @@ from .add_cilia_data import *
 from .add_antigen_data import *
 from .particle_num import *
 from .foci_num import *
+from .travel_dist import *
+from .speed import *
