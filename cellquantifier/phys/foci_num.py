@@ -19,4 +19,6 @@ def add_foci_num(df):
         foci_num = len(df[ df['frame']==frame ])
         df.loc[df['frame']==frame, 'foci_num'] = foci_num
 
+    df['foci_num_norm'] = df['foci_num'] / df['foci_num'].max()
+
     return df

@@ -11,12 +11,14 @@ control = [
 # 'blob_segm',
 
 # 'load',
-# 'foci_denoise',
 # 'check_foci_detection',
 # 'detect_foci',
 # 'plot_foci_dynamics',
+# 'foci_denoise',
 # 'fit',
 # 'plot_foci_dynamics2',
+
+'merge_plot',
 
 ]
 
@@ -25,8 +27,9 @@ control = [
 settings = {
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/input/',
-  'IO output_path': '/home/linhua/Desktop/input/',
+  'IO input_path': '/home/linhua/Desktop/phys/',
+  'IO output_path': '/home/linhua/Desktop/phys/',
+  # 'IO output_path': '/home/linhua/Desktop/stiffness/200828_0.2kPa/',
   'Processed By:': 'Hua Lin',
   'Pixel_size': 0.108,
 
@@ -55,14 +58,14 @@ settings = {
   'Foci det blob_min_sigma': 2,
   'Foci det blob_max_sigma': 3,
   'Foci det blob_num_sigma': 50,
-  'Foci det pk_thres_rel': 0.75,
+  'Foci det pk_thres_rel': 0.3,
   'Foci det mass_thres_rel': 0,
   'Foci det peak_r_rel': 0,
   'Foci det mass_r_rel': 0,
 
   #FOCI FILTERING SETTINGS
-  'Foci filt max_dist_err': 1,
-  'Foci filt max_sig_to_sigraw': 2,
+  'Foci filt max_dist_err': 0.8,
+  'Foci filt max_sig_to_sigraw': 1.5,
   'Foci filt max_delta_area': 1
 }
 

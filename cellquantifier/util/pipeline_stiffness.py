@@ -399,7 +399,7 @@ class Pipeline3():
 		print("Check foci detection")
 		print("######################################")
 
-		check_frame_ind = [0, 126]
+		check_frame_ind = [0, 100, 200, 283]
 
 		frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 		 					'-raw.tif')
@@ -520,6 +520,10 @@ class Pipeline3():
 
 		fitt_df = fitt_df[ fitt_df['frame']!=246 ]
 
+		foci_dynamics_fig = plot_foci_dynamics(fitt_df)
+		foci_dynamics_fig.savefig(self.config.OUTPUT_PATH + \
+						self.config.ROOT_NAME + '-foci-dynamics2.pdf')
+
 		fitt_plt_array = anim_blob(fitt_df, frames,
 									pixel_size=self.config.PIXEL_SIZE,
 									blob_markersize=5,
@@ -528,10 +532,6 @@ class Pipeline3():
 			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fittVideo.tif', fitt_plt_array)
 		except:
 			pass
-
-		foci_dynamics_fig = plot_foci_dynamics(fitt_df)
-		foci_dynamics_fig.savefig(self.config.OUTPUT_PATH + \
-						self.config.ROOT_NAME + '-foci-dynamics2.pdf')
 
 
 	def anim_traj(self):
@@ -782,7 +782,7 @@ class Pipeline3():
 		start_ind = self.config.ROOT_NAME.find('_')
 		end_ind = self.config.ROOT_NAME.find('_', start_ind+1)
 		today = str(date.today().strftime("%y%m%d"))
-		merged_name = today + self.config.ROOT_NAME[start_ind:end_ind]
+		# merged_name = today + self.config.ROOT_NAME[start_ind:end_ind]
 
 		print("######################################")
 		print("Merge and PlotMSD")
@@ -801,40 +801,38 @@ class Pipeline3():
 			phys_df = pd.read_csv(merged_files[0])
 
 		else:
-			phys_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physData.csv')))
+			phys_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*fittData.csv')))
 			print("######################################")
 			print("Total number of physData to be merged: %d" % len(phys_files))
 			print("######################################")
 			print(phys_files)
 
 			if len(phys_files) > 1:
+				ind = 1
+				tot = len(phys_files)
 				for file in phys_files:
-					curr_physdf = pd.read_csv(file, index_col=False)
-					if 'traj_length' not in curr_physdf:
-						curr_physdf = add_traj_length(curr_physdf)
-						curr_physdf.round(6).to_csv(file, index=False)
+					print("Updating fittData (%d/%d)" % (ind, tot))
+					ind = ind + 1
+
+					curr_df = pd.read_csv(file, index_col=False)
+
+					curr_df = curr_df[curr_df['dist_err'] < self.config.DICT['Foci filt max_dist_err']]
+					curr_df = curr_df[curr_df['sigx_to_sigraw'] < self.config.DICT['Foci filt max_sig_to_sigraw']]
+					curr_df = curr_df[curr_df['sigy_to_sigraw'] < self.config.DICT['Foci filt max_sig_to_sigraw']]
+					curr_df = curr_df[ curr_df['frame']!=246 ]
+					curr_df = add_foci_num(curr_df)
+					curr_df = curr_df.drop_duplicates('frame')
+					curr_df.round(6).to_csv(file, index=False)
 
 				phys_df = merge_physdfs(phys_files, mode='general')
-				phys_df = relabel_particles(phys_df)
 			else:
 				phys_df = pd.read_csv(phys_files[0])
 
-			phys_df.round(6).to_csv(self.config.OUTPUT_PATH + merged_name + \
+
+			phys_df.round(6).to_csv(self.config.OUTPUT_PATH + today + \
 							'-physDataMerged.csv', index=False)
 
-		# Apply traj_length_thres filter
-		if 'traj_length' in phys_df:
-			phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
-
-		# phys_df = phys_df.loc[phys_df['exp_label'] == 'BLM']
-		fig = plot_merged(phys_df, 'exp_label',
-						pixel_size=self.config.PIXEL_SIZE,
-						frame_rate=self.config.FRAME_RATE,
-						divide_num=self.config.DIVIDE_NUM,
-						RGBA_alpha=1,
-						do_gmm=False)
-
-		fig.savefig(self.config.OUTPUT_PATH + merged_name + '-mergedResults.pdf')
+		plot_stiffness(phys_df)
 
 		sys.exit()
 
@@ -842,11 +840,11 @@ def get_root_name_list(settings_dict):
 	settings = settings_dict.copy()
 
 	root_name_list = []
-	path_list = glob(settings['IO input_path'] + '/*-physData.csv')
+	path_list = glob(settings['IO input_path'] + '/*-fittData.csv')
 	if len(path_list) != 0:
 		for path in path_list:
 			temp = path.split('/')[-1]
-			temp = temp[:-len('-physData.csv')]
+			temp = temp[:-len('-fittData.csv')]
 			root_name_list.append(temp)
 
 	else:

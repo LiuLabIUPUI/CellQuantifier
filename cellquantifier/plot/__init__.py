@@ -7,3 +7,4 @@ from .plot_track_param_opt import *
 from .plot_foci_prop_hist import *
 from .plot_foci_dynamics import *
 from .plot_det_param_space import *
+from .plot_stiffness import *
