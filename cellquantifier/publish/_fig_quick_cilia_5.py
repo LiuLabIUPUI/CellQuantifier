@@ -235,6 +235,8 @@ def fig_quick_cilia_5(
         print("cohort b D mean: ", dfp_b['D'].mean())
 
         dfv = df.dropna()
+        dfv_a = dfv[ dfv['exp_label']=='cohort a' ]
+        dfv_b = dfv[ dfv['exp_label']=='cohort b' ]
 
 
     # """
@@ -292,7 +294,7 @@ def fig_quick_cilia_5(
             ]
     datas = [
             dfp, dfp,
-            dfp, df,
+            dfp, dfv,
             ]
     data_cols = [
             'D', 'alpha',
@@ -339,6 +341,16 @@ def fig_quick_cilia_5(
                         color="0",
                         size=1,
                         )
+        else:
+            sns.swarmplot(ax=fig,
+                        x='exp_label',
+                        y=data_col,
+                        data=data,
+                        order=order,
+                        color="0",
+                        size=0.45,
+                        )
+
         set_xylabel(fig,
                     xlabel=xlabel,
                     ylabel=ylabel,
@@ -346,43 +358,43 @@ def fig_quick_cilia_5(
 
 
 
-    # # """
-	# # ~~~~Add t test~~~~
-	# # """
-    # figs = [
-    #         axs[1], axs[2], axs[3], axs[4],
-    #         ]
-    # datas = [
-    #         dfp, dfp, dfp, dfv,
-    #         ]
-    # data_cols = [
-    #         'D', 'alpha', 'travel_dist', 'v',
-    #         ]
-    # cat_cols = [
-    #         'exp_label', 'exp_label', 'exp_label', 'exp_label',
-    #         ]
-    # text_poss = [
-    #         (0.98, 0.88), (0.98, 0.88), (0.98, 0.88), (0.98, 0.88),
-    #         ]
-    # for i, (fig, data, data_col, cat_col, text_pos, ) \
-    # in enumerate(zip(figs, datas, data_cols, cat_cols, text_poss, )):
-    #     print("\n")
-    #     print("Plotting (%d/%d)" % (i+1, len(figs)))
-    #
-    #     add_t_test(fig,
-    #                 blobs_df=data,
-    #                 cat_col=cat_col,
-    #                 hist_col=data_col,
-    #                 drop_duplicates=False,
-    #                 text_pos=text_pos,
-    #                 color=(0,0,0,1),
-    #                 fontname='Liberation Sans',
-    #                 fontweight=9,
-    #                 fontsize=9,
-    #                 horizontalalignment='right',
-    #                 format='general',
-    #                 )
-    #
+    # """
+	# ~~~~Add t test~~~~
+	# """
+    figs = [
+            axs[1], axs[2], axs[3], axs[4],
+            ]
+    datas = [
+            dfp, dfp, dfp, dfv,
+            ]
+    data_cols = [
+            'D', 'alpha', 'travel_dist', 'v',
+            ]
+    cat_cols = [
+            'exp_label', 'exp_label', 'exp_label', 'exp_label',
+            ]
+    text_poss = [
+            (0.98, 0.88), (0.98, 0.88), (0.98, 0.88), (0.98, 0.88),
+            ]
+    for i, (fig, data, data_col, cat_col, text_pos, ) \
+    in enumerate(zip(figs, datas, data_cols, cat_cols, text_poss, )):
+        print("\n")
+        print("Plotting (%d/%d)" % (i+1, len(figs)))
+
+        add_t_test(fig,
+                    blobs_df=data,
+                    cat_col=cat_col,
+                    hist_col=data_col,
+                    drop_duplicates=False,
+                    text_pos=text_pos,
+                    color=(0,0,0,1),
+                    fontname='Liberation Sans',
+                    fontweight=9,
+                    fontsize=9,
+                    horizontalalignment='right',
+                    format='general',
+                    )
+
     # # """
 	# # ~~~~Add figure text~~~~
 	# # """
@@ -456,3 +468,9 @@ def fig_quick_cilia_5(
 	# """
     all_figures.savefig('/home/linhua/Desktop/Figure_1.pdf', dpi=600)
     plt.clf(); plt.close()
+
+
+    print("cohort_a v sample num: ", dfv_a['v'].nunique())
+    print("cohort_a v sample mean: ", dfv_a['v'].mean())
+    print("cohort_b v sample num: ", dfv_b['v'].nunique())
+    print("cohort_b v sample mean: ", dfv_b['v'].mean())
