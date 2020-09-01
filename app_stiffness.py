@@ -29,7 +29,6 @@ settings = {
   #IO
   'IO input_path': '/home/linhua/Desktop/phys/',
   'IO output_path': '/home/linhua/Desktop/phys/',
-  # 'IO output_path': '/home/linhua/Desktop/stiffness/200828_0.2kPa/',
   'Processed By:': 'Hua Lin',
   'Pixel_size': 0.108,
 

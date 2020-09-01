@@ -782,7 +782,6 @@ class Pipeline3():
 		start_ind = self.config.ROOT_NAME.find('_')
 		end_ind = self.config.ROOT_NAME.find('_', start_ind+1)
 		today = str(date.today().strftime("%y%m%d"))
-		# merged_name = today + self.config.ROOT_NAME[start_ind:end_ind]
 
 		print("######################################")
 		print("Merge and PlotMSD")
@@ -832,7 +831,9 @@ class Pipeline3():
 			phys_df.round(6).to_csv(self.config.OUTPUT_PATH + today + \
 							'-physDataMerged.csv', index=False)
 
-		plot_stiffness(phys_df)
+		stiffness_fig = plot_stiffness(phys_df)
+		stiffness_fig.savefig(self.config.OUTPUT_PATH + \
+						today + '-stiffness-results.pdf')
 
 		sys.exit()
 
@@ -841,11 +842,16 @@ def get_root_name_list(settings_dict):
 
 	root_name_list = []
 	path_list = glob(settings['IO input_path'] + '/*-fittData.csv')
+	merge_list = glob(settings['IO input_path'] + '/*-physDataMerged.csv')
 	if len(path_list) != 0:
 		for path in path_list:
 			temp = path.split('/')[-1]
 			temp = temp[:-len('-fittData.csv')]
 			root_name_list.append(temp)
+
+	elif len(merge_list) == 1:
+		for mergeData in merge_list:
+			root_name_list.append(mergeData)
 
 	else:
 		path_list = glob(settings['IO input_path'] + '/*-raw.tif')

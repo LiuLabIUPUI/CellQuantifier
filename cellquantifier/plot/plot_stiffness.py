@@ -39,6 +39,9 @@ def plot_stiffness(
     print("\n")
     print("Preparing data")
     if not df.empty:
+        # """
+    	# ~~~~Iterate different exp_label, calculate avg_foci_num~~~~
+    	# """
         exp_labels = df['exp_label'].unique()
         for exp_label in exp_labels:
             df_exp = df[ df['exp_label']==exp_label ]
@@ -46,17 +49,47 @@ def plot_stiffness(
             frames = df_exp['frame'].unique()
             for frame in frames:
                 curr_df = df_exp[ df_exp['frame']==frame ]
+
                 avg_foci_num = curr_df['foci_num_norm'].mean()
                 df.loc[ (df['exp_label']==exp_label)&(df['frame']==frame), 'avg_foci_num' ] = avg_foci_num
 
+                avg_foci_peaksum = curr_df['foci_peaksum_norm'].mean()
+                df.loc[ (df['exp_label']==exp_label)&(df['frame']==frame), 'avg_foci_peaksum' ] = avg_foci_peaksum
+
+                avg_foci_areasum = curr_df['foci_areasum_norm'].mean()
+                df.loc[ (df['exp_label']==exp_label)&(df['frame']==frame), 'avg_foci_areasum' ] = avg_foci_areasum
+
+                avg_foci_pkareasum = curr_df['foci_pkareasum_norm'].mean()
+                df.loc[ (df['exp_label']==exp_label)&(df['frame']==frame), 'avg_foci_pkareasum' ] = avg_foci_pkareasum
+
+                avg_foci_peakmean = curr_df['foci_peakmean_norm'].mean()
+                df.loc[ (df['exp_label']==exp_label)&(df['frame']==frame), 'avg_foci_peakmean' ] = avg_foci_peakmean
+
+                avg_foci_areamean = curr_df['foci_areamean_norm'].mean()
+                df.loc[ (df['exp_label']==exp_label)&(df['frame']==frame), 'avg_foci_areamean' ] = avg_foci_areamean
+
+
+        # """
+        # ~~~~Divide df into sub_dfs~~~~
+        # """
         dfp1 = df[ df['exp_label']=='IR-24h-0.2kPa' ].drop_duplicates('frame')
-        dfp1['avg_foci_num'] = dfp1['avg_foci_num'] / dfp1['avg_foci_num'].max()
-        dfp1 = dfp1[ ['frame', 'avg_foci_num', 'exp_label'] ]
+        # dfp1['avg_foci_num'] = dfp1['avg_foci_num'] / dfp1['avg_foci_num'].max()
+        # dfp1['avg_foci_num'] = (dfp1['avg_foci_num'] - dfp1['avg_foci_num'].min()) \
+        #             / (dfp1['avg_foci_num'].max() - dfp1['avg_foci_num'].min())
+        dfp1 = dfp1[ ['frame',
+            'avg_foci_num', 'avg_foci_peaksum', 'avg_foci_areasum',
+            'avg_foci_pkareasum', 'avg_foci_peakmean', 'avg_foci_areamean',
+            'exp_label'] ]
         dfp1.round(6).to_csv('/home/linhua/Desktop/dfp1.csv', index=False)
 
         dfp4 = df[ df['exp_label']=='IR-24h-glass' ].drop_duplicates('frame')
-        dfp4['avg_foci_num'] = dfp4['avg_foci_num'] / dfp4['avg_foci_num'].max()
-        dfp4 = dfp4[ ['frame', 'avg_foci_num', 'exp_label'] ]
+        # dfp4['avg_foci_num'] = dfp4['avg_foci_num'] / dfp4['avg_foci_num'].max()
+        # dfp4['avg_foci_num'] = (dfp4['avg_foci_num'] - dfp4['avg_foci_num'].min()) \
+        #             / (dfp4['avg_foci_num'].max() - dfp4['avg_foci_num'].min())
+        dfp4 = dfp4[ ['frame',
+            'avg_foci_num', 'avg_foci_peaksum', 'avg_foci_areasum',
+            'avg_foci_pkareasum', 'avg_foci_peakmean', 'avg_foci_areamean',
+            'exp_label'] ]
         dfp4.round(6).to_csv('/home/linhua/Desktop/dfp4.csv', index=False)
 
 
@@ -78,8 +111,8 @@ def plot_stiffness(
 	# ~~~~Initialize the page layout~~~~
 	# """
     # Layout settings
-    col_num = 1
-    row_num = 1
+    col_num = 3
+    row_num = 2
     divide_index = []
     hidden_index = []
     # Sub_axs_1 settings
@@ -229,25 +262,71 @@ def plot_stiffness(
 	# ~~~~Plot foci_num~~~~
 	# """
     figs = [
-            axs[0], axs[0]
+            axs[0], axs[0],
+            axs[1], axs[1],
+            axs[2], axs[2],
+            axs[3], axs[3],
+            axs[4], axs[4],
+            axs[5], axs[5],
             ]
     datas = [
-            dfp1, dfp4
+            dfp1, dfp4,
+            dfp1, dfp4,
+            dfp1, dfp4,
+            dfp1, dfp4,
+            dfp1, dfp4,
+            dfp1, dfp4,
             ]
     x_cols = [
+            'frame', 'frame',
+            'frame', 'frame',
+            'frame', 'frame',
+            'frame', 'frame',
+            'frame', 'frame',
             'frame', 'frame',
             ]
     y_cols = [
             'avg_foci_num', 'avg_foci_num',
+            'avg_foci_peaksum', 'avg_foci_peaksum',
+            'avg_foci_areasum', 'avg_foci_areasum',
+            'avg_foci_pkareasum', 'avg_foci_pkareasum',
+            'avg_foci_peakmean', 'avg_foci_peakmean',
+            'avg_foci_areamean', 'avg_foci_areamean',
             ]
     colors = [
+            c1, c4,
+            c1, c4,
+            c1, c4,
+            c1, c4,
+            c1, c4,
             c1, c4,
             ]
     legends = [
             'IR-24h-0.2kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-glass',
             ]
-    for i, (fig, data, x_col, y_col, color, legend) \
-    in enumerate(zip(figs, datas, x_cols, y_cols, colors, legends)):
+    xlabels = [
+            'frame', 'frame',
+            'frame', 'frame',
+            'frame', 'frame',
+            'frame', 'frame',
+            'frame', 'frame',
+            'frame', 'frame',
+            ]
+    ylabels = [
+            'foci num', 'foci num',
+            'foci peak sum', 'foci peak sum',
+            'foci area sum', 'foci area sum',
+            'foci peak*area sum', 'peak*area sum',
+            'foci peak mean', 'foci peak mean',
+            'foci area mean', 'foci area mean',
+            ]
+    for i, (fig, data, x_col, y_col, color, legend, xlabel, ylabel) \
+    in enumerate(zip(figs, datas, x_cols, y_cols, colors, legends, xlabels, ylabels)):
         print("\n")
         print("Plotting (%d/%d)" % (i+1, len(figs)))
 
@@ -259,6 +338,11 @@ def plot_stiffness(
                 legend_fontweight=5,
                 legend_fontsize=5,
                 )
+
+        set_xylabel(fig,
+                    xlabel=xlabel,
+                    ylabel=ylabel,
+                    )
 
 
     # # """
@@ -326,34 +410,29 @@ def plot_stiffness(
     # """
 	# ~~~~Additional figures format~~~~
 	# """
-    # # Format scale
-    # figs = [
-    #         axs[0],
-    #         axs_s1[0], axs_s1[1], axs_s1[2],
-    #         axs_s1[3], axs_s1[4], axs_s1[5],
-    #         ]
-    # xscales = [
-    #         [None, None],
-    #         [0, 20000], [0, 20000], [0, 20000],
-    #         [0, 1], [0, 1], [0, 1],
-    #         ]
-    # yscales = [
-    #         [0, 30000],
-    #         [None, None], [None, None], [None, None],
-    #         [None, None], [None, None], [None, None],
-    #
-    #         ]
-    # for i, (fig, xscale, yscale, ) \
-    # in enumerate(zip(figs, xscales, yscales,)):
-    #     format_scale(fig,
-    #             xscale=xscale,
-    #             yscale=yscale,
-    #             )
+    # Format scale
+    figs = [
+            axs[0], axs[1], axs[2],
+            axs[3], axs[4], axs[5],
+            ]
+    xscales = [
+            [-10, 300], [-10, 300], [-10, 300],
+            [-10, 300], [-10, 300], [-10, 300],
+            ]
+    yscales = [
+            # [-0.05, 1.05], [-0.05, 1.05], [-0.05, 1.05],
+            [None, None], [None, None], [None, None],
+            [None, None], [None, None], [None, None],
+            ]
+    for i, (fig, xscale, yscale, ) \
+    in enumerate(zip(figs, xscales, yscales,)):
+        format_scale(fig,
+                xscale=xscale,
+                yscale=yscale,
+                )
 
 
     # """
 	# ~~~~Save the figure into pdf file, preview the figure in webbrowser~~~~
 	# """
-    all_figures.savefig('/home/linhua/Desktop/Figure_1.pdf', dpi=600)
-    plt.clf(); plt.close()
-    # plt.show()
+    return all_figures
