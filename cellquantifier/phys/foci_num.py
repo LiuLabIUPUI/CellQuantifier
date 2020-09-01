@@ -1,24 +1,43 @@
 def add_foci_num(df):
     """
-    Add column to df: 'foci_num'
+    Add column to single cell df: 'foci_num'
+    This function does not work for mergedData.
 
     Parameters
     ----------
     df : DataFrame
-        DataFrame containing 'frame'
+        DataFrame containing 'fittData'
 
     Returns
     -------
     df: DataFrame
-        DataFrame with added 'foci_num' column
+        DataFrame with added columns
     """
 
     frames = df['frame'].unique()
 
     for frame in frames:
-        foci_num = len(df[ df['frame']==frame ])
+        curr_df = df[ df['frame']==frame ]
+
+        foci_num = len(curr_df)
+        foci_peaksum = curr_df['peak'].sum()
+        foci_areasum = curr_df['area'].sum()
+        foci_peakmean = curr_df['peak'].mean()
+        foci_areamean = curr_df['area'].mean()
+        foci_pkareasum = (curr_df['peak'] * curr_df['area']).sum()
+        
         df.loc[df['frame']==frame, 'foci_num'] = foci_num
+        df.loc[df['frame']==frame, 'foci_peaksum'] = foci_peaksum
+        df.loc[df['frame']==frame, 'foci_areasum'] = foci_areasum
+        df.loc[df['frame']==frame, 'foci_peakmean'] = foci_peakmean
+        df.loc[df['frame']==frame, 'foci_areamean'] = foci_areamean
+        df.loc[df['frame']==frame, 'foci_pkareasum'] = foci_pkareasum
 
     df['foci_num_norm'] = df['foci_num'] / df['foci_num'].max()
+    df['foci_peaksum_norm'] = df['foci_peaksum'] / df['foci_peaksum'].max()
+    df['foci_areasum_norm'] = df['foci_areasum'] / df['foci_areasum'].max()
+    df['foci_peakmean_norm'] = df['foci_peakmean'] / df['foci_peakmean'].max()
+    df['foci_areamean_norm'] = df['foci_areamean'] / df['foci_areamean'].max()
+    df['foci_pkareasum_norm'] = df['foci_pkareasum'] / df['foci_pkareasum'].max()
 
     return df
