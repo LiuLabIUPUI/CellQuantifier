@@ -191,18 +191,6 @@ def fig_quick_merge(
         if 'traj_length' in df:
             df = df[ df['traj_length']>=40 ]
 
-        # # alpha filter
-        # if 'alpha' in df:
-        #     df = df[ df['alpha']>=0 ]
-
-        # # travel_dist filter
-        # if 'travel_dist' in df:
-        #     travel_dist_min = 0
-        #     travel_dist_max = 7
-        #     df = df[ (df['travel_dist']>=travel_dist_min) & \
-        #     					(df['travel_dist']<=travel_dist_max) ]
-
-
         # """
         # ~~~~Divide df into sub_dfs~~~~
         # """
@@ -211,7 +199,8 @@ def fig_quick_merge(
         dfp_m = dfp[ dfp['exp_label']=='50NcLivingM' ]
         dfp_t = dfp[ dfp['exp_label']=='50NcLivingT' ]
 
-        dfv = df.dropna()
+        dfp_bm = dfp[ dfp['exp_label']!='50NcLivingT' ]
+        dfp_mt = dfp[ dfp['exp_label']!='50NcLivingB' ]
 
 
     # """
@@ -297,42 +286,48 @@ def fig_quick_merge(
                     )
 
 
-    # # """
-	# # ~~~~Add t test~~~~
-	# # """
-    # figs = [
-    #         axs_s1[0], axs_s1[2],
-    #         ]
-    # datas = [
-    #         dfp, dfp,
-    #         ]
-    # data_cols = [
-    #         'D', 'alpha',
-    #         ]
-    # cat_cols = [
-    #         'exp_label', 'exp_label',
-    #         ]
-    # text_poss = [
-    #         (0.98, 0.78), (0.98, 0.78),
-    #         ]
-    # for i, (fig, data, data_col, cat_col, text_pos, ) \
-    # in enumerate(zip(figs, datas, data_cols, cat_cols, text_poss, )):
-    #     print("\n")
-    #     print("Plotting (%d/%d)" % (i+1, len(figs)))
-    #
-    #     add_t_test(fig,
-    #                 blobs_df=data,
-    #                 cat_col=cat_col,
-    #                 hist_col=data_col,
-    #                 drop_duplicates=False,
-    #                 text_pos=text_pos,
-    #                 color=(0,0,0,1),
-    #                 fontname='Liberation Sans',
-    #                 fontweight=9,
-    #                 fontsize=9,
-    #                 horizontalalignment='right',
-    #                 format='general',
-    #                 )
+    # """
+	# ~~~~Add t test~~~~
+	# """
+    figs = [
+            axs_s1[0], axs_s1[2],
+            axs_s1[3], axs_s1[5],
+            ]
+    datas = [
+            dfp_bm, dfp_mt,
+            dfp_bm, dfp_mt,
+            ]
+    data_cols = [
+            'D', 'D',
+            'alpha', 'alpha',
+            ]
+    cat_cols = [
+            'exp_label', 'exp_label',
+            'exp_label', 'exp_label',
+            ]
+    text_poss = [
+            # (0.98, 0.78), (0.98, 0.78),
+            (0.98, 0.68), (0.98, 0.68),
+            (0.98, 0.68), (0.98, 0.68),
+            ]
+    for i, (fig, data, data_col, cat_col, text_pos, ) \
+    in enumerate(zip(figs, datas, data_cols, cat_cols, text_poss, )):
+        print("\n")
+        print("Plotting (%d/%d)" % (i+1, len(figs)))
+
+        add_t_test(fig,
+                    blobs_df=data,
+                    cat_col=cat_col,
+                    hist_col=data_col,
+                    drop_duplicates=False,
+                    text_pos=text_pos,
+                    color=(0,0,0,1),
+                    fontname='Liberation Sans',
+                    fontweight=9,
+                    fontsize=9,
+                    horizontalalignment='right',
+                    format='general',
+                    )
     # """
 	# ~~~~Add figure text~~~~
 	# """
@@ -387,12 +382,12 @@ def fig_quick_merge(
             axs_s1[3], axs_s1[4], axs_s1[5],
             ]
     xscales = [
-            [None, None],
+            [-0.05, 1.05],
             [0, 20000], [0, 20000], [0, 20000],
             [0, 1], [0, 1], [0, 1],
             ]
     yscales = [
-            [0, 30000],
+            [None, None],
             [None, None], [None, None], [None, None],
             [None, None], [None, None], [None, None],
 
@@ -409,5 +404,5 @@ def fig_quick_merge(
 	# ~~~~Save the figure into pdf file, preview the figure in webbrowser~~~~
 	# """
     all_figures.savefig('/home/linhua/Desktop/Figure_1.pdf', dpi=600)
-    # plt.clf(); plt.close()
-    plt.show()
+    plt.clf(); plt.close()
+    # plt.show()
