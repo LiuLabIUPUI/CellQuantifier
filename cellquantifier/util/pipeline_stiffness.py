@@ -833,7 +833,7 @@ class Pipeline3():
 
 		stiffness_fig = plot_stiffness(phys_df)
 		stiffness_fig.savefig(self.config.OUTPUT_PATH + \
-						today + '-stiffness-results.pdf')
+						today + '_stiffness-results.pdf')
 
 		sys.exit()
 

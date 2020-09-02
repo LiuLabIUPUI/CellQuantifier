@@ -73,7 +73,7 @@ def plot_stiffness(
         # ~~~~Divide df into sub_dfs~~~~
         # """
         dfp1 = df[ df['exp_label']=='IR-24h-0.2kPa' ].drop_duplicates('frame')
-        # dfp1['avg_foci_num'] = dfp1['avg_foci_num'] / dfp1['avg_foci_num'].max()
+        dfp1['avg_foci_num'] = dfp1['avg_foci_num'] / dfp1['avg_foci_num'].max()
         # dfp1['avg_foci_num'] = (dfp1['avg_foci_num'] - dfp1['avg_foci_num'].min()) \
         #             / (dfp1['avg_foci_num'].max() - dfp1['avg_foci_num'].min())
         dfp1 = dfp1[ ['frame',
@@ -85,7 +85,7 @@ def plot_stiffness(
 
 
         dfp2 = df[ df['exp_label']=='IR-24h-2kPa' ].drop_duplicates('frame')
-        # dfp2['avg_foci_num'] = dfp2['avg_foci_num'] / dfp2['avg_foci_num'].max()
+        dfp2['avg_foci_num'] = dfp2['avg_foci_num'] / dfp2['avg_foci_num'].max()
         # dfp2['avg_foci_num'] = (dfp2['avg_foci_num'] - dfp2['avg_foci_num'].min()) \
         #             / (dfp2['avg_foci_num'].max() - dfp2['avg_foci_num'].min())
         dfp2 = dfp2[ ['frame',
@@ -97,7 +97,7 @@ def plot_stiffness(
 
 
         dfp3 = df[ df['exp_label']=='IR-24h-12kPa' ].drop_duplicates('frame')
-        # dfp3['avg_foci_num'] = dfp3['avg_foci_num'] / dfp3['avg_foci_num'].max()
+        dfp3['avg_foci_num'] = dfp3['avg_foci_num'] / dfp3['avg_foci_num'].max()
         # dfp3['avg_foci_num'] = (dfp3['avg_foci_num'] - dfp3['avg_foci_num'].min()) \
         #             / (dfp3['avg_foci_num'].max() - dfp3['avg_foci_num'].min())
         dfp3 = dfp3[ ['frame',
@@ -109,7 +109,7 @@ def plot_stiffness(
 
 
         dfp4 = df[ df['exp_label']=='IR-24h-glass' ].drop_duplicates('frame')
-        # dfp4['avg_foci_num'] = dfp4['avg_foci_num'] / dfp4['avg_foci_num'].max()
+        dfp4['avg_foci_num'] = dfp4['avg_foci_num'] / dfp4['avg_foci_num'].max()
         # dfp4['avg_foci_num'] = (dfp4['avg_foci_num'] - dfp4['avg_foci_num'].min()) \
         #             / (dfp4['avg_foci_num'].max() - dfp4['avg_foci_num'].min())
         dfp4 = dfp4[ ['frame',
@@ -352,11 +352,11 @@ def plot_stiffness(
             ]
     ylabels = [
             'foci num', 'foci num', 'foci num', 'foci num',
-            'foci peak sum', 'foci peak sum', 'foci peak sum', 'foci peak sum', 
-            'foci area sum', 'foci area sum', 'foci area sum', 'foci area sum', 
-            'foci peak*area sum', 'peak*area sum', 'foci peak*area sum', 'peak*area sum', 
-            'foci peak mean', 'foci peak mean', 'foci peak mean', 'foci peak mean', 
-            'foci area mean', 'foci area mean', 'foci area mean', 'foci area mean', 
+            'foci peak sum', 'foci peak sum', 'foci peak sum', 'foci peak sum',
+            'foci area sum', 'foci area sum', 'foci area sum', 'foci area sum',
+            'foci peak*area sum', 'peak*area sum', 'foci peak*area sum', 'peak*area sum',
+            'foci peak mean', 'foci peak mean', 'foci peak mean', 'foci peak mean',
+            'foci area mean', 'foci area mean', 'foci area mean', 'foci area mean',
             ]
     for i, (fig, data, x_col, y_col, color, legend, xlabel, ylabel) \
     in enumerate(zip(figs, datas, x_cols, y_cols, colors, legends, xlabels, ylabels)):
