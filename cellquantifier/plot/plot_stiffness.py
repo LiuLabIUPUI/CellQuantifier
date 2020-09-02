@@ -80,7 +80,33 @@ def plot_stiffness(
             'avg_foci_num', 'avg_foci_peaksum', 'avg_foci_areasum',
             'avg_foci_pkareasum', 'avg_foci_peakmean', 'avg_foci_areamean',
             'exp_label'] ]
+        dfp1 = dfp1.sort_values(by='frame')
         dfp1.round(6).to_csv('/home/linhua/Desktop/dfp1.csv', index=False)
+
+
+        dfp2 = df[ df['exp_label']=='IR-24h-2kPa' ].drop_duplicates('frame')
+        # dfp2['avg_foci_num'] = dfp2['avg_foci_num'] / dfp2['avg_foci_num'].max()
+        # dfp2['avg_foci_num'] = (dfp2['avg_foci_num'] - dfp2['avg_foci_num'].min()) \
+        #             / (dfp2['avg_foci_num'].max() - dfp2['avg_foci_num'].min())
+        dfp2 = dfp2[ ['frame',
+            'avg_foci_num', 'avg_foci_peaksum', 'avg_foci_areasum',
+            'avg_foci_pkareasum', 'avg_foci_peakmean', 'avg_foci_areamean',
+            'exp_label'] ]
+        dfp2 = dfp2.sort_values(by='frame')
+        dfp2.round(6).to_csv('/home/linhua/Desktop/dfp2.csv', index=False)
+
+
+        dfp3 = df[ df['exp_label']=='IR-24h-12kPa' ].drop_duplicates('frame')
+        # dfp3['avg_foci_num'] = dfp3['avg_foci_num'] / dfp3['avg_foci_num'].max()
+        # dfp3['avg_foci_num'] = (dfp3['avg_foci_num'] - dfp3['avg_foci_num'].min()) \
+        #             / (dfp3['avg_foci_num'].max() - dfp3['avg_foci_num'].min())
+        dfp3 = dfp3[ ['frame',
+            'avg_foci_num', 'avg_foci_peaksum', 'avg_foci_areasum',
+            'avg_foci_pkareasum', 'avg_foci_peakmean', 'avg_foci_areamean',
+            'exp_label'] ]
+        dfp3 = dfp3.sort_values(by='frame')
+        dfp3.round(6).to_csv('/home/linhua/Desktop/dfp3.csv', index=False)
+
 
         dfp4 = df[ df['exp_label']=='IR-24h-glass' ].drop_duplicates('frame')
         # dfp4['avg_foci_num'] = dfp4['avg_foci_num'] / dfp4['avg_foci_num'].max()
@@ -90,31 +116,38 @@ def plot_stiffness(
             'avg_foci_num', 'avg_foci_peaksum', 'avg_foci_areasum',
             'avg_foci_pkareasum', 'avg_foci_peakmean', 'avg_foci_areamean',
             'exp_label'] ]
+        dfp4 = dfp4.sort_values(by='frame')
         dfp4.round(6).to_csv('/home/linhua/Desktop/dfp4.csv', index=False)
 
 
 	# ~~~~Initialize the colors~~~~
-	# """
-    print("\n")
-    print("Preparing colors")
-    palette = sns.cubehelix_palette(8, start=2, rot=0, dark=0, light=.95, reverse=True)
-    c4 = palette[0]
-    c3 = palette[1]
-    c2 = palette[2]
-    c1 = palette[3]
-
-    p = palette
-    RGBA_alpha = 0.8
-
-
-    # """
-	# ~~~~Initialize the page layout~~~~
 	# """
     # Layout settings
     col_num = 3
     row_num = 2
     divide_index = []
     hidden_index = []
+
+    print("\n")
+    print("Preparing colors")
+    palette = sns.cubehelix_palette(4, start=2, rot=0, dark=0, light=.5, reverse=True)
+    # palette = sns.color_palette('muted', col_num*row_num)
+    c4 = palette[0]
+    c3 = palette[1]
+    c2 = palette[2]
+    c1 = palette[3]
+
+    p = palette
+    RGBA_alpha = 0.9
+    c1 = (c1[0], c1[1], c1[2], RGBA_alpha)
+    c2 = (c2[0], c2[1], c2[2], RGBA_alpha)
+    c3 = (c3[0], c3[1], c3[2], RGBA_alpha)
+    c4 = (c4[0], c4[1], c4[2], RGBA_alpha)
+
+
+    # """
+	# ~~~~Initialize the page layout~~~~
+	# """
     # Sub_axs_1 settings
     col_num_s1 = 1
     row_num_s1 = 3
@@ -262,68 +295,68 @@ def plot_stiffness(
 	# ~~~~Plot foci_num~~~~
 	# """
     figs = [
-            axs[0], axs[0],
-            axs[1], axs[1],
-            axs[2], axs[2],
-            axs[3], axs[3],
-            axs[4], axs[4],
-            axs[5], axs[5],
+            axs[0], axs[0], axs[0], axs[0],
+            axs[1], axs[1], axs[1], axs[1],
+            axs[2], axs[2], axs[2], axs[2],
+            axs[3], axs[3], axs[3], axs[3],
+            axs[4], axs[4], axs[4], axs[4],
+            axs[5], axs[5], axs[5], axs[5],
             ]
     datas = [
-            dfp1, dfp4,
-            dfp1, dfp4,
-            dfp1, dfp4,
-            dfp1, dfp4,
-            dfp1, dfp4,
-            dfp1, dfp4,
+            dfp1, dfp2, dfp3, dfp4,
+            dfp1, dfp2, dfp3, dfp4,
+            dfp1, dfp2, dfp3, dfp4,
+            dfp1, dfp2, dfp3, dfp4,
+            dfp1, dfp2, dfp3, dfp4,
+            dfp1, dfp2, dfp3, dfp4,
             ]
     x_cols = [
-            'frame', 'frame',
-            'frame', 'frame',
-            'frame', 'frame',
-            'frame', 'frame',
-            'frame', 'frame',
-            'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
             ]
     y_cols = [
-            'avg_foci_num', 'avg_foci_num',
-            'avg_foci_peaksum', 'avg_foci_peaksum',
-            'avg_foci_areasum', 'avg_foci_areasum',
-            'avg_foci_pkareasum', 'avg_foci_pkareasum',
-            'avg_foci_peakmean', 'avg_foci_peakmean',
-            'avg_foci_areamean', 'avg_foci_areamean',
+            'avg_foci_num', 'avg_foci_num', 'avg_foci_num', 'avg_foci_num',
+            'avg_foci_peaksum', 'avg_foci_peaksum', 'avg_foci_peaksum', 'avg_foci_peaksum',
+            'avg_foci_areasum', 'avg_foci_areasum', 'avg_foci_areasum', 'avg_foci_areasum',
+            'avg_foci_pkareasum', 'avg_foci_pkareasum', 'avg_foci_pkareasum', 'avg_foci_pkareasum',
+            'avg_foci_peakmean', 'avg_foci_peakmean', 'avg_foci_peakmean', 'avg_foci_peakmean',
+            'avg_foci_areamean', 'avg_foci_areamean', 'avg_foci_areamean', 'avg_foci_areamean',
             ]
     colors = [
-            c1, c4,
-            c1, c4,
-            c1, c4,
-            c1, c4,
-            c1, c4,
-            c1, c4,
+            c1, c2, c3, c4,
+            c1, c2, c3, c4,
+            c1, c2, c3, c4,
+            c1, c2, c3, c4,
+            c1, c2, c3, c4,
+            c1, c2, c3, c4,
             ]
     legends = [
-            'IR-24h-0.2kPa', 'IR-24h-glass',
-            'IR-24h-0.2kPa', 'IR-24h-glass',
-            'IR-24h-0.2kPa', 'IR-24h-glass',
-            'IR-24h-0.2kPa', 'IR-24h-glass',
-            'IR-24h-0.2kPa', 'IR-24h-glass',
-            'IR-24h-0.2kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-2kPa', 'IR-24h-12kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-2kPa', 'IR-24h-12kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-2kPa', 'IR-24h-12kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-2kPa', 'IR-24h-12kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-2kPa', 'IR-24h-12kPa', 'IR-24h-glass',
+            'IR-24h-0.2kPa', 'IR-24h-2kPa', 'IR-24h-12kPa', 'IR-24h-glass',
             ]
     xlabels = [
-            'frame', 'frame',
-            'frame', 'frame',
-            'frame', 'frame',
-            'frame', 'frame',
-            'frame', 'frame',
-            'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
+            'frame', 'frame', 'frame', 'frame',
             ]
     ylabels = [
-            'foci num', 'foci num',
-            'foci peak sum', 'foci peak sum',
-            'foci area sum', 'foci area sum',
-            'foci peak*area sum', 'peak*area sum',
-            'foci peak mean', 'foci peak mean',
-            'foci area mean', 'foci area mean',
+            'foci num', 'foci num', 'foci num', 'foci num',
+            'foci peak sum', 'foci peak sum', 'foci peak sum', 'foci peak sum', 
+            'foci area sum', 'foci area sum', 'foci area sum', 'foci area sum', 
+            'foci peak*area sum', 'peak*area sum', 'foci peak*area sum', 'peak*area sum', 
+            'foci peak mean', 'foci peak mean', 'foci peak mean', 'foci peak mean', 
+            'foci area mean', 'foci area mean', 'foci area mean', 'foci area mean', 
             ]
     for i, (fig, data, x_col, y_col, color, legend, xlabel, ylabel) \
     in enumerate(zip(figs, datas, x_cols, y_cols, colors, legends, xlabels, ylabels)):
