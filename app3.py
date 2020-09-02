@@ -205,11 +205,11 @@ settings = {
 #                 index_col=False)
 # fig_quick_merge(df)
 
-# import pandas as pd
-# from cellquantifier.publish._fig_quick_merge3 import *
-# df = pd.read_csv('/home/linhua/Desktop/phys/200831_NcBMT-physDataMerged.csv',
-#                 index_col=False)
-# fig_quick_merge(df)
+import pandas as pd
+from cellquantifier.publish._fig_quick_merge3 import *
+df = pd.read_csv('/home/linhua/Desktop/BMT/200810_50NcLivingBMT-physDataMerged.csv',
+                index_col=False)
+fig_quick_merge(df)
 
 
 # from cellquantifier.publish import *
@@ -218,16 +218,16 @@ settings = {
 #                 index_col=False)
 # fig_quick_msd(df)
 
-import pandas as pd
-from cellquantifier.publish._fig_quick_cilia_5 import *
-from cellquantifier.phys import *
-df = pd.read_csv('/home/linhua/Desktop/phys/200619-physDataMerged.csv',
-                index_col=False)
-df = add_travel_dist(df)
-df = add_speed(df)
-df.to_csv('/home/linhua/Desktop/phys/200619-physDataMerged2.csv',
-                index=False)
-fig_quick_cilia_5(df)
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_cilia_5 import *
+# from cellquantifier.phys import *
+# df = pd.read_csv('/home/linhua/Desktop/phys/200619-physDataMerged.csv',
+#                 index_col=False)
+# df = add_travel_dist(df)
+# df = add_speed(df)
+# df.to_csv('/home/linhua/Desktop/phys/200619-physDataMerged2.csv',
+#                 index=False)
+# fig_quick_cilia_5(df)
 
 
 # from skimage.io import imread, imsave
