@@ -18,12 +18,13 @@ def fig_quick_merge(
     print("Preparing colors")
     palette = sns.color_palette('Reds')
     RGBA_alpha = None
+    c0 = (0.2, 0.2, 0.2)
     c1 = palette[0]
     c2 = palette[1]
     c3 = palette[2]
     c4 = palette[3]
     c5 = palette[4]
-    p = palette
+    p = [c0, c1, c2, c3, c4, c5, ]
 
 
     # """
@@ -36,7 +37,7 @@ def fig_quick_merge(
     hidden_index = []
     # Sub_axs_1 settings
     col_num_s1 = 1
-    row_num_s1 = 5
+    row_num_s1 = 6
     index_s1 = [
         1, 2,
         ]
@@ -210,6 +211,7 @@ def fig_quick_merge(
         # ~~~~Divide df into sub_dfs~~~~
         # """
         dfp = df.drop_duplicates('particle')
+        dfp_liv = dfp[ dfp['exp_label']=='50NcLiving' ]
         dfp_1s = dfp[ dfp['exp_label']=='NcUV1s' ]
         dfp_10s = dfp[ dfp['exp_label']=='NcUV10s' ]
         dfp_20s = dfp[ dfp['exp_label']=='NcUV20s' ]
@@ -236,7 +238,7 @@ def fig_quick_merge(
         'exp_label',
         ]
     orders = [
-        ['NcUV1s', 'NcUV10s', 'NcUV20s', 'NcUV30s', 'NcUV40s', ],
+        ['50NcLiving', 'NcUV1s', 'NcUV10s', 'NcUV20s', 'NcUV30s', 'NcUV40s', ],
         ]
 
     for i, (fig, data, palette, cat_col, order, ) \
@@ -269,20 +271,20 @@ def fig_quick_merge(
 	# """
     figs = axs_s1
     datas = [
-            dfp_1s, dfp_10s, dfp_20s, dfp_30s, dfp_40s,
-            dfp_1s, dfp_10s, dfp_20s, dfp_30s, dfp_40s,
+            dfp_liv, dfp_1s, dfp_10s, dfp_20s, dfp_30s, dfp_40s,
+            dfp_liv, dfp_1s, dfp_10s, dfp_20s, dfp_30s, dfp_40s,
             ]
     bins = [
-            None, None, None, None, None, None, None,
-            None, None, None, None, None, None, None,
+            None, None, None, None, None, None, None, None,
+            None, None, None, None, None, None, None, None,
             ]
     data_cols = [
-            'D', 'D', 'D', 'D', 'D',
-            'alpha', 'alpha', 'alpha', 'alpha', 'alpha',
+            'D', 'D', 'D', 'D', 'D', 'D',
+            'alpha', 'alpha', 'alpha', 'alpha', 'alpha', 'alpha',
             ]
     colors = [
-            c1, c2, c3, c4, c5,
-            c1, c2, c3, c4, c5,
+            c0, c1, c2, c3, c4, c5,
+            c0, c1, c2, c3, c4, c5,
             ]
     for i, (fig, data, bin, data_col, color, ) \
     in enumerate(zip(figs, datas, bins, data_cols, colors, )):
@@ -387,18 +389,18 @@ def fig_quick_merge(
     # Format scale
     figs = [
             axs[0],
-            axs_s1[0], axs_s1[1], axs_s1[2], axs_s1[3], axs_s1[4],
-            axs_s1[5], axs_s1[6], axs_s1[7], axs_s1[8], axs_s1[9],
+            axs_s1[0], axs_s1[1], axs_s1[2], axs_s1[3], axs_s1[4], axs_s1[5],
+            axs_s1[6], axs_s1[7], axs_s1[8], axs_s1[9], axs_s1[10], axs_s1[11],
             ]
     xscales = [
             [None, None],
-            [0, 15000], [0, 15000], [0, 15000], [0, 15000], [0, 15000],
-            [0, 1], [0, 1], [0, 1], [0, 1], [0, 1],
+            [0, 15000], [0, 15000], [0, 15000], [0, 15000], [0, 15000], [0, 15000],
+            [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1],
             ]
     yscales = [
             [0, 30000],
-            [None, None], [None, None], [None, None], [None, None], [None, None],
-            [None, None], [None, None], [None, None], [None, None], [None, None],
+            [None, None], [None, None], [None, None], [None, None], [None, None], [None, None],
+            [None, None], [None, None], [None, None], [None, None], [None, None], [None, None],
 
             ]
     for i, (fig, xscale, yscale, ) \

@@ -35,27 +35,6 @@ control = [
 # 'plot_traj',
 # 'anim_traj',
 
-# 'load',
-# 'deno_minimum',
-# 'check_det',
-# 'detect_cell',
-# 'track_simple',
-# 'plot_traj_simple',
-# 'anim_traj_simple',
-
-# 'blob_segm',
-
-# 'check_det',
-# 'deno_box',
-# 'detect_foci',
-# 'plot_foci_dynamics',
-# 'fit',
-# 'anim_foci',
-# 'filt_track',
-# 'plot_traj',
-# 'anim_traj',
-
-
 ]
 
 """Part II: CellQuantifier Parameter Settings"""
@@ -199,17 +178,17 @@ settings = {
 #                 index_col=False)
 # fig_quick_merge(df)
 
-# import pandas as pd
-# from cellquantifier.publish._fig_quick_merge2 import *
-# df = pd.read_csv('/home/linhua/Desktop/phys/200830_NcUV-physDataMerged.csv',
-#                 index_col=False)
-# fig_quick_merge(df)
-
 import pandas as pd
-from cellquantifier.publish._fig_quick_merge3 import *
-df = pd.read_csv('/home/linhua/Desktop/BMT/200810_50NcLivingBMT-physDataMerged.csv',
+from cellquantifier.publish._fig_quick_merge2 import *
+df = pd.read_csv('/home/linhua/Desktop/BMT/200902_50NcLiving-physDataMerged.csv',
                 index_col=False)
 fig_quick_merge(df)
+
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_merge3 import *
+# df = pd.read_csv('/home/linhua/Desktop/BMT/200810_50NcLivingBMT-physDataMerged.csv',
+#                 index_col=False)
+# fig_quick_merge(df)
 
 
 # from cellquantifier.publish import *
