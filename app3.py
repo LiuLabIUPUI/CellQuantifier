@@ -32,7 +32,7 @@ control = [
 # 'filt_track',
 # 'phys_dist2boundary',
 # 'phys_antigen_data',
-# 'plot_traj',
+'plot_traj',
 # 'anim_traj',
 
 ]
@@ -50,8 +50,8 @@ settings = {
     'Det r_to_sigraw': 1,
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/BMT/',
-  'IO output_path': '/home/linhua/Desktop/BMT/',
+  'IO input_path': '/home/linhua/Desktop/input/',
+  'IO output_path': '/home/linhua/Desktop/input/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -126,7 +126,7 @@ settings = {
   'Filt max_delta_area': 1,
 
   ###############################################
-  'Filt traj_length_thres': 3, # NO. 2
+  'Filt traj_length_thres': 15, # NO. 2
   #SORTING SETTINGS
   'Sort dist_to_boundary': '', # NO. 3
   'Sort travel_dist': '', # NO. 4
@@ -137,8 +137,8 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-# from cellquantifier.util.pipeline3 import *
-# pipeline_batch(settings, control)
+from cellquantifier.util.pipeline3 import *
+pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
 # import pandas as pd
@@ -178,11 +178,11 @@ settings = {
 #                 index_col=False)
 # fig_quick_merge(df)
 
-import pandas as pd
-from cellquantifier.publish._fig_quick_merge2 import *
-df = pd.read_csv('/home/linhua/Desktop/BMT/200902_50NcLiving-physDataMerged.csv',
-                index_col=False)
-fig_quick_merge(df)
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_merge2 import *
+# df = pd.read_csv('/home/linhua/Desktop/BMT/200902_50NcLiving-physDataMerged.csv',
+#                 index_col=False)
+# fig_quick_merge(df)
 
 # import pandas as pd
 # from cellquantifier.publish._fig_quick_merge3 import *
