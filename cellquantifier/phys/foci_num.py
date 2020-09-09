@@ -25,7 +25,7 @@ def add_foci_num(df):
         foci_peakmean = curr_df['peak'].mean()
         foci_areamean = curr_df['area'].mean()
         foci_pkareasum = (curr_df['peak'] * curr_df['area']).sum()
-        
+
         df.loc[df['frame']==frame, 'foci_num'] = foci_num
         df.loc[df['frame']==frame, 'foci_peaksum'] = foci_peaksum
         df.loc[df['frame']==frame, 'foci_areasum'] = foci_areasum
@@ -34,10 +34,14 @@ def add_foci_num(df):
         df.loc[df['frame']==frame, 'foci_pkareasum'] = foci_pkareasum
 
     df['foci_num_norm'] = df['foci_num'] / df['foci_num'].max()
-    df['foci_peaksum_norm'] = df['foci_peaksum'] / df['foci_peaksum'].max()
+    # df['foci_peaksum_norm'] = df['foci_peaksum'] / df['foci_peaksum'].max()
     df['foci_areasum_norm'] = df['foci_areasum'] / df['foci_areasum'].max()
-    df['foci_peakmean_norm'] = df['foci_peakmean'] / df['foci_peakmean'].max()
+    # df['foci_peakmean_norm'] = df['foci_peakmean'] / df['foci_peakmean'].max()
     df['foci_areamean_norm'] = df['foci_areamean'] / df['foci_areamean'].max()
     df['foci_pkareasum_norm'] = df['foci_pkareasum'] / df['foci_pkareasum'].max()
+
+    df = df.sort_values(by='frame')
+    df['foci_peaksum_norm'] = df['foci_peaksum'] / df.loc[df.index[0], 'foci_peaksum']
+    df['foci_peakmean_norm'] = df['foci_peakmean'] / df.loc[df.index[0], 'foci_peakmean']
 
     return df
