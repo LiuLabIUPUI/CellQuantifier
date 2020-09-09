@@ -809,6 +809,7 @@ class Pipeline3():
 			if len(phys_files) > 1:
 				ind = 1
 				tot = len(phys_files)
+				phys2_files = []
 				for file in phys_files:
 					print("Updating fittData (%d/%d)" % (ind, tot))
 					ind = ind + 1
@@ -821,9 +822,11 @@ class Pipeline3():
 					curr_df = curr_df[ curr_df['frame']!=246 ]
 					curr_df = add_foci_num(curr_df)
 					curr_df = curr_df.drop_duplicates('frame')
-					curr_df.round(6).to_csv(file, index=False)
+					phys2_file = file[0:-4] + '2.csv'
+					curr_df.round(6).to_csv(phys2_file, index=False)
+					phys2_files.append(phys2_file)
 
-				phys_df = merge_physdfs(phys_files, mode='general')
+				phys_df = merge_physdfs(phys2_files, mode='general')
 			else:
 				phys_df = pd.read_csv(phys_files[0])
 
