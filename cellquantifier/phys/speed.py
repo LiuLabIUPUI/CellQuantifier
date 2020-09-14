@@ -34,7 +34,7 @@ def add_speed(df):
     for particle in particles:
         curr_df = df[ df['particle']==particle ]
         v_max = curr_df['v'].max()
-        big_step = curr_df['v']>=v_max*0.5
+        big_step = curr_df['v']>=v_max*0.2
         df.loc[df['particle']==particle, 'big_step'] = big_step
 
     df['v'] = speed[ df['adjacent_frame'] & df['big_step'] ]

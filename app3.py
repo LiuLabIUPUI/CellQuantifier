@@ -21,7 +21,8 @@ control = [
 # 'phys_cilia_halfsign',
 # 'phys_cilia_otherinfo',
 # 'plot_traj',
-# 'anim_traj',
+'anim_traj',
+# 'anno_kymo',
 # 'merge_plot',
 
 # 'phys_dist253bp1',
@@ -32,7 +33,7 @@ control = [
 # 'filt_track',
 # 'phys_dist2boundary',
 # 'phys_antigen_data',
-'plot_traj',
+# 'plot_traj',
 # 'anim_traj',
 
 ]
@@ -137,7 +138,7 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-from cellquantifier.util.pipeline3 import *
+from cellquantifier.util.pipeline3_cilia2 import *
 pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *

@@ -799,7 +799,7 @@ class Pipeline3():
 		# """
 		if 'alpha' in phys_df:
 			phys_df = phys_df[ phys_df['alpha']>0 ]
-		# phys_df = phys_df[ phys_df['particle']==29 ]
+		# phys_df = phys_df[ phys_df['particle']==24 ]
 
 		# # """
 		# # ~~~~~~~~boudary_type filter~~~~~~~~
@@ -867,49 +867,73 @@ class Pipeline3():
 		            show_traj_num=False,
 
 					show_particle_label=False,
-					choose_particle=106,
+					choose_particle=None,
 
 					# show_boundary=True,
 					# boundary_mask=boundary_masks[0],
 					# boundary_list=self.config.DICT['Sort dist_to_boundary'],
 					)
+		ax.set_xlim([500, 535])
+		ax.set_ylim([385, 350])
 
 		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.tiff',
-					dpi=300)
+					dpi=600)
 		# plt.clf(); plt.close()
 		plt.show()
 
 		# fig_quick_msd(phys_df)
 
-
-
-
 		# self.config.DICT['Load existing analMeta'] = True
 		# self.config.save_config()
 
 
+	def anno_kymo(self):
+		# """
+		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
+		# """
+		frame = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		if 'pixel_size' in phys_df:
+			self.config.PIXEL_SIZE = phys_df['pixel_size'].mean()
+		if 'frame_rate' in phys_df:
+			self.config.FRAME_RATE = phys_df['frame_rate'].mean()
+
+		fig, ax = plt.subplots()
+		ax.imshow(frame, cmap='gray', aspect='equal')
+
+		plt.box(False)
+		ax.set_xticks([])
+		ax.set_yticks([])
+
+		# # cohort a sample 018c1-ptcl-63
+		# ax.plot([22.1, 24.9], [25.2, 25.2], '-',
+		# 		color=(0,1,0),
+		# 		linewidth=12,
+		# 		)
+		# ax.plot([26.3, 26.3], [23.1, 25.25], '-',
+		# 		color=(1,0,0),
+		# 		linewidth=12,
+		# 		)
+
+		# cohort b sample 012c1-ptcl-24
+		ax.plot([22.25, 25.25], [22.5, 22.5], '-',
+				color=(0,1,0),
+				linewidth=12,
+				)
+		ax.plot([26.5, 26.5], [21.1, 22.5], '-',
+				color=(1,0,0),
+				linewidth=12,
+				)
+
+		plt.show()
+		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-kymo.tiff',
+					dpi=600)
 
 
-		# phys_df = phys_df[ phys_df['D']<6000 ]
-		# phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-		# 							'-physData.csv', index=False)
 
-		# plot_msd_batch(phys_df,
-		# 			image=frames[0],
-		# 			output_path=self.config.OUTPUT_PATH,
-		# 			root_name=self.config.ROOT_NAME,
-		# 			pixel_size=self.config.PIXEL_SIZE,
-		# 			frame_rate=self.config.FRAME_RATE,
-		# 			divide_num=self.config.DIVIDE_NUM,
-		# 			plot_without_sorter=True,
-		# 			show_fig=True,
-		# 			save_pdf=False,
-		# 			open_pdf=False,
-		# 			cb_min=None,
-		# 			cb_max=None,
-		# 			cb_major_ticker=None,
-		# 			cb_minor_ticker=None,
-		# 			)
+
+
 
 
 	def anim_traj(self):
@@ -922,14 +946,18 @@ class Pipeline3():
 		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
 		# """
 		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
-									'-regi.tif', '-raw.tif')[list(self.config.TRANGE)]
+									'-regi.tif', '-raw.tif')
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
+		if 'pixel_size' in phys_df:
+			self.config.PIXEL_SIZE = phys_df['pixel_size'].mean()
+		if 'frame_rate' in phys_df:
+			self.config.FRAME_RATE = phys_df['frame_rate'].mean()
 		# """
 		# ~~~~~~~~traj_length filter~~~~~~~~
 		# """
 		if 'traj_length' in phys_df and self.config.FILTERS['TRAJ_LEN_THRES']!=None:
-			phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
+			phys_df = phys_df[ phys_df['traj_length'] >= self.config.FILTERS['TRAJ_LEN_THRES'] ]
 
 		# """
 		# ~~~~~~~~alpha filter~~~~~~~~
@@ -998,7 +1026,7 @@ class Pipeline3():
 					show_scalebar=True,
 					pixel_size=self.config.PIXEL_SIZE,
 
-					show_colorbar=True,
+					show_colorbar=False,
 					cb_min=cb_min,
 					cb_max=cb_max,
 	                cb_major_ticker=cb_major_ticker,
@@ -1012,7 +1040,7 @@ class Pipeline3():
 					# show_boundary=False,
 					# boundary_masks=boundary_masks,
 
-					dpi=100,
+					dpi=600,
 					)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-animVideo.tif', anim_tif)
 

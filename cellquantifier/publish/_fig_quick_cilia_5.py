@@ -239,50 +239,50 @@ def fig_quick_cilia_5(
         dfv_b = dfv[ dfv['exp_label']=='cohort b' ]
 
 
-    # """
-	# ~~~~Plot restored mean MSD curve~~~~
-	# """
-    msd_figs = [axs[0], axs[0]]
-    colors = [c2, c3]
-    datas = [dfp_a, dfp_b]
-    legends = ['cohort a', 'cohort b']
-    xlabels = ['', 'time (s)',]
-    ylabels = ['', r'mean MSD (nm$^2$)',]
-    x = np.array(range(1,31))
-    msds = []
-    for i, (fig, color, data, legend, xlabel, ylabel, ) \
-    in enumerate(zip(msd_figs, colors, datas, legends, xlabels, ylabels, )):
-        print("\n")
-        print("Plotting (%d/%d)" % (i+1, len(msd_figs)))
-        D = data['D'].mean()
-        alpha = data['alpha'].mean()
-        mean_msd = 4*D*(x**alpha)
-        msds.append(mean_msd)
-        fig.plot(x, mean_msd, '-o',
-                    markersize=2.5,
-                    linewidth=1,
-                    color=color,
-                    label=legend,
-                    fillstyle='full',
-                    markeredgecolor=color,
-                    markerfacecolor=color,
-                    )
-
-        set_xylabel(fig,
-                    xlabel=xlabel,
-                    ylabel=ylabel,
-                    )
-    # t_stats = t_test(msds[0], msds[1])
-    # t_test_str = 'P = %.1E' % (t_stats[1])
-    # msd_figs[0].text(0.2,
-    #         0.88,
-    #         t_test_str,
-    #         horizontalalignment='center',
-    #         color=(0,0,0,1),
-    #         family='Liberation Sans',
-    #         fontweight=9,
-    #         fontsize=9,
-    #         transform=msd_figs[0].transAxes)
+    # # """
+	# # ~~~~Plot restored mean MSD curve~~~~
+	# # """
+    # msd_figs = [axs[0], axs[0]]
+    # colors = [c2, c3]
+    # datas = [dfp_a, dfp_b]
+    # legends = ['cohort a', 'cohort b']
+    # xlabels = ['', 'time (s)',]
+    # ylabels = ['', r'mean MSD (nm$^2$)',]
+    # x = np.array(range(1,31))
+    # msds = []
+    # for i, (fig, color, data, legend, xlabel, ylabel, ) \
+    # in enumerate(zip(msd_figs, colors, datas, legends, xlabels, ylabels, )):
+    #     print("\n")
+    #     print("Plotting (%d/%d)" % (i+1, len(msd_figs)))
+    #     D = data['D'].mean()
+    #     alpha = data['alpha'].mean()
+    #     mean_msd = 4*D*(x**alpha)
+    #     msds.append(mean_msd)
+    #     fig.plot(x, mean_msd, '-o',
+    #                 markersize=2.5,
+    #                 linewidth=1,
+    #                 color=color,
+    #                 label=legend,
+    #                 fillstyle='full',
+    #                 markeredgecolor=color,
+    #                 markerfacecolor=color,
+    #                 )
+    #
+    #     set_xylabel(fig,
+    #                 xlabel=xlabel,
+    #                 ylabel=ylabel,
+    #                 )
+    # # t_stats = t_test(msds[0], msds[1])
+    # # t_test_str = 'P = %.1E' % (t_stats[1])
+    # # msd_figs[0].text(0.2,
+    # #         0.88,
+    # #         t_test_str,
+    # #         horizontalalignment='center',
+    # #         color=(0,0,0,1),
+    # #         family='Liberation Sans',
+    # #         fontweight=9,
+    # #         fontsize=9,
+    # #         transform=msd_figs[0].transAxes)
 
 
     # """
@@ -314,7 +314,7 @@ def fig_quick_cilia_5(
             ]
     ylabels = [
             r'D (nm$^2$/s)', 'alpha',
-            'trajectory travel range (um)', 'speed (um/s)'
+            'trajectory travel range (um)', 'velocity (um/s)'
             ]
     for i, (fig, data, data_col, palette, order, xlabel, ylabel,) \
     in enumerate(zip(figs, datas, data_cols, palettes, orders, xlabels, ylabels,)):
@@ -348,7 +348,7 @@ def fig_quick_cilia_5(
                         data=data,
                         order=order,
                         color="0",
-                        size=0.45,
+                        size=0.3,
                         )
 
         set_xylabel(fig,
@@ -395,45 +395,45 @@ def fig_quick_cilia_5(
                     format='general',
                     )
 
-    # # """
-	# # ~~~~Add figure text~~~~
-	# # """
-    # figs = grids
-    # fig_texts = [
-    #         'Fig.1a. Mean MSD curve comparion',
-    #         'Fig.1b. D value comparison',
-    #         'Fig.1c. Alpha value comparion',
-    #         'Fig.2. Trajectory travel range comparison',
-    #         'Fig.3. Speed comparison',
-    #         ]
-    # for i, (fig, fig_text, ) \
-    # in enumerate(zip(figs, fig_texts, )):
-    #     print("\n")
-    #     print("Plotting (%d/%d)" % (i+1, len(figs)))
-    #
-    #     fig.text(0.1,
-    #             0.05,
-    #             fig_text,
-    #             horizontalalignment='left',
-    #             color=(0,0,0,1),
-    #             family='Liberation Sans',
-    #             fontweight=10,
-    #             fontsize=10,
-    #             transform=fig.transAxes,
-    #             )
+    # """
+	# ~~~~Add figure text~~~~
+	# """
+    figs = grids
+    fig_texts = [
+            'Fig.1a. Mean MSD curve comparion',
+            'Fig.1b. D value comparison',
+            'Fig.1c. Alpha value comparion',
+            'Fig.2. Trajectory travel range comparison',
+            'Fig.3. Velocity comparison',
+            ]
+    for i, (fig, fig_text, ) \
+    in enumerate(zip(figs, fig_texts, )):
+        print("\n")
+        print("Plotting (%d/%d)" % (i+1, len(figs)))
+
+        fig.text(0.1,
+                0.05,
+                fig_text,
+                horizontalalignment='left',
+                color=(0,0,0,1),
+                family='Liberation Sans',
+                fontweight=10,
+                fontsize=10,
+                transform=fig.transAxes,
+                )
 
 
     # """
 	# ~~~~Additional figures format~~~~
 	# """
-    # Format legend
-    for ax in msd_figs:
-        format_legend(ax,
-                show_legend=True,
-                legend_loc='lower right',
-                legend_fontweight=7,
-                legend_fontsize=7,
-                )
+    # # Format legend
+    # for ax in msd_figs:
+    #     format_legend(ax,
+    #             show_legend=True,
+    #             legend_loc='lower right',
+    #             legend_fontweight=7,
+    #             legend_fontsize=7,
+    #             )
     # # Rename legend
     # for ax in rename_msd_figs:
     #     rename_legend(ax,

@@ -808,19 +808,19 @@ class Pipeline3():
 					# boundary_mask=boundary_masks[0],
 					# boundary_list=self.config.DICT['Sort dist_to_boundary'],
 					)
-		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.pdf')
+		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.tiff', dpi=600)
 		# plt.clf(); plt.close()
 		plt.show()
 
 
-		ptcl_df = phys_df[ phys_df['particle']==33 ]
+		ptcl_df = phys_df[ phys_df['particle']==63 ]
 		ptcl_df = ptcl_df[ ['frame', 'x', 'y', 'frame_rate', 'pixel_size'] ]
 		ptcl_df['x0'] = ptcl_df['x'].min()
 		ptcl_df['y0'] = ptcl_df['y'].max()
 		ptcl_df['time'] = ptcl_df['frame'] / ptcl_df['frame_rate']
 		ptcl_df['height'] = ((ptcl_df['x'] - ptcl_df['x0'])**2 + (ptcl_df['y'] - ptcl_df['y0'])**2)**0.5 * ptcl_df['pixel_size']
 		ptcl_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-									'-ptcl-33.csv', index=False)
+									'-ptcl-63.csv', index=False)
 
 		fig, ax = plt.subplots()
 		ax.plot(ptcl_df['time'], ptcl_df['height'], '-o')
