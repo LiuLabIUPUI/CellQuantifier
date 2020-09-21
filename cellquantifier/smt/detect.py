@@ -20,6 +20,7 @@ def detect_blobs(pims_frame,
 				max_sig=3,
 				num_sig=5,
 				blob_thres_rel=0,
+				overlap=0.5,
 				peak_thres_rel=0,
 				mass_thres_rel=0,
 				peak_r_rel=0,
@@ -137,7 +138,9 @@ def detect_blobs(pims_frame,
 					 min_sigma=min_sig,
 					 max_sigma=max_sig,
 					 num_sigma=num_sig,
-					 threshold=blob_thres_final)
+					 threshold=blob_thres_final,
+					 overlap=overlap,
+					 )
 
 	# """
 	# ~~~~~~~~~~~~~~~~~~~~~~Prepare blobs_df and update it~~~~~~~~~~~~~~~~~~~~~~
