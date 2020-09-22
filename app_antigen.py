@@ -44,9 +44,9 @@ settings = {
   'Det pk_thresh_rel': 'auto',
 
   #TRACKING SETTINGS
-  'Trak divide_num': 1,
   'Trak search_range': 7,
   'Trak memory': 3,
+  'Trak divide_num': 1,
 
   #FILTERING SETTINGS
   'Filt max_dist_err': 1,
