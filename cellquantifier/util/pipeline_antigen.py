@@ -76,8 +76,7 @@ class Config():
 		}
 
 		#SORTING SETTINGS
-		if (config['Sort dist_to_boundary']=='') & \
-			(config['Sort dist_to_53bp1']==''):
+		if (config['Sort dist_to_boundary']==''):
 			self.DO_SORT = False
 		else:
 			self.DO_SORT = True
@@ -152,14 +151,9 @@ class Pipeline3():
 					self.config.DIST2BOUNDARY_MASK_NAME,
 					self.config.ROOT_NAME+'-raw.tif')
 
-		# If regi params csv file exsits, load it and do the registration.
-		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-regiData.csv'):
-			regi_params_array_2d = pd.read_csv(self.config.OUTPUT_PATH +
-			 				self.config.ROOT_NAME + '-regiData.csv').to_numpy()
-			frames = apply_regi_params(frames, regi_params_array_2d)
-
 		# If only 1 frame available, duplicate it to enough frames_num.
-		tot_frame_num = len(self.config.TRANGE)
+		tot_frame_num = len(imread(self.config.OUTPUT_PATH + \
+					self.config.ROOT_NAME+'-raw.tif'))
 		if frames.ndim==2:
 			dup_frames = np.zeros((tot_frame_num, frames.shape[0], frames.shape[1]),
 									dtype=frames.dtype)
@@ -167,7 +161,7 @@ class Pipeline3():
 				dup_frames[i] = frames
 			frames = dup_frames
 
-		boundary_masks = get_thres_mask_batch(frames[list(self.config.TRANGE),:,:],
+		boundary_masks = get_thres_mask_batch(frames,
 					self.config.MASK_SIG_BOUNDARY, self.config.MASK_THRES_BOUNDARY)
 
 		return boundary_masks
@@ -197,11 +191,10 @@ class Pipeline3():
 		print("######################################")
 
 		frames = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
-		frames = img_as_ubyte(frames)
 		filtered = filter_batch(frames, method='boxcar', arg=self.config.BOXCAR_RADIUS)
 		filtered = filter_batch(filtered, method='gaussian', arg=self.config.GAUS_BLUR_SIG)
 
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-fociDeno.tif', filtered)
+		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-deno.tif', filtered)
 
 
 	def check_detect_fit(self):
@@ -220,13 +213,16 @@ class Pipeline3():
 										min_sig=self.config.MIN_SIGMA,
 										max_sig=self.config.MAX_SIGMA,
 										num_sig=self.config.NUM_SIGMA,
-										blob_thres=self.config.THRESHOLD,
+										blob_thres_rel=self.config.THRESHOLD,
+										overlap=0,
+
 										peak_thres_rel=self.config.PEAK_THRESH_REL,
 										r_to_sigraw=1,
 										pixel_size=self.config.PIXEL_SIZE,
+
 										diagnostic=True,
 										pltshow=True,
-										plot_r=False,
+										plot_r=True,
 										truth_df=None)
 
 	def detect(self):
@@ -242,19 +238,33 @@ class Pipeline3():
 									min_sig=self.config.MIN_SIGMA,
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
-									blob_thres=self.config.THRESHOLD,
+									blob_thres_rel=self.config.THRESHOLD,
+									overlap=0,
+
 									peak_thres_rel=self.config.PEAK_THRESH_REL,
 									r_to_sigraw=1,
 									pixel_size=self.config.PIXEL_SIZE,
-									diagnostic=True,
+
+									diagnostic=False,
 									pltshow=False,
 									plot_r=False,
 									truth_df=None)
-		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
 
 		blobs_df = blobs_df.apply(pd.to_numeric)
 		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-detData.csv', index=False)
+
+
+		det_plt_array = anim_blob(blobs_df, frames,
+									pixel_size=self.config.PIXEL_SIZE,
+									blob_markersize=5,
+									)
+		try:
+			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
+		except:
+			pass
+
+		self.config.save_config()
 
 	def fit(self):
 
@@ -454,11 +464,21 @@ class Pipeline3():
 		# 	phys_df = phys_df[ (phys_df['travel_dist']>=travel_dist_min) & \
 		# 						(phys_df['travel_dist']<=travel_dist_max) ]
 
+		# # """
+		# # ~~~~~~~~particle_type filter~~~~~~~~
+		# # """
+		# if 'particle_type' in phys_df:
+		# 	phys_df = phys_df[ phys_df['particle_type']!='--none--']
+
 		# """
-		# ~~~~~~~~particle_type filter~~~~~~~~
+		# ~~~~~~~~local_D_alpha filter~~~~~~~~
 		# """
-		if 'particle_type' in phys_df:
-			phys_df = phys_df[ phys_df['particle_type']!='--none--']
+		print('yes')
+		print(len(phys_df))
+		phys_df = phys_df[ (phys_df['local_alpha']>=1.4) & \
+							(phys_df['dir_pers']<0.2) & \
+							(phys_df['dir_pers']>-0.2)]
+		print(len(phys_df))
 
 
 		# """
@@ -503,13 +523,13 @@ class Pipeline3():
 
 		            show_traj_num=True,
 
-					show_particle_label=True,
+					show_particle_label=False,
 
 					# show_boundary=True,
 					# boundary_mask=boundary_masks[0],
 					# boundary_list=self.config.DICT['Sort dist_to_boundary'],
 					)
-		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.tiff', dpi=600)
+		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.pdf', dpi=300)
 		# plt.clf(); plt.close()
 		plt.show()
 
@@ -620,11 +640,8 @@ class Pipeline3():
 		print("######################################")
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
 
-
-
 		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-dist2boundaryMask.tif'):
 			dist2boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-dist2boundaryMask.tif')
-			boundary_masks = boundary_masks // 255
 		else:
 			boundary_masks = self.get_boundary_mask()
 			dist2boundary_masks = get_dist2boundary_mask_batch(boundary_masks)
@@ -647,6 +664,27 @@ class Pipeline3():
 		phys_df = add_antigen_data(phys_df, sorters=self.config.SORTERS)
 
 		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physData.csv', index=False)
+
+	def phys_antigen_data2(self):
+		print("######################################")
+		print("Add Physics Param: antigen_data2")
+		print("######################################")
+
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		phys_df = add_local_D_alpha(phys_df,
+						pixel_size=self.config.PIXEL_SIZE,
+						frame_rate=self.config.FRAME_RATE,
+						window_width=20,
+						divide_num=5,
+						)
+
+		phys_df = add_directional_persistence(phys_df,
+						window_width=5,
+						)
+
+		phys_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
 
@@ -770,6 +808,11 @@ def pipeline_batch(settings_dict, control_list):
 		config.DICT['Processed by:'] = settings_dict['Processed By:']
 
 		# Update config.DIST2BOUNDARY_MASK_NAME
+		if '-' in root_name and root_name.find('-')>0:
+			key = root_name[0:root_name.find('-')]
+		else:
+			key = root_name
+
 		if settings_dict['Mask boundary_mask file label']:# if label is not empty, find file_list
 			file_list = np.array(sorted(glob(settings_dict['IO input_path'] + '*' + key +
 					'*' + settings_dict['Mask boundary_mask file label'] + '*')))

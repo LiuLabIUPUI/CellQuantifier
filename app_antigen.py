@@ -14,6 +14,8 @@ control = [
 # 'anim_traj',
 # 'merge_plot',
 
+'phys_antigen_data2',
+
 ]
 
 """Part II: CellQuantifier Parameter Settings"""
@@ -25,38 +27,38 @@ settings = {
   'IO output_path': '/home/linhua/Desktop/input/',
   'Processed By:': 'Hua Lin',
   'Pixel_size': 0.163,
-  'Frame_rate': 1,
+  'Frame_rate': 2,
 
   #MASK_BOUNDARY SETTINGS
-  'Mask boundary_mask file label': '',
-  'Mask boundary_mask sig': '',
-  'Mask boundary_mask thres_rel': '',
+  'Mask boundary_mask file label': '-bdr',
+  'Mask boundary_mask sig': 0,
+  'Mask boundary_mask thres_rel': 0.05,
 
   #DENOISE SETTINGS
   'Deno boxcar_radius': 10,
   'Deno gaus_blur_sig': 0.5,
 
   #DETECTION SETTINGS
-  'Det blob_threshold': 'auto',
+  'Det blob_threshold': 0.05,
   'Det blob_min_sigma': 2,
   'Det blob_max_sigma': 3,
-  'Det blob_num_sigma': 50,
-  'Det pk_thresh_rel': 'auto',
-
-  #TRACKING SETTINGS
-  'Trak search_range': 7,
-  'Trak memory': 3,
-  'Trak divide_num': 1,
+  'Det blob_num_sigma': 5,
+  'Det pk_thresh_rel': 0.1,
 
   #FILTERING SETTINGS
-  'Filt max_dist_err': 1,
-  'Filt max_sig_to_sigraw': 2,
-  'Filt max_delta_area': 1,
-  'Filt traj_length_thres': 15,
+  'Filt max_dist_err': 3,
+  'Filt max_sig_to_sigraw': 6,
+  'Filt max_delta_area': 2.4,
+  'Filt traj_length_thres': 20,
+
+  #TRACKING SETTINGS
+  'Trak search_range': 2.5,
+  'Trak memory': 5,
+  'Trak divide_num': 5,
 
   #SORTING SETTINGS
-  'Sort dist_to_boundary': '',
-  'Sort travel_dist': '',
+  'Sort dist_to_boundary': [-10000, 70000],
+  'Sort travel_dist': [-1000, 1000],
 
 }
 
