@@ -187,12 +187,6 @@ def detect_blobs(pims_frame,
 	intersect_mass = mass_max - slope_mass * r_min
 
 
-
-
-
-
-
-
 	blobs_df_nofilter = blobs_df.copy()
 	blobs_df = blobs_df[ (blobs_df['peak'] > peak_thres_abs) ]
 	blobs_df = blobs_df[ (blobs_df['mass'] > mass_thres_abs) ]
@@ -310,6 +304,7 @@ def detect_blobs_batch(pims_frames,
 			max_sig=3,
 			num_sig=5,
 			blob_thres_rel=0.1,
+			overlap=0.5,
 			peak_thres_rel=0.1,
 			mass_thres_rel=0,
 			peak_r_rel=0,
@@ -372,6 +367,7 @@ def detect_blobs_batch(pims_frames,
 					   max_sig=max_sig,
 					   num_sig=num_sig,
 					   blob_thres_rel=blob_thres_rel,
+					   overlap=overlap,
 					   peak_thres_rel=peak_thres_rel,
 					   mass_thres_rel=mass_thres_rel,
 					   peak_r_rel=peak_r_rel,
