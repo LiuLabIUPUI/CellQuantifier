@@ -11,3 +11,5 @@ from .particle_num import *
 from .foci_num import *
 from .travel_dist import *
 from .speed import *
+from .local_D_alpha import *
+from .directional_persistence import *
