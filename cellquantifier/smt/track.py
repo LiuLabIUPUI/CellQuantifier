@@ -7,6 +7,8 @@ from ..qmath import fit_msd
 
 def get_d_values(traj_df, im, divide_num):
 
+	df = traj_df.copy(deep=True)
+
 	"""Returns a modififed traj_df with an extra column for each particles diffusion coefficient"""
 
 	n = int(round(len(im.index)/divide_num))
@@ -26,17 +28,10 @@ def get_d_values(traj_df, im, divide_num):
 			y = y*1e6 #convert to nm
 			popt = fit_msd(x, y)
 
-			traj_df.loc[traj_df['particle'] == particle, 'D'] = popt[0]
-			traj_df.loc[traj_df['particle'] == particle, 'alpha'] = popt[1]
+			df.loc[df['particle']==particle, 'D'] = popt[0]
+			df.loc[df['particle']==particle, 'alpha'] = popt[1]
 
-			# temp_df = traj_df[ traj_df['particle']==particle ]
-			# temp_df = temp_df.sort_values(by=['frame'], ascending=True)
-			# target_index = temp_df.index[0]
-			#
-			# traj_df.loc[target_index, 'D'] = popt[0]
-			# traj_df.loc[target_index, 'alpha'] = popt[1]
-
-	return traj_df
+	return df
 
 
 def track_blobs(blobs_df,
@@ -123,7 +118,7 @@ def track_blobs(blobs_df,
 		blobs_df = blobs_df[blobs_df['sigx_to_sigraw'] < filters['SIG_TO_SIGRAW']]
 		blobs_df = blobs_df[blobs_df['sigy_to_sigraw'] < filters['SIG_TO_SIGRAW']]
 		blobs_df = tp.link_df(blobs_df, search_range=search_range, memory=memory)
-		blobs_df = tp.filter_stubs(blobs_df, 3)
+		blobs_df = tp.filter_stubs(blobs_df, 5)
 		blobs_df = blobs_df.reset_index(drop=True)
 
 	else:
