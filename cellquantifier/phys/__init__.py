@@ -13,3 +13,4 @@ from .travel_dist import *
 from .speed import *
 from .local_D_alpha import *
 from .directional_persistence import *
+from ._classify_antigen import *
