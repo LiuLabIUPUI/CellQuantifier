@@ -14,7 +14,13 @@ control = [
 # 'anim_traj',
 # 'merge_plot',
 
-'phys_antigen_data2',
+# 'phys_antigen_data2',
+# 'plot_stub_hist',
+# 'classify_antigen',
+# 'plot_DM_traj',
+# 'plot_BM_traj',
+'plot_CM_traj',
+
 
 ]
 

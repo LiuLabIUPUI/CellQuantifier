@@ -688,6 +688,114 @@ class Pipeline3():
 						'-physData.csv', index=False)
 
 
+	def plot_stub_hist(self):
+		print("######################################")
+		print("Plot")
+		print("######################################")
+
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		stub_hist_fig = plot_stub_prop_hist(phys_df)
+		stub_hist_fig.savefig(self.config.OUTPUT_PATH + \
+						self.config.ROOT_NAME + '-stub-prop-hist.pdf')
+
+
+	def classify_antigen(self):
+		print("######################################")
+		print("Classify antigen sub_trajectories")
+		print("######################################")
+
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		phys_df = classify_antigen(phys_df)
+
+		phys_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physData2.csv', index=False)
+
+
+	def plot_subtraj(self, subtype='DM'):
+		# """
+		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
+		# """
+		frames = pims.open(self.config.OUTPUT_PATH + \
+					self.config.ROOT_NAME + '-raw.tif')
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + \
+					self.config.ROOT_NAME + '-physData2.csv')
+
+		# # """
+		# # ~~~~~~~~traj_length filter~~~~~~~~
+		# # """
+		# if 'traj_length' in phys_df and self.config.FILTERS['TRAJ_LEN_THRES']!=None:
+		# 	phys_df = phys_df[ phys_df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
+
+
+		phys_df = phys_df[ phys_df['subparticle_type']==subtype ]
+		phys_df = phys_df[ phys_df['subparticle_traj_length']>=20]
+		# phys_df = phys_df[ phys_df['subparticle_travel_dist']>=10]
+
+		phys_df = phys_df.rename(columns={
+				'D':'original_D',
+				'alpha':'original_alpha',
+				'traj_length':'orig_traj_length',
+				'particle':'original_particle',
+				'subparticle': 'particle',
+				'subparticle_D': 'D',
+				})
+
+
+		# """
+		# ~~~~~~~~Optimize the colorbar format~~~~~~~~
+		# """
+		if len(phys_df.drop_duplicates('particle')) > 1:
+			D_max = phys_df['D'].quantile(0.9)
+			D_min = phys_df['D'].quantile(0.1)
+			D_range = D_max - D_min
+			cb_min=D_min
+			cb_max=D_max
+			cb_major_ticker=round(0.2*D_range)
+			cb_minor_ticker=round(0.2*D_range)
+		else:
+			cb_min, cb_max, cb_major_ticker, cb_minor_ticker = None, None, None, None
+
+
+		fig, ax = plt.subplots()
+		anno_traj(ax, phys_df,
+
+					show_image=True,
+					image = frames[0],
+
+					show_scalebar=True,
+					pixel_size=self.config.PIXEL_SIZE,
+
+					show_colorbar=True,
+					cb_min=cb_min,
+					cb_max=cb_max,
+	                cb_major_ticker=cb_major_ticker,
+					cb_minor_ticker=cb_minor_ticker,
+
+		            show_traj_num=True,
+
+					show_particle_label=False,
+
+					# show_boundary=True,
+					# boundary_mask=boundary_masks[0],
+					# boundary_list=self.config.DICT['Sort dist_to_boundary'],
+					)
+		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-' \
+					+ subtype + '-trajs.pdf', dpi=300)
+		# plt.clf(); plt.close()
+		plt.show()
+
+	def plot_DM_traj(self):
+		self.plot_subtraj(subtype='DM')
+
+	def plot_BM_traj(self):
+		self.plot_subtraj(subtype='BM')
+
+	def plot_CM_traj(self):
+		self.plot_subtraj(subtype='CM')
+
+
 	def merge_plot(self):
 
 		start_ind = self.config.ROOT_NAME.find('_')
