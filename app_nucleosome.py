@@ -35,8 +35,8 @@ settings = {
     'Det r_to_sigraw': 1,
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/input/',
-  'IO output_path': '/home/linhua/Desktop/input/',
+  'IO input_path': '/home/linhua/Desktop/temp/',
+  'IO output_path': '/home/linhua/Desktop/temp/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -187,21 +187,27 @@ settings = {
 # fig_quick_merge(df)
 
 
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_merge4 import *
+# df = pd.read_csv('/home/linhua/Desktop/temp/200730_Nucleosome_All.csv',
+#                 index_col=False)
+# df = df[ df['exp_label'].isin(['50NcBLM', '50NcLiving']) ]
+# df = df[ df['raw_data']!='190925_50NcLiving_K1-HT-physData.csv' ]
+# df = df[ df['traj_length']>=80 ]
+# dfp = df.drop_duplicates('particle')
+# dfp_blm = dfp[ dfp['exp_label']=='50NcBLM' ]
+# dfp_liv = dfp[ dfp['exp_label']=='50NcLiving' ]
+# dfp_blm = dfp_blm[['particle', 'D', 'alpha', 'raw_data', 'sort_flag_53bp1', 'traj_length']]
+# dfp_liv = dfp_liv[['particle', 'D', 'alpha', 'raw_data', 'sort_flag_53bp1', 'traj_length']]
+# dfp_blm.round(6).to_csv('/home/linhua/Desktop/temp/BLM_data.csv', index=False)
+# dfp_liv.round(6).to_csv('/home/linhua/Desktop/temp/Living_data.csv', index=False)
+# print(dfp_blm['raw_data'].unique())
+# print(dfp_liv['raw_data'].unique())
+# print(len(dfp_blm))
+# print(len(dfp_liv))
+
 import pandas as pd
-from cellquantifier.publish._fig_quick_merge4 import *
-df = pd.read_csv('/home/linhua/Desktop/temp/200730_Nucleosome_All.csv',
+from cellquantifier.publish._fig_quick_merge5 import *
+df = pd.read_csv('/home/linhua/Desktop/temp/200925_NcUV0.5-physDataMerged.csv',
                 index_col=False)
-df = df[ df['exp_label'].isin(['50NcBLM', '50NcLiving']) ]
-df = df[ df['raw_data']!='190925_50NcLiving_K1-HT-physData.csv' ]
-df = df[ df['traj_length']>=80 ]
-dfp = df.drop_duplicates('particle')
-dfp_blm = dfp[ dfp['exp_label']=='50NcBLM' ]
-dfp_liv = dfp[ dfp['exp_label']=='50NcLiving' ]
-dfp_blm = dfp_blm[['particle', 'D', 'alpha', 'raw_data', 'sort_flag_53bp1', 'traj_length']]
-dfp_liv = dfp_liv[['particle', 'D', 'alpha', 'raw_data', 'sort_flag_53bp1', 'traj_length']]
-dfp_blm.round(6).to_csv('/home/linhua/Desktop/temp/BLM_data.csv', index=False)
-dfp_liv.round(6).to_csv('/home/linhua/Desktop/temp/Living_data.csv', index=False)
-print(dfp_blm['raw_data'].unique())
-print(dfp_liv['raw_data'].unique())
-print(len(dfp_blm))
-print(len(dfp_liv))
+fig_quick_merge(df)
