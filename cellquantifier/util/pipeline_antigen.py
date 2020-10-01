@@ -470,16 +470,6 @@ class Pipeline3():
 		# if 'particle_type' in phys_df:
 		# 	phys_df = phys_df[ phys_df['particle_type']!='--none--']
 
-		# """
-		# ~~~~~~~~local_D_alpha filter~~~~~~~~
-		# """
-		print('yes')
-		print(len(phys_df))
-		phys_df = phys_df[ (phys_df['local_alpha']>=1.4) & \
-							(phys_df['dir_pers']<0.2) & \
-							(phys_df['dir_pers']>-0.2)]
-		print(len(phys_df))
-
 
 		# """
 		# ~~~~~~~~Optimize the colorbar format~~~~~~~~
@@ -713,7 +703,11 @@ class Pipeline3():
 						'-physData2.csv', index=False)
 
 
-	def plot_subtraj(self, subtype='DM'):
+	def plot_subtraj(self,
+					subtype='DM',
+					sp_traj_len_thres=None,
+					sp_travel_dist_thres=None,
+					):
 		# """
 		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
 		# """
@@ -730,8 +724,10 @@ class Pipeline3():
 
 
 		phys_df = phys_df[ phys_df['subparticle_type']==subtype ]
-		phys_df = phys_df[ phys_df['subparticle_traj_length']>=20]
-		# phys_df = phys_df[ phys_df['subparticle_travel_dist']>=10]
+		if sp_traj_len_thres:
+			phys_df = phys_df[ phys_df['subparticle_traj_length']>=sp_traj_len_thres ]
+		if sp_travel_dist_thres:
+			phys_df = phys_df[ phys_df['subparticle_travel_dist']>=sp_travel_dist_thres ]
 
 		phys_df = phys_df.rename(columns={
 				'D':'original_D',
@@ -787,13 +783,20 @@ class Pipeline3():
 		plt.show()
 
 	def plot_DM_traj(self):
-		self.plot_subtraj(subtype='DM')
+		self.plot_subtraj(subtype='DM',
+					# sp_traj_len_thres=20,
+					# sp_travel_dist_thres=10,
+					)
 
 	def plot_BM_traj(self):
-		self.plot_subtraj(subtype='BM')
+		self.plot_subtraj(subtype='BM',
+					sp_traj_len_thres=20,
+					)
 
 	def plot_CM_traj(self):
-		self.plot_subtraj(subtype='CM')
+		self.plot_subtraj(subtype='CM',
+					sp_traj_len_thres=20,
+					)
 
 
 	def merge_plot(self):
