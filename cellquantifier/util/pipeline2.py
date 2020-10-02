@@ -677,6 +677,60 @@ class Pipeline2():
 		print("######################################")
 
 
+	def plot_traj(self):
+		# """
+		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
+		# """
+		frames = file1_exists_or_pimsopen_file2(self.config.OUTPUT_PATH + self.config.ROOT_NAME,
+									'-regi.tif', '-raw.tif')
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-physData.csv')
+
+		# """
+		# ~~~~~~~~traj_length filter~~~~~~~~
+		# """
+		if 'traj_length' in phys_df and self.config.FILTERS['TRAJ_LEN_THRES']!=None:
+			phys_df = phys_df[ phys_df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
+
+		# """
+		# ~~~~~~~~Optimize the colorbar format~~~~~~~~
+		# """
+		if len(phys_df.drop_duplicates('particle')) > 1:
+			D_max = phys_df['D'].quantile(0.9)
+			D_min = phys_df['D'].quantile(0.1)
+			D_range = D_max - D_min
+			cb_min=D_min
+			cb_max=D_max
+			cb_major_ticker=round(0.2*D_range)
+			cb_minor_ticker=round(0.2*D_range)
+		else:
+			cb_min, cb_max, cb_major_ticker, cb_minor_ticker = None, None, None, None
+
+
+		fig, ax = plt.subplots()
+		anno_traj(ax, phys_df,
+
+					show_image=True,
+					image = frames[0],
+
+					show_scalebar=True,
+					pixel_size=self.config.PIXEL_SIZE,
+
+					show_colorbar=True,
+					cb_min=cb_min,
+					cb_max=cb_max,
+	                cb_major_ticker=cb_major_ticker,
+					cb_minor_ticker=cb_minor_ticker,
+
+		            show_traj_num=True,
+
+					show_particle_label=False,
+
+					)
+		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-results.pdf', dpi=300)
+		# plt.clf(); plt.close()
+		plt.show()
+
+
 	def phys(self):
 
 		print("######################################")

@@ -1,14 +1,15 @@
 """Part I: CellQuantifier Sequence Control"""
 
 control = [
-'clean_dir',
-'load',
+# 'clean_dir',
+# 'load',
 # 'regi',
 # 'mask_boundary', 'mask_53bp1', # 'mask_53bp1_blob',
-'deno_box', 'deno_gaus',
+# 'deno_box', 'deno_gaus',
 # 'check_detect_fit',
-'detect_fit',
+# 'detect_fit',
 # 'filt_track',
+'plot_traj',
 # 'phys_dist2boundary', 'phys_dist253bp1', #'phys_dist253bp1_blob',
 # 'sort_plot'
 ]
