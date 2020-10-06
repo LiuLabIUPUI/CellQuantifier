@@ -163,6 +163,8 @@ def anno_traj(ax, df,
             show_traj_num=True,
             fontname='Arial',
 
+            show_traj_end=False,
+
             show_particle_label=False,
             choose_particle=None,
 
@@ -309,6 +311,8 @@ def anno_traj(ax, df,
     for particle_num in particles:
         traj = df[df.particle == particle_num]
         traj = traj.sort_values(by='frame')
+        traj_start = traj.head(1)
+        traj_end = traj.tail(1)
 
         # """
         # ~~~Plot global movement if 'x_global', 'y_global' in df.columns~~~
@@ -335,8 +339,16 @@ def anno_traj(ax, df,
             if 'D_norm' in traj:
                 ax.plot(traj['y'], traj['x'], linewidth=1,
                 			color=colormap(traj['D_norm'].mean()))
+                if show_traj_end:
+                    ax.plot(traj_end['y'], traj_end['x'], '^',
+                            markersize=3, fillstyle='none',
+                			color=colormap(traj['D_norm'].mean()))
             else:
                 ax.plot(traj['y'], traj['x'], linewidth=1,
+                			color=colormap(traj['particle_norm'].mean()))
+                if show_traj_end:
+                    ax.plot(traj_end['y'], traj_end['x'], '^',
+                            markersize=3, fillstyle='none',
                 			color=colormap(traj['particle_norm'].mean()))
 
         if show_particle_label:
