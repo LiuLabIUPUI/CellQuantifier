@@ -81,13 +81,6 @@ def classify_antigen(df):
         # """
     	# ~~~~Combine and generate 'subparticle', 'subparticle_type' col~~~~
     	# """
-        # df.loc[df['particle']==particle, 'DM_ptcl'] = DM_ptcl
-        # df.loc[df['particle']==particle, 'DM_ptcl_type'] = DM_ptcl_type
-        # df.loc[df['particle']==particle, 'BM_ptcl'] = BM_ptcl
-        # df.loc[df['particle']==particle, 'BM_ptcl_type'] = BM_ptcl_type
-        # df.loc[df['particle']==particle, 'CM_ptcl'] = CM_ptcl
-        # df.loc[df['particle']==particle, 'CM_ptcl_type'] = CM_ptcl_type
-
         df.loc[df['particle']==particle, 'subparticle'] = \
                 DM_ptcl + BM_ptcl + CM_ptcl
         df.loc[df['particle']==particle, 'subparticle_type'] = \
@@ -95,7 +88,7 @@ def classify_antigen(df):
 
 
     # """
-	# ~~~~Calculte local_D_mean for subparticle~~~~
+	# ~~~~Calculte properties for subparticle~~~~
 	# """
     sub_ptcls = sorted(df['subparticle'].unique())
 
@@ -111,8 +104,11 @@ def classify_antigen(df):
         sp_D = curr_df['local_D'].mean()
         df.loc[df['subparticle']==sub_ptcl, 'subparticle_D'] = sp_D
 
-        # sp_dir_pers = curr_df['dir_pers'].mean()
-        # df.loc[df['subparticle']==sub_ptcl, 'subparticle_dir_pers'] = sp_D
+        sp_alpha = curr_df['local_alpha'].mean()
+        df.loc[df['subparticle']==sub_ptcl, 'subparticle_alpha'] = sp_alpha
+
+        sp_dir_pers = curr_df['dir_pers'].mean()
+        df.loc[df['subparticle']==sub_ptcl, 'subparticle_dir_pers'] = sp_dir_pers
 
         sp_traj_length = len(curr_df)
         df.loc[df['subparticle']==sub_ptcl, 'subparticle_traj_length'] = sp_traj_length
@@ -121,7 +117,12 @@ def classify_antigen(df):
             (curr_df['y'].max() - curr_df['y'].min())**2) ** 0.5
         df.loc[df['subparticle']==sub_ptcl, 'subparticle_travel_dist'] = sp_travel_dist
 
+    # """
+    # ~~~~Eliminate data for subparticle '' (unclassified subparticle)~~~~
+    # """
     df.loc[df['subparticle']=='', 'subparticle_D'] = ''
+    df.loc[df['subparticle']=='', 'subparticle_alpha'] = ''
+    df.loc[df['subparticle']=='', 'subparticle_dir_pers'] = ''
     df.loc[df['subparticle']=='', 'subparticle_traj_length'] = ''
     df.loc[df['subparticle']=='', 'subparticle_travel_dist'] = ''
 
