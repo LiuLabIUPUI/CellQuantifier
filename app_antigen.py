@@ -15,11 +15,16 @@ control = [
 # 'merge_plot',
 
 # 'phys_antigen_data2',
+
 # 'plot_stub_hist',
+
 # 'classify_antigen',
+
 # 'plot_DM_traj',
 # 'plot_BM_traj',
-'plot_CM_traj',
+# 'plot_CM_traj',
+
+# 'merge_physData2',
 
 
 ]
@@ -29,8 +34,8 @@ control = [
 settings = {
 
   #GENERAL INFO
-  'IO input_path': '/home/linhua/Desktop/input/',
-  'IO output_path': '/home/linhua/Desktop/input/',
+  'IO input_path': '/home/linhua/Desktop/all/',
+  'IO output_path': '/home/linhua/Desktop/all/',
   'Processed By:': 'Hua Lin',
   'Pixel_size': 0.163,
   'Frame_rate': 2,
@@ -69,8 +74,8 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-from cellquantifier.util.pipeline_antigen import *
-pipeline_batch(settings, control)
+# from cellquantifier.util.pipeline_antigen import *
+# pipeline_batch(settings, control)
 
 # from skimage.io import imread, imsave
 # from cellquantifier.publish import *
@@ -104,3 +109,10 @@ pipeline_batch(settings, control)
 # df = pd.read_csv('/home/linhua/Desktop/temp/200426_physDataMerged.csv',
 #                 index_col=False)
 # fig_quick_antigen_3(df)
+
+
+from cellquantifier.publish._fig_quick_antigen_5 import *
+import pandas as pd
+df = pd.read_csv('/home/linhua/Desktop/temp/201004-physData3Merged.csv',
+                index_col=False)
+fig_quick_antigen_5(df)

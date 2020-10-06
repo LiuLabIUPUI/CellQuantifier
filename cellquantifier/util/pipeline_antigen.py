@@ -705,8 +705,11 @@ class Pipeline3():
 
 	def plot_subtraj(self,
 					subtype='DM',
-					sp_traj_len_thres=None,
-					sp_travel_dist_thres=None,
+					sp_traj_len_thres=0,
+					sp_travel_dist_min=0,
+					sp_travel_dist_max=np.inf,
+					show_traj_end=False,
+					anim_subtype=False,
 					):
 		# """
 		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
@@ -716,20 +719,18 @@ class Pipeline3():
 		phys_df = pd.read_csv(self.config.OUTPUT_PATH + \
 					self.config.ROOT_NAME + '-physData2.csv')
 
-		# # """
-		# # ~~~~~~~~traj_length filter~~~~~~~~
-		# # """
-		# if 'traj_length' in phys_df and self.config.FILTERS['TRAJ_LEN_THRES']!=None:
-		# 	phys_df = phys_df[ phys_df['traj_length']>=self.config.FILTERS['TRAJ_LEN_THRES'] ]
-
-
-		phys_df = phys_df[ phys_df['subparticle_type']==subtype ]
+		# """
+		# ~~~~~~~~traj_length filter~~~~~~~~
+		# """
+		phys_df_plot = phys_df[ phys_df['subparticle_type']==subtype ]
 		if sp_traj_len_thres:
-			phys_df = phys_df[ phys_df['subparticle_traj_length']>=sp_traj_len_thres ]
-		if sp_travel_dist_thres:
-			phys_df = phys_df[ phys_df['subparticle_travel_dist']>=sp_travel_dist_thres ]
+			phys_df_plot = phys_df_plot[ phys_df_plot['subparticle_traj_length']>=sp_traj_len_thres ]
+		if sp_travel_dist_min:
+			phys_df_plot = phys_df_plot[ phys_df_plot['subparticle_travel_dist']>=sp_travel_dist_min ]
+		if sp_travel_dist_max:
+			phys_df_plot = phys_df_plot[ phys_df_plot['subparticle_travel_dist']<=sp_travel_dist_max ]
 
-		phys_df = phys_df.rename(columns={
+		phys_df_plot = phys_df_plot.rename(columns={
 				'D':'original_D',
 				'alpha':'original_alpha',
 				'traj_length':'orig_traj_length',
@@ -742,9 +743,9 @@ class Pipeline3():
 		# """
 		# ~~~~~~~~Optimize the colorbar format~~~~~~~~
 		# """
-		if len(phys_df.drop_duplicates('particle')) > 1:
-			D_max = phys_df['D'].quantile(0.9)
-			D_min = phys_df['D'].quantile(0.1)
+		if len(phys_df_plot.drop_duplicates('particle')) > 1:
+			D_max = phys_df_plot['D'].quantile(0.9)
+			D_min = phys_df_plot['D'].quantile(0.1)
 			D_range = D_max - D_min
 			cb_min=D_min
 			cb_max=D_max
@@ -755,7 +756,7 @@ class Pipeline3():
 
 
 		fig, ax = plt.subplots()
-		anno_traj(ax, phys_df,
+		anno_traj(ax, phys_df_plot,
 
 					show_image=True,
 					image = frames[0],
@@ -771,6 +772,8 @@ class Pipeline3():
 
 		            show_traj_num=True,
 
+					show_traj_end=show_traj_end,
+
 					show_particle_label=False,
 
 					# show_boundary=True,
@@ -779,30 +782,77 @@ class Pipeline3():
 					)
 		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-' \
 					+ subtype + '-trajs.pdf', dpi=300)
-		# plt.clf(); plt.close()
-		plt.show()
+		plt.clf(); plt.close()
+		# plt.show()
+
+		# """
+		# ~~~~~~~~Save phys_df_3~~~~~~~~
+		# """
+		select_index = (phys_df['subparticle_type']==subtype) & \
+			(phys_df_plot['subparticle_traj_length']>=sp_traj_len_thres) & \
+			(phys_df_plot['subparticle_travel_dist']>=sp_travel_dist_min) & \
+			(phys_df_plot['subparticle_travel_dist']<=sp_travel_dist_max)
+
+		phys_df.loc[select_index, 'subparticle_final_type'] = 'final_' + subtype
+
+		phys_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+						'-physData2.csv', index=False)
+
+
+		# """
+		# ~~~~~~~~Anim final_subtype~~~~~~~~
+		# """
+		if anim_subtype:
+			phys_anim = phys_df[ phys_df['subparticle_final_type']=='final_' + subtype ]
+			anim_tif = anim_traj(phys_anim, frames,
+
+						show_image=True,
+
+						show_scalebar=True,
+						pixel_size=self.config.PIXEL_SIZE,
+
+						show_colorbar=True,
+						cb_min=cb_min,
+						cb_max=cb_max,
+		                cb_major_ticker=cb_major_ticker,
+						cb_minor_ticker=cb_minor_ticker,
+
+						show_traj_num=False,
+
+			            show_tail=True,
+						tail_length=500,
+
+						show_boundary=False,
+
+						dpi=100,
+						)
+			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-' + subtype + '-Video.tif', anim_tif)
 
 	def plot_DM_traj(self):
 		self.plot_subtraj(subtype='DM',
-					# sp_traj_len_thres=20,
-					# sp_travel_dist_thres=10,
+					sp_traj_len_thres=20,
+					sp_travel_dist_min=10,
+					show_traj_end=True,
+					anim_subtype=False,
 					)
 
 	def plot_BM_traj(self):
 		self.plot_subtraj(subtype='BM',
 					sp_traj_len_thres=20,
+					sp_travel_dist_max=5,
+					anim_subtype=False,
 					)
 
 	def plot_CM_traj(self):
 		self.plot_subtraj(subtype='CM',
 					sp_traj_len_thres=20,
+					sp_travel_dist_max=3,
+					anim_subtype=False,
 					)
 
 
-	def merge_plot(self):
+	def merge_physData2(self):
 
-		start_ind = self.config.ROOT_NAME.find('_')
-		end_ind = self.config.ROOT_NAME.find('_', start_ind+1)
 		today = str(date.today().strftime("%y%m%d"))
 
 		print("######################################")
@@ -822,33 +872,36 @@ class Pipeline3():
 			phys_df = pd.read_csv(merged_files[0])
 
 		else:
-			phys_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physData.csv')))
+			phys_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physData2.csv')))
 			print("######################################")
-			print("Total number of physData to be merged: %d" % len(phys_files))
+			print("Total number of physData2 to be merged: %d" % len(phys_files))
 			print("######################################")
 			print(phys_files)
 
 			if len(phys_files) > 1:
-				phys_df = merge_physdfs(phys_files, mode='general')
-				phys_df = relabel_particles(phys_df)
+				ind = 1
+				tot = len(phys_files)
+				phys3_files = []
+				for file in phys_files:
+					print("Generating physData3 (%d/%d)" % (ind, tot))
+					ind = ind + 1
+
+					curr_df = pd.read_csv(file, index_col=False)
+					# print(curr_df['subparticle_final_type'].to_string())
+					# sys.exit()
+					# curr_df = curr_df[ curr_df['subparticle_final_type']!='' ]
+					curr_df = curr_df.dropna(subset=['subparticle_final_type'])
+
+					phys3_file = file[0:-5] + '3.csv'
+					curr_df.round(3).to_csv(phys3_file, index=False)
+					phys3_files.append(phys3_file)
+
+				phys_df = merge_physdfs(phys3_files, mode='general')
 			else:
-				phys_df = pd.read_csv(phys_files[0])
+				phys_df = pd.read_csv(phys3_files[0])
 
-			phys_df.round(6).to_csv(self.config.OUTPUT_PATH + merged_name + \
-							'-physDataMerged.csv', index=False)
-
-		# Apply traj_length_thres filter
-		if 'traj_length' in phys_df:
-			phys_df = phys_df[ phys_df['traj_length'] > self.config.FILTERS['TRAJ_LEN_THRES'] ]
-
-		fig = plot_merged(phys_df, 'exp_label',
-						pixel_size=self.config.PIXEL_SIZE,
-						frame_rate=self.config.FRAME_RATE,
-						divide_num=self.config.DIVIDE_NUM,
-						RGBA_alpha=1,
-						do_gmm=False)
-
-		fig.savefig(self.config.OUTPUT_PATH + today + '-antigen-results.pdf')
+			phys_df.round(3).to_csv(self.config.OUTPUT_PATH + today + \
+							'-physData3Merged.csv', index=False)
 
 		sys.exit()
 
