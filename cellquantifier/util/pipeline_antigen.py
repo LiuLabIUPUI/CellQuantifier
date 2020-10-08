@@ -25,6 +25,8 @@ from ..plot import *
 from ..plot import plot_phys_1 as plot_merged
 from ..phys.physutil import relabel_particles, merge_physdfs
 
+from ..publish._fig_quick_antigen_6 import *
+
 class Config():
 
 	def __init__(self, config):
@@ -711,6 +713,9 @@ class Pipeline3():
 					show_traj_end=False,
 					anim_subtype=False,
 					):
+		print("######################################")
+		print("Plot" + subtype)
+		print("######################################")
 		# """
 		# ~~~~~~~~Prepare frames, phys_df~~~~~~~~
 		# """
@@ -720,15 +725,12 @@ class Pipeline3():
 					self.config.ROOT_NAME + '-physData2.csv')
 
 		# """
-		# ~~~~~~~~traj_length filter~~~~~~~~
+		# ~~~~~~~~filters~~~~~~~~
 		# """
 		phys_df_plot = phys_df[ phys_df['subparticle_type']==subtype ]
-		if sp_traj_len_thres:
-			phys_df_plot = phys_df_plot[ phys_df_plot['subparticle_traj_length']>=sp_traj_len_thres ]
-		if sp_travel_dist_min:
-			phys_df_plot = phys_df_plot[ phys_df_plot['subparticle_travel_dist']>=sp_travel_dist_min ]
-		if sp_travel_dist_max:
-			phys_df_plot = phys_df_plot[ phys_df_plot['subparticle_travel_dist']<=sp_travel_dist_max ]
+		phys_df_plot = phys_df_plot[ phys_df_plot['subparticle_traj_length']>=sp_traj_len_thres ]
+		phys_df_plot = phys_df_plot[ phys_df_plot['subparticle_travel_dist']>=sp_travel_dist_min ]
+		phys_df_plot = phys_df_plot[ phys_df_plot['subparticle_travel_dist']<=sp_travel_dist_max ]
 
 		phys_df_plot = phys_df_plot.rename(columns={
 				'D':'original_D',
@@ -775,10 +777,6 @@ class Pipeline3():
 					show_traj_end=show_traj_end,
 
 					show_particle_label=False,
-
-					# show_boundary=True,
-					# boundary_mask=boundary_masks[0],
-					# boundary_list=self.config.DICT['Sort dist_to_boundary'],
 					)
 		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-' \
 					+ subtype + '-trajs.pdf', dpi=300)
@@ -786,12 +784,16 @@ class Pipeline3():
 		# plt.show()
 
 		# """
-		# ~~~~~~~~Save phys_df_3~~~~~~~~
+		# ~~~~~~~~Save phys_df_2~~~~~~~~
 		# """
+		if 'subparticle_final_type' in phys_df:
+			orig_index = phys_df['subparticle_final_type']=='final_' + subtype
+			phys_df.loc[ orig_index, 'subparticle_final_type'] = ''
+
 		select_index = (phys_df['subparticle_type']==subtype) & \
-			(phys_df_plot['subparticle_traj_length']>=sp_traj_len_thres) & \
-			(phys_df_plot['subparticle_travel_dist']>=sp_travel_dist_min) & \
-			(phys_df_plot['subparticle_travel_dist']<=sp_travel_dist_max)
+			(phys_df['subparticle_traj_length']>=sp_traj_len_thres) & \
+			(phys_df['subparticle_travel_dist']>=sp_travel_dist_min) & \
+			(phys_df['subparticle_travel_dist']<=sp_travel_dist_max)
 
 		phys_df.loc[select_index, 'subparticle_final_type'] = 'final_' + subtype
 
@@ -851,7 +853,7 @@ class Pipeline3():
 					)
 
 
-	def merge_physData2(self):
+	def merge_subparticles(self):
 
 		today = str(date.today().strftime("%y%m%d"))
 
@@ -887,9 +889,6 @@ class Pipeline3():
 					ind = ind + 1
 
 					curr_df = pd.read_csv(file, index_col=False)
-					# print(curr_df['subparticle_final_type'].to_string())
-					# sys.exit()
-					# curr_df = curr_df[ curr_df['subparticle_final_type']!='' ]
 					curr_df = curr_df.dropna(subset=['subparticle_final_type'])
 
 					phys3_file = file[0:-5] + '3.csv'
@@ -898,12 +897,92 @@ class Pipeline3():
 
 				phys_df = merge_physdfs(phys3_files, mode='general')
 			else:
-				phys_df = pd.read_csv(phys3_files[0])
+				phys_df = pd.read_csv(phys_files[0])
 
 			phys_df.round(3).to_csv(self.config.OUTPUT_PATH + today + \
-							'-physData3Merged.csv', index=False)
+							'-subparticles.csv', index=False)
 
 		sys.exit()
+
+
+	def merge_plot(self):
+
+		# today = str(date.today().strftime("%y%m%d"))
+		#
+		# print("######################################")
+		# print("Merge and PlotMSD")
+		# print("######################################")
+		#
+		# merged_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
+		# print(merged_files)
+		#
+		# if len(merged_files) > 1:
+		# 	print("######################################")
+		# 	print("Found multiple physDataMerged file!!!")
+		# 	print("######################################")
+		# 	return
+		#
+		# if len(merged_files) == 1:
+		# 	phys_df = pd.read_csv(merged_files[0])
+		#
+		# else:
+		# 	phys_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physData2.csv')))
+		# 	print("######################################")
+		# 	print("Total number of physData2 to be merged: %d" % len(phys_files))
+		# 	print("######################################")
+		# 	print(phys_files)
+		#
+		# 	if len(phys_files) > 1:
+		# 		ind = 1
+		# 		tot = len(phys_files)
+		# 		phys_df = merge_physdfs(phys_files, mode='general')
+		# 	else:
+		# 		phys_df = pd.read_csv(phys_files[0])
+		#
+		# 	print("######################################")
+		# 	print("Rename particles and subparticles...")
+		# 	print("######################################")
+		# 	phys_df['particle'] = phys_df['raw_data'] + phys_df['particle'].apply(str)
+		# 	phys_df['subparticle'] = phys_df['raw_data'] + phys_df['subparticle']
+		# 	phys_df.round(3).to_csv(self.config.OUTPUT_PATH + today + \
+		# 					'-physDataMerged.csv', index=False)
+		#
+		# fig_quick_antigen_6(phys_df)
+		#
+		# sys.exit()
+
+		today = str(date.today().strftime("%y%m%d"))
+
+		print("######################################")
+		print("Merge")
+		print("######################################")
+
+		merged_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
+		phys_df = pd.read_csv(merged_files[0])
+
+		# phys_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physData2.csv')))
+		# print("######################################")
+		# print("Total number of physData2 to be merged: %d" % len(phys_files))
+		# print("######################################")
+		# print(phys_files)
+		#
+		# if len(phys_files) > 1:
+		# 	phys_df = merge_physdfs(phys_files, mode='general')
+		# else:
+		# 	phys_df = pd.read_csv(phys_files[0])
+		#
+		# print("######################################")
+		# print("Rename particles and subparticles...")
+		# print("######################################")
+		# phys_df['particle'] = phys_df['raw_data'] + phys_df['particle'].apply(str)
+		# phys_df['subparticle'] = phys_df['raw_data'] + phys_df['subparticle']
+		# phys_df.round(3).to_csv(self.config.OUTPUT_PATH + today + \
+		# 				'-physDataMerged.csv', index=False)
+
+		fig_quick_antigen_6(phys_df)
+
+		sys.exit()
+
 
 def get_root_name_list(settings_dict):
 	# Make a copy of settings_dict

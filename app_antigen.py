@@ -15,16 +15,15 @@ control = [
 # 'merge_plot',
 
 # 'phys_antigen_data2',
-
 # 'plot_stub_hist',
-
 # 'classify_antigen',
 
 # 'plot_DM_traj',
 # 'plot_BM_traj',
 # 'plot_CM_traj',
+# 'merge_subparticles',
 
-# 'merge_physData2',
+'merge_plot',
 
 
 ]
@@ -74,8 +73,8 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-# from cellquantifier.util.pipeline_antigen import *
-# pipeline_batch(settings, control)
+from cellquantifier.util.pipeline_antigen import *
+pipeline_batch(settings, control)
 
 # from skimage.io import imread, imsave
 # from cellquantifier.publish import *
@@ -111,8 +110,8 @@ settings = {
 # fig_quick_antigen_3(df)
 
 
-from cellquantifier.publish._fig_quick_antigen_5 import *
-import pandas as pd
-df = pd.read_csv('/home/linhua/Desktop/temp/201004-physData3Merged.csv',
-                index_col=False)
-fig_quick_antigen_5(df)
+# from cellquantifier.publish._fig_quick_antigen_5 import *
+# import pandas as pd
+# df = pd.read_csv('/home/linhua/Desktop/temp/201004-subparticlesMerged.csv',
+#                 index_col=False)
+# fig_quick_antigen_5(df)
