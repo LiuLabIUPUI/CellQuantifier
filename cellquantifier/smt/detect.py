@@ -21,6 +21,8 @@ def detect_blobs(pims_frame,
 				num_sig=5,
 				blob_thres_rel=0,
 				overlap=0.5,
+				peak_min=0,
+				num_peaks=10,
 				peak_thres_rel=0,
 				mass_thres_rel=0,
 				peak_r_rel=0,
@@ -106,7 +108,7 @@ def detect_blobs(pims_frame,
 	maxima = peak_local_max(frame_log,
 				threshold_abs=0,
 				footprint=None,
-				num_peaks=10)
+				num_peaks=num_peaks)
 
 	columns = ['x', 'y', 'peak_log',]
 	maxima_df = pd.DataFrame([], columns=columns)
@@ -122,7 +124,7 @@ def detect_blobs(pims_frame,
 	maxima = peak_local_max(frame,
 				threshold_abs=0,
 				footprint=None,
-				num_peaks=10)
+				num_peaks=num_peaks)
 
 	columns = ['x', 'y', 'peak',]
 	maxima_df = pd.DataFrame([], columns=columns)
@@ -188,6 +190,7 @@ def detect_blobs(pims_frame,
 
 
 	blobs_df_nofilter = blobs_df.copy()
+	blobs_df = blobs_df[ (blobs_df['peak'] >= peak_min) ]
 	blobs_df = blobs_df[ (blobs_df['peak'] > peak_thres_abs) ]
 	blobs_df = blobs_df[ (blobs_df['mass'] > mass_thres_abs) ]
 	blobs_df = blobs_df[ blobs_df['peak'] > \
@@ -305,6 +308,8 @@ def detect_blobs_batch(pims_frames,
 			num_sig=5,
 			blob_thres_rel=0.1,
 			overlap=0.5,
+			peak_min=0,
+			num_peaks=10,
 			peak_thres_rel=0.1,
 			mass_thres_rel=0,
 			peak_r_rel=0,
@@ -368,6 +373,8 @@ def detect_blobs_batch(pims_frames,
 					   num_sig=num_sig,
 					   blob_thres_rel=blob_thres_rel,
 					   overlap=overlap,
+					   peak_min=peak_min,
+					   num_peaks=num_peaks,
 					   peak_thres_rel=peak_thres_rel,
 					   mass_thres_rel=mass_thres_rel,
 					   peak_r_rel=peak_r_rel,
