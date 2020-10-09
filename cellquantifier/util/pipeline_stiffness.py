@@ -62,6 +62,8 @@ class Config():
 		self.MIN_SIGMA = config['Foci det blob_min_sigma']
 		self.MAX_SIGMA = config['Foci det blob_max_sigma']
 		self.NUM_SIGMA = config['Foci det blob_num_sigma']
+		self.PEAK_MIN = 0
+		self.NUM_PEAKS = 10
 		self.PEAK_THRESH_REL = config['Foci det pk_thres_rel']
 		self.MASS_THRESH_REL = config['Foci det mass_thres_rel']
 		self.PEAK_R_REL = config['Foci det peak_r_rel']
@@ -410,6 +412,8 @@ class Pipeline3():
 										max_sig=self.config.MAX_SIGMA,
 										num_sig=self.config.NUM_SIGMA,
 										blob_thres_rel=self.config.THRESHOLD,
+										peak_min=self.config.PEAK_MIN,
+										num_peaks=self.config.NUM_PEAKS,
 										peak_thres_rel=self.config.PEAK_THRESH_REL,
 										mass_thres_rel=self.config.MASS_THRESH_REL,
 										peak_r_rel=self.config.PEAK_R_REL,
@@ -436,6 +440,8 @@ class Pipeline3():
 									max_sig=self.config.MAX_SIGMA,
 									num_sig=self.config.NUM_SIGMA,
 									blob_thres_rel=self.config.THRESHOLD,
+									peak_min=self.config.PEAK_MIN,
+									num_peaks=self.config.NUM_PEAKS,
 									peak_thres_rel=self.config.PEAK_THRESH_REL,
 									mass_thres_rel=self.config.MASS_THRESH_REL,
 									peak_r_rel=self.config.PEAK_R_REL,
