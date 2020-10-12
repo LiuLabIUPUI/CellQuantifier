@@ -236,7 +236,8 @@ def plot_foci_dynamics(
     # Format scale
     figs = axs
     xscales = [
-            [0, 300, 50],
+            # [0, 300, 50],
+            [None, None],
             ]
     yscales = [
             [None, None],
