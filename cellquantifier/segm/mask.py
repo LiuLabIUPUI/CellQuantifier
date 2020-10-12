@@ -199,7 +199,7 @@ def blobs_df_to_mask(tif, blobs_df):
     shape = (len(tif), tif[0].shape[0], tif[0].shape[1])
     masks_array_3d = np.zeros(shape, dtype=np.uint8)
 
-    for i in range(len(tif)):
+    for i in blobs_df['frame'].unique():
         curr_blobs_df = blobs_df[ blobs_df['frame']==i ]
         mask = np.zeros((shape[1], shape[2]))
         x = np.arange(0, shape[1])[:, np.newaxis]
