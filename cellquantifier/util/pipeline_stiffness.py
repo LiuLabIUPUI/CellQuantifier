@@ -63,7 +63,7 @@ class Config():
 		self.MAX_SIGMA = config['Foci det blob_max_sigma']
 		self.NUM_SIGMA = config['Foci det blob_num_sigma']
 		self.PEAK_MIN = 0
-		self.NUM_PEAKS = 3
+		self.NUM_PEAKS = 1
 		self.PEAK_THRESH_REL = config['Foci det pk_thres_rel']
 		self.MASS_THRESH_REL = config['Foci det mass_thres_rel']
 		self.PEAK_R_REL = 0
@@ -414,7 +414,7 @@ class Pipeline3():
 		print("Check foci detection")
 		print("######################################")
 
-		check_frame_ind = [0, 100, 200, 283]
+		check_frame_ind = [0, 50, 100, 144]
 
 		frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 		 					'-raw.tif')
