@@ -180,23 +180,23 @@ def detect_blobs(pims_frame,
 
 	pk_max = blobs_df['peak'].max()
 	pk_min = blobs_df['peak'].min()
-	slope_pk = (pk_max - pk_min) / (r_min - r_max)
-	intersect_pk = pk_max - slope_pk * r_min
-
+	# slope_pk = (pk_max - pk_min) / (r_min - r_max)
+	# intersect_pk = pk_max - slope_pk * r_min
+	
 	mass_max = blobs_df['mass'].max()
 	mass_min = blobs_df['mass'].min()
-	slope_mass = (mass_max - mass_min) / (r_min - r_max)
-	intersect_mass = mass_max - slope_mass * r_min
+	# slope_mass = (mass_max - mass_min) / (r_min - r_max)
+	# intersect_mass = mass_max - slope_mass * r_min
 
 
 	blobs_df_nofilter = blobs_df.copy()
 	blobs_df = blobs_df[ (blobs_df['peak'] >= peak_min) ]
 	blobs_df = blobs_df[ (blobs_df['peak'] > peak_thres_abs) ]
 	blobs_df = blobs_df[ (blobs_df['mass'] > mass_thres_abs) ]
-	blobs_df = blobs_df[ blobs_df['peak'] > \
-					(blobs_df['r']*slope_pk+intersect_pk)*peak_r_rel ]
-	blobs_df = blobs_df[ blobs_df['mass'] > \
-					(blobs_df['r']*slope_mass+intersect_mass)*mass_r_rel ]
+	# blobs_df = blobs_df[ blobs_df['peak'] > \
+	# 				(blobs_df['r']*slope_pk+intersect_pk)*peak_r_rel ]
+	# blobs_df = blobs_df[ blobs_df['mass'] > \
+	# 				(blobs_df['r']*slope_mass+intersect_mass)*mass_r_rel ]
 
 	# """
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~Print detection summary~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -278,9 +278,9 @@ def detect_blobs(pims_frame,
 
 		delta_sig = (max_sig-min_sig) * 0.1
 		x2_thres = np.linspace(min_sig-delta_sig, max_sig+delta_sig, 50) * r_to_sigraw
-		y2_thres = (slope_pk * x2_thres + intersect_pk) * peak_r_rel
+		# y2_thres = (slope_pk * x2_thres + intersect_pk) * peak_r_rel
 		y2_peak = x2_thres / x2_thres * peak_thres_abs
-		ax[1][0].plot(x2_thres, y2_thres, '--', c=(0,0,0,0.8), linewidth=3)
+		# ax[1][0].plot(x2_thres, y2_thres, '--', c=(0,0,0,0.8), linewidth=3)
 		ax[1][0].plot(x2_thres, y2_peak, '--', c=(0,0,0,0.8), linewidth=3)
 		ax[1][0].set_xlabel('r')
 		ax[1][0].set_ylabel('peak')
@@ -288,9 +288,9 @@ def detect_blobs(pims_frame,
 		ax[1][0].set_ylim(0, pk_max+delta_pk)
 
 		x3_thres = np.linspace(min_sig-delta_sig, max_sig+delta_sig, 50) * r_to_sigraw
-		y3_thres = (slope_mass * x3_thres + intersect_mass) * mass_r_rel
+		# y3_thres = (slope_mass * x3_thres + intersect_mass) * mass_r_rel
 		y3_peak = x3_thres / x3_thres * mass_thres_abs
-		ax[1][1].plot(x3_thres, y3_thres, '--', c=(0,0,0,0.8), linewidth=3)
+		# ax[1][1].plot(x3_thres, y3_thres, '--', c=(0,0,0,0.8), linewidth=3)
 		ax[1][1].plot(x3_thres, y3_peak, '--', c=(0,0,0,0.8), linewidth=3)
 		ax[1][1].set_xlabel('r')
 		ax[1][1].set_ylabel('mass')
