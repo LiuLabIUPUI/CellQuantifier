@@ -37,15 +37,15 @@ settings = {
   #CELL DETECTION SETTINGS
   'Cell det blob_thres_rel': 0.01,
   'Cell det blob_min_sigma': 20,
-  'Cell det blob_max_sigma': 35,
+  'Cell det blob_max_sigma': 25,
   'Cell det blob_num_sigma': 3,
-  'Cell det pk_thres_rel': 0.01,
-  'Cell det r_to_sigraw': 1.5,
+  'Cell det pk_thres_rel': 0.05,
+  'Cell det r_to_sigraw': 2,
 
   #CELL TRACKING SETTINGS
-  'Cell trak search_range': 40,
+  'Cell trak search_range': 50,
   'Cell trak memory': 5,
-  'Cell traj_length_thres': 100,
+  'Cell traj_length_thres': 250,
 
   #FOCI DENOISE SETTINGS
   'Foci deno boxcar_radius': 10,
