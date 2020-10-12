@@ -63,11 +63,11 @@ class Config():
 		self.MAX_SIGMA = config['Foci det blob_max_sigma']
 		self.NUM_SIGMA = config['Foci det blob_num_sigma']
 		self.PEAK_MIN = 0
-		self.NUM_PEAKS = 10
+		self.NUM_PEAKS = 3
 		self.PEAK_THRESH_REL = config['Foci det pk_thres_rel']
 		self.MASS_THRESH_REL = config['Foci det mass_thres_rel']
-		self.PEAK_R_REL = config['Foci det peak_r_rel']
-		self.MASS_R_REL = config['Foci det mass_r_rel']
+		self.PEAK_R_REL = 0
+		self.MASS_R_REL = 0
 
 		#TRACKING FILTERING SETTINGS
 		if (config['Foci filt max_dist_err']=='') & \
@@ -126,6 +126,17 @@ class Pipeline3():
 		else:
 			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 
+		# sides_pixel_num = 75
+		# if sides_pixel_num:
+		# 	new_shape = (frames.shape[0],
+		# 				frames.shape[1] + sides_pixel_num*2,
+		# 				frames.shape[2] + sides_pixel_num*2)
+		# 	new_frames = np.zeros(new_shape, dtype=frames.dtype)
+		# 	new_frames[:,
+		# 		sides_pixel_num:sides_pixel_num+frames.shape[1],
+		# 		sides_pixel_num:sides_pixel_num+frames.shape[2]] = frames
+		# 	frames = new_frames
+
 		frames = img_as_ubyte(frames)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
 
@@ -146,7 +157,7 @@ class Pipeline3():
 		print("Check cell detection")
 		print("######################################")
 
-		check_frame_ind = [0]
+		check_frame_ind = [0, 50, 100]
 
 		frames = pims.open(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 		 					'-celldeno.tif')
@@ -158,12 +169,13 @@ class Pipeline3():
 							num_sig=self.config.CELL_NUM_SIGMA,
 							blob_thres_rel=self.config.CELL_THRESHOLD,
 							peak_thres_rel=self.config.CELL_PEAK_THRESH_REL,
+							overlap=0.5,
 							r_to_sigraw=self.config.CELL_R_TO_SIGRAW,
 							pixel_size=self.config.PIXEL_SIZE,
 							diagnostic=True,
 							pltshow=True,
 							blob_markersize=10,
-							plot_r=False,
+							plot_r=True,
 							truth_df=None,
 							)
 
@@ -184,6 +196,7 @@ class Pipeline3():
 									num_sig=self.config.CELL_NUM_SIGMA,
 									blob_thres_rel=self.config.CELL_THRESHOLD,
 									peak_thres_rel=self.config.CELL_PEAK_THRESH_REL,
+									overlap=0.5,
 									r_to_sigraw=self.config.CELL_R_TO_SIGRAW,
 									pixel_size=self.config.PIXEL_SIZE,
 									diagnostic=False,
@@ -253,7 +266,7 @@ class Pipeline3():
 		# ~~~~~~~~Optimize the colorbar format~~~~~~~~
 		# """
 		phys_df = relabel_particles(phys_df, col1='particle', col2='particle')
-		if len(phys_df.drop_duplicates('particle')) > 1:
+		if len(phys_df.drop_duplicates('particle')) > 3:
 			particle_max = phys_df['particle'].max()
 			particle_min = phys_df['particle'].min()
 			particle_range = particle_max - particle_min
@@ -320,7 +333,7 @@ class Pipeline3():
 		# ~~~~~~~~Optimize the colorbar format~~~~~~~~
 		# """
 		phys_df = relabel_particles(phys_df, col1='particle', col2='particle')
-		if len(phys_df.drop_duplicates('particle')) > 1:
+		if len(phys_df.drop_duplicates('particle')) > 3:
 			particle_max = phys_df['particle'].max()
 			particle_min = phys_df['particle'].min()
 			particle_range = particle_max - particle_min
