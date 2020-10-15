@@ -9,4 +9,5 @@ from .plot_foci_dynamics import *
 from .plot_det_param_space import *
 from .plot_stiffness import *
 from .plot_stiffness_ctr import *
+from .plot_stiffness_kinetics import *
 from .plot_stub_prop_hist import *
