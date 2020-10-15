@@ -845,7 +845,7 @@ class Pipeline3():
 					curr_df.round(3).to_csv(phys2_file, index=False)
 					phys2_files.append(phys2_file)
 
-				phys_df = merge_physdfs(phys2_files, mode='general')
+				phys_df = merge_physdfs(phys2_files, mode='stiffness')
 			else:
 				phys_df = pd.read_csv(phys_files[0])
 
@@ -853,7 +853,7 @@ class Pipeline3():
 			phys_df.round(3).to_csv(self.config.OUTPUT_PATH + today + \
 							'-physDataMerged.csv', index=False)
 
-		stiffness_fig = plot_stiffness_ctr(phys_df)
+		stiffness_fig = plot_stiffness_kinetics(phys_df)
 		stiffness_fig.savefig(self.config.OUTPUT_PATH + \
 						today + '_stiffness-results.pdf')
 

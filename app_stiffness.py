@@ -12,7 +12,7 @@ control = [
 
 # 'load',
 # 'foci_denoise',
-'check_foci_detection',
+# 'check_foci_detection',
 # 'detect_foci',
 # 'plot_foci_dynamics',
 # 'fit',
@@ -52,11 +52,11 @@ settings = {
   'Foci deno gaus_blur_sig': 0.5,
 
   #FOCI DETECTION SETTINGS
-  'Foci det blob_thres_rel': 0.2,
+  'Foci det blob_thres_rel': 0.05,
   'Foci det blob_min_sigma': 2,
   'Foci det blob_max_sigma': 3,
   'Foci det blob_num_sigma': 50,
-  'Foci det pk_thres_rel': 0.2,
+  'Foci det pk_thres_rel': 0.05,
   'Foci det mass_thres_rel': 0,
 
   #FOCI FILTERING SETTINGS
