@@ -44,40 +44,49 @@ def fig_quick_antigen_6(
         # """
         # ~~~~Filters applied to df~~~~
         # """
-        # df = df[ df['traj_length']>=100 ]
-        raw_datas = df['raw_data'].unique()
+        df = df[ df['traj_length']>=20 ]
 
+        raw_datas = df['raw_data'].unique()
         for raw_data in raw_datas:
             curr_df = df[ df['raw_data']==raw_data ]
             DM_df = curr_df[ curr_df['subparticle_final_type']=='final_DM']
 
-            DM_num = DM_df['subparticle'].nunique()
+            DM_subtraj_num = DM_df['subparticle'].nunique()
+            DM_traj_num = DM_df['particle'].nunique()
+            traj_num = curr_df['particle'].nunique()
 
             frame_num = curr_df['frame'].nunique()
             tot_foci_num = len(curr_df)
             foci_num_mean = tot_foci_num / frame_num
 
-            traj_num = curr_df['particle'].nunique()
-
-            df.loc[df['raw_data']==raw_data, 'DM_num'] = DM_num
-            df.loc[df['raw_data']==raw_data, 'foci_num_mean'] = foci_num_mean
+            df.loc[df['raw_data']==raw_data, 'DM_subtraj_num'] = DM_subtraj_num
+            df.loc[df['raw_data']==raw_data, 'DM_traj_num'] = DM_traj_num
             df.loc[df['raw_data']==raw_data, 'traj_num'] = traj_num
-            df.loc[df['raw_data']==raw_data, 'DM_ratio1'] = DM_num / foci_num_mean
-            df.loc[df['raw_data']==raw_data, 'DM_ratio2'] = DM_num / traj_num
+            df.loc[df['raw_data']==raw_data, 'foci_num_mean'] = foci_num_mean
+
+            df.loc[df['raw_data']==raw_data, 'DM_traj_ratio1'] = DM_traj_num / foci_num_mean
+            df.loc[df['raw_data']==raw_data, 'DM_traj_ratio2'] = DM_traj_num / traj_num
+            df.loc[df['raw_data']==raw_data, 'DM_subtraj_ratio1'] = DM_subtraj_num / foci_num_mean
+            df.loc[df['raw_data']==raw_data, 'DM_subtraj_ratio2'] = DM_subtraj_num / traj_num
 
         # dfr is df_rawdata
-        dfr = df[['exp_label', 'raw_data', 'DM_num', 'foci_num_mean', 'traj_num',
-            'DM_ratio1', 'DM_ratio2']].drop_duplicates('raw_data')
+        dfr = df[['exp_label', 'raw_data', 'DM_subtraj_num', 'DM_traj_num',
+            'foci_num_mean', 'traj_num',
+            'DM_traj_ratio1', 'DM_traj_ratio2',
+            'DM_subtraj_ratio1', 'DM_subtraj_ratio2']].drop_duplicates('raw_data')
         dfr = dfr.reset_index(drop=True)
         print(dfr.to_string())
-        print( (dfr[['exp_label', 'DM_num', 'foci_num_mean', 'traj_num', 'DM_ratio1', 'DM_ratio2']].groupby(['exp_label'])).mean() )
+        print( ((dfr[['exp_label', 'DM_subtraj_num', 'DM_traj_num',
+            'foci_num_mean', 'traj_num',
+            'DM_traj_ratio1', 'DM_traj_ratio2',
+            'DM_subtraj_ratio1', 'DM_subtraj_ratio2']].groupby(['exp_label'])).mean()).to_string() )
 
 
     # """
 	# ~~~~Initialize the page layout~~~~
 	# """
     # Layout settings
-    col_num = 1
+    col_num = 3
     row_num = 1
     divide_index = [
         ]
@@ -228,26 +237,25 @@ def fig_quick_antigen_6(
     # """
 	# ~~~~Plot boxplot~~~~
 	# """
-    figs = [
-            axs[0],
-            ]
+    figs = axs
     datas = [
-            dfr,
+            dfr, dfr, dfr,
             ]
     data_cols = [
-            'DM_num',
+            'foci_num_mean', 'DM_traj_num', 'DM_traj_ratio1',
             ]
     palettes = [
-            p,
+            p, p, p, p, p, p, p, p,
             ]
     orders = [
+            ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'],
             ['MalOE', 'WT', 'MalKN'],
             ]
     xlabels = [
-            '',
+            '', '', '',
             ]
     ylabels = [
-            'Directional Motion Num',
+            'foci_num', 'DM_traj_num', r'$\frac{DM\_traj\_num}{foci\_num}$',
             ]
     for i, (fig, data, data_col, palette, order, xlabel, ylabel,) \
     in enumerate(zip(figs, datas, data_cols, palettes, orders, xlabels, ylabels,)):
@@ -263,8 +271,8 @@ def fig_quick_antigen_6(
                     boxprops=dict(alpha=RGBA_alpha, linewidth=1, edgecolor=(0,0,0)),
                     saturation=1,
                     fliersize=2,
-                    whis=[0, 100],
-                    # whis=1.5,
+                    # whis=[0, 100],
+                    whis=1.5,
                     )
 
         sns.swarmplot(ax=fig,
@@ -284,5 +292,5 @@ def fig_quick_antigen_6(
     # """
 	# ~~~~Save the figure into pdf file, preview the figure in webbrowser~~~~
 	# """
-    all_figures.savefig('/home/linhua/Desktop/DM_num.pdf', dpi=300)
+    all_figures.savefig('/home/linhua/Desktop/antigen-comparison.pdf', dpi=300)
     plt.clf(); plt.close()

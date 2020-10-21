@@ -12,16 +12,15 @@ control = [
 # 'phys_antigen_data',
 # 'plot_traj',
 # 'anim_traj',
-# 'merge_plot',
 
 # 'phys_antigen_data2',
-# 'plot_stub_hist',
 # 'classify_antigen',
 
+# 'plot_DM_subtraj',
+# 'plot_BM_subtraj',
+# 'plot_CM_subtraj',
+
 # 'plot_DM_traj',
-# 'plot_BM_traj',
-# 'plot_CM_traj',
-# 'merge_subparticles',
 
 'merge_plot',
 
