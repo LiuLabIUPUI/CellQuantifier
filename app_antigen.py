@@ -22,8 +22,7 @@ control = [
 
 # 'plot_DM_traj',
 
-'merge_plot',
-
+# 'merge_plot',
 
 ]
 

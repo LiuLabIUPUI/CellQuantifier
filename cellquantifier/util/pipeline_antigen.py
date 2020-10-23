@@ -832,22 +832,22 @@ class Pipeline3():
 
 	def plot_DM_subtraj(self):
 		self.plot_subtraj(subtype='DM',
-					sp_traj_len_thres=10,
-					sp_travel_dist_min=5,
+					sp_traj_len_thres=20,
+					sp_travel_dist_min=10,
 					show_traj_end=True,
 					anim_subtype=False,
 					)
 
 	def plot_BM_subtraj(self):
 		self.plot_subtraj(subtype='BM',
-					sp_traj_len_thres=20,
+					sp_traj_len_thres=10,
 					sp_travel_dist_max=5,
 					anim_subtype=False,
 					)
 
 	def plot_CM_subtraj(self):
 		self.plot_subtraj(subtype='CM',
-					sp_traj_len_thres=20,
+					sp_traj_len_thres=10,
 					sp_travel_dist_max=3,
 					anim_subtype=False,
 					)

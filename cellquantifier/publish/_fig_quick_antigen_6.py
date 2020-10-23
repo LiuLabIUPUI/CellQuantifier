@@ -81,16 +81,25 @@ def fig_quick_antigen_6(
             'DM_traj_ratio1', 'DM_traj_ratio2',
             'DM_subtraj_ratio1', 'DM_subtraj_ratio2']].groupby(['exp_label'])).mean()).to_string() )
 
+        # dfsp is df_subparticle
+        dfsp_CM = df[ df['subparticle_final_type']=='final_CM' ].drop_duplicates('subparticle')
+        dfsp_BM = df[ df['subparticle_final_type']=='final_BM' ].drop_duplicates('subparticle')
+        dfsp_DM = df[ df['subparticle_final_type']=='final_DM' ].drop_duplicates('subparticle')
+
+        print(dfsp_DM)
+        print(dfsp_BM)
+        print(dfsp_CM)
+
 
     # """
 	# ~~~~Initialize the page layout~~~~
 	# """
     # Layout settings
     col_num = 3
-    row_num = 1
+    row_num = 3
     divide_index = [
         ]
-    hidden_index = []
+    hidden_index = [3]
     # Sub_axs_1 settings
     col_num_s1 = 1
     row_num_s1 = 2
@@ -237,30 +246,51 @@ def fig_quick_antigen_6(
     # """
 	# ~~~~Plot boxplot~~~~
 	# """
-    figs = axs
+    figs = [
+            axs[0], axs[1], axs[2],
+            axs[4], axs[5],
+            axs[6], axs[7], axs[8],
+            ]
     datas = [
             dfr, dfr, dfr,
+            dfr, dfr,
+            dfsp_DM, dfsp_BM, dfsp_CM,
             ]
     data_cols = [
-            'foci_num_mean', 'DM_traj_num', 'DM_traj_ratio1',
+            'DM_traj_num', 'foci_num_mean', 'DM_traj_ratio1',
+            'traj_num', 'DM_traj_ratio2',
+            'subparticle_traj_length', 'subparticle_traj_length', 'subparticle_traj_length',
             ]
     palettes = [
-            p, p, p, p, p, p, p, p,
+            p, p, p, p, p, p, p, p, p,
             ]
     orders = [
+            ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'],
+            ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'],
+            ['MalOE', 'WT', 'MalKN'],
             ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'],
             ['MalOE', 'WT', 'MalKN'],
             ]
     xlabels = [
             '', '', '',
+            '', '',
+            '', '', '',
             ]
     ylabels = [
-            'foci_num', 'DM_traj_num', r'$\frac{DM\_traj\_num}{foci\_num}$',
+            'DM_traj_num', 'foci_num', r'$\frac{DM\_traj\_num}{foci\_num}$',
+            'traj_num', r'$\frac{DM\_traj\_num}{traj\_num}$',
+            'DM_lifetime', 'BM_lifetime', 'CM_lifetime',
             ]
     for i, (fig, data, data_col, palette, order, xlabel, ylabel,) \
     in enumerate(zip(figs, datas, data_cols, palettes, orders, xlabels, ylabels,)):
         print("\n")
         print("Plotting (%d/%d)" % (i+1, len(figs)))
+
+        if fig not in [axs[6], axs[7], axs[8]]:
+            filersize = 2
+        else:
+            filersize = 0
+
         sns.boxplot(ax=fig,
                     x='exp_label',
                     y=data_col,
@@ -270,24 +300,41 @@ def fig_quick_antigen_6(
                     linewidth=1,
                     boxprops=dict(alpha=RGBA_alpha, linewidth=1, edgecolor=(0,0,0)),
                     saturation=1,
-                    fliersize=2,
+                    fliersize=filersize,
                     # whis=[0, 100],
                     whis=1.5,
                     )
 
-        sns.swarmplot(ax=fig,
-                    x='exp_label',
-                    y=data_col,
-                    data=data,
-                    order=order,
-                    color="0",
-                    size=3,
-                    )
+
+        if fig not in [axs[6], axs[7], axs[8]]:
+            sns.swarmplot(ax=fig,
+                        x='exp_label',
+                        y=data_col,
+                        data=data,
+                        order=order,
+                        color="0",
+                        size=3,
+                        )
 
         set_xylabel(fig,
                     xlabel=xlabel,
                     ylabel=ylabel,
                     )
+
+    # Format scale
+    figs = [ axs[6], axs[7], axs[8] ]
+    xscales = [
+            [None, None], [None, None], [None, None],
+            ]
+    yscales = [
+            [18, 110], [8, 30], [8, 50],
+            ]
+    for i, (fig, xscale, yscale, ) \
+    in enumerate(zip(figs, xscales, yscales,)):
+        format_scale(fig,
+                xscale=xscale,
+                yscale=yscale,
+                )
 
     # """
 	# ~~~~Save the figure into pdf file, preview the figure in webbrowser~~~~
