@@ -46,6 +46,9 @@ def fig_quick_antigen_6(
         # """
         df = df[ df['traj_length']>=20 ]
 
+        df['subparticle_traj_length'] = df['subparticle_traj_length'] * 0.5
+        df['subparticle_travel_dist'] = df['subparticle_travel_dist'] * 0.163
+
         raw_datas = df['raw_data'].unique()
         for raw_data in raw_datas:
             curr_df = df[ df['raw_data']==raw_data ]
@@ -80,15 +83,17 @@ def fig_quick_antigen_6(
             'foci_num_mean', 'traj_num',
             'DM_traj_ratio1', 'DM_traj_ratio2',
             'DM_subtraj_ratio1', 'DM_subtraj_ratio2']].groupby(['exp_label'])).mean()).to_string() )
+        # prepare dfr for t-test
+        dfr_OEWT = dfr[ dfr['exp_label']!='MalKN' ]
+        dfr_WTKN = dfr[ dfr['exp_label']!='MalOE' ]
 
         # dfsp is df_subparticle
         dfsp_CM = df[ df['subparticle_final_type']=='final_CM' ].drop_duplicates('subparticle')
         dfsp_BM = df[ df['subparticle_final_type']=='final_BM' ].drop_duplicates('subparticle')
         dfsp_DM = df[ df['subparticle_final_type']=='final_DM' ].drop_duplicates('subparticle')
-
-        print(dfsp_DM)
-        print(dfsp_BM)
-        print(dfsp_CM)
+        # prepare dfsp for t-test
+        dfsp_DM_OEWT = dfsp_DM[ dfsp_DM['exp_label']!='MalKN' ]
+        dfsp_DM_WTKN = dfsp_DM[ dfsp_DM['exp_label']!='MalOE' ]
 
 
     # """
@@ -99,7 +104,7 @@ def fig_quick_antigen_6(
     row_num = 3
     divide_index = [
         ]
-    hidden_index = [3]
+    hidden_index = []
     # Sub_axs_1 settings
     col_num_s1 = 1
     row_num_s1 = 2
@@ -246,20 +251,16 @@ def fig_quick_antigen_6(
     # """
 	# ~~~~Plot boxplot~~~~
 	# """
-    figs = [
-            axs[0], axs[1], axs[2],
-            axs[4], axs[5],
-            axs[6], axs[7], axs[8],
-            ]
+    figs = axs
     datas = [
             dfr, dfr, dfr,
-            dfr, dfr,
-            dfsp_DM, dfsp_BM, dfsp_CM,
+            dfsp_DM, dfsp_DM, dfsp_DM,
+            dfsp_DM, dfsp_DM,
             ]
     data_cols = [
             'DM_traj_num', 'foci_num_mean', 'DM_traj_ratio1',
-            'traj_num', 'DM_traj_ratio2',
-            'subparticle_traj_length', 'subparticle_traj_length', 'subparticle_traj_length',
+            'subparticle_traj_length', 'subparticle_v', 'subparticle_travel_dist',
+            'subparticle_alpha', 'subparticle_dir_pers',
             ]
     palettes = [
             p, p, p, p, p, p, p, p, p,
@@ -267,29 +268,31 @@ def fig_quick_antigen_6(
     orders = [
             ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'],
             ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'],
-            ['MalOE', 'WT', 'MalKN'],
+            ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'],
             ['MalOE', 'WT', 'MalKN'], ['MalOE', 'WT', 'MalKN'],
             ['MalOE', 'WT', 'MalKN'],
             ]
     xlabels = [
             '', '', '',
-            '', '',
+            '', '', '',
             '', '', '',
             ]
     ylabels = [
             'DM_traj_num', 'foci_num', r'$\frac{DM\_traj\_num}{foci\_num}$',
-            'traj_num', r'$\frac{DM\_traj\_num}{traj\_num}$',
-            'DM_lifetime', 'BM_lifetime', 'CM_lifetime',
+            'DM_lifetime (s)', 'DM_velocity (nm/s)', 'DM_travel_distance (um)',
+            'DM_alpha', 'DM_directional_persistence',
             ]
     for i, (fig, data, data_col, palette, order, xlabel, ylabel,) \
     in enumerate(zip(figs, datas, data_cols, palettes, orders, xlabels, ylabels,)):
         print("\n")
         print("Plotting (%d/%d)" % (i+1, len(figs)))
 
-        if fig not in [axs[6], axs[7], axs[8]]:
+        if fig not in [axs[0], axs[1], axs[2]]:
             filersize = 2
+            swarmsize = 1.5
         else:
-            filersize = 0
+            filersize = 2
+            swarmsize = 3
 
         sns.boxplot(ax=fig,
                     x='exp_label',
@@ -305,36 +308,88 @@ def fig_quick_antigen_6(
                     whis=1.5,
                     )
 
-
-        if fig not in [axs[6], axs[7], axs[8]]:
-            sns.swarmplot(ax=fig,
-                        x='exp_label',
-                        y=data_col,
-                        data=data,
-                        order=order,
-                        color="0",
-                        size=3,
-                        )
+        sns.swarmplot(ax=fig,
+                    x='exp_label',
+                    y=data_col,
+                    data=data,
+                    order=order,
+                    color="0",
+                    size=swarmsize,
+                    )
 
         set_xylabel(fig,
                     xlabel=xlabel,
                     ylabel=ylabel,
                     )
 
-    # Format scale
-    figs = [ axs[6], axs[7], axs[8] ]
-    xscales = [
-            [None, None], [None, None], [None, None],
-            ]
-    yscales = [
-            [18, 110], [8, 30], [8, 50],
-            ]
-    for i, (fig, xscale, yscale, ) \
-    in enumerate(zip(figs, xscales, yscales,)):
-        format_scale(fig,
-                xscale=xscale,
-                yscale=yscale,
-                )
+    # # """
+	# # ~~~~Add t test~~~~
+	# # """
+    # figs = [
+    #         axs[0], axs[0],
+    #         axs[1], axs[1],
+    #         axs[2], axs[2],
+    #         axs[3], axs[3],
+    #         ]
+    # datas = [
+    #         dfr_OEWT, dfr_WTKN,
+    #         dfr_OEWT, dfr_WTKN,
+    #         dfr_OEWT, dfr_WTKN,
+    #         dfsp_DM_OEWT, dfsp_DM_WTKN,
+    #         ]
+    # data_cols = [
+    #         'DM_traj_num', 'DM_traj_num',
+    #         'foci_num_mean', 'foci_num_mean',
+    #         'DM_traj_ratio1', 'DM_traj_ratio1',
+    #         'subparticle_traj_length', 'subparticle_traj_length',
+    #         ]
+    # cat_cols = [
+    #         'exp_label', 'exp_label',
+    #         'exp_label', 'exp_label',
+    #         'exp_label', 'exp_label',
+    #         'exp_label', 'exp_label',
+    #         ]
+    # text_poss = [
+    #         (0.45, 0.8), (0.8, 0.75),
+    #         (0.45, 0.8), (0.8, 0.75),
+    #         (0.45, 0.8), (0.8, 0.75),
+    #         (0.45, 0.8), (0.8, 0.75),
+    #         ]
+    # for i, (fig, data, data_col, cat_col, text_pos, ) \
+    # in enumerate(zip(figs, datas, data_cols, cat_cols, text_poss, )):
+    #     print("\n")
+    #     print("Plotting (%d/%d)" % (i+1, len(figs)))
+    #
+    #     add_t_test(fig,
+    #                 blobs_df=data,
+    #                 cat_col=cat_col,
+    #                 hist_col=data_col,
+    #                 drop_duplicates=False,
+    #                 text_pos=text_pos,
+    #                 color=(0,0,0,1),
+    #                 fontname='Liberation Sans',
+    #                 fontweight=9,
+    #                 fontsize=9,
+    #                 horizontalalignment='right',
+    #                 format='general',
+    #                 )
+
+
+
+    # # Format scale
+    # figs = [ axs[6], axs[7], axs[8] ]
+    # xscales = [
+    #         [None, None], [None, None], [None, None],
+    #         ]
+    # yscales = [
+    #         [18, 110], [8, 30], [8, 50],
+    #         ]
+    # for i, (fig, xscale, yscale, ) \
+    # in enumerate(zip(figs, xscales, yscales,)):
+    #     format_scale(fig,
+    #             xscale=xscale,
+    #             yscale=yscale,
+    #             )
 
     # """
 	# ~~~~Save the figure into pdf file, preview the figure in webbrowser~~~~

@@ -796,6 +796,8 @@ class Pipeline3():
 			(phys_df['subparticle_travel_dist']<=sp_travel_dist_max)
 
 		phys_df.loc[select_index, 'subparticle_final_type'] = 'final_' + subtype
+		phys_df.loc[select_index, 'subparticle_v'] = \
+			(phys_df.loc[select_index, 'subparticle_D'] * 4) ** 0.5
 
 		phys_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData2.csv', index=False)
