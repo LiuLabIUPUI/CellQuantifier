@@ -14,3 +14,5 @@ from .speed import *
 from .local_D_alpha import *
 from .directional_persistence import *
 from ._classify_antigen import *
+from .stepsize import *
+from .constrain_length import *

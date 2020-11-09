@@ -3,7 +3,7 @@ import numpy as np
 
 def add_constrain_length(df, pixel_size):
     """
-    Add column to df: 'traj_length'
+    Add column to df: 'constrain_length'
 
     Parameters
     ----------
@@ -13,7 +13,7 @@ def add_constrain_length(df, pixel_size):
     Returns
     -------
     df: DataFrame
-        DataFrame with added 'traj_length' column
+        DataFrame with added 'constrain_length' column
     """
 
     # """
