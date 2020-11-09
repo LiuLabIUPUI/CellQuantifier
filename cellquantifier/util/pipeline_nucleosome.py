@@ -25,6 +25,7 @@ from ..util.config3 import Config
 from ..plot import *
 from ..plot import plot_phys_1 as plot_merged
 from ..phys.physutil import relabel_particles, merge_physdfs
+from ..publish import *
 
 
 def nonempty_exists_then_copy(input_path, output_path, filename):
@@ -1227,6 +1228,7 @@ class Pipeline3():
 		fig.savefig(self.config.OUTPUT_PATH + merged_name + '-mergedResults.pdf')
 
 		sys.exit()
+
 
 def get_root_name_list(settings_dict):
 	# Make a copy of settings_dict

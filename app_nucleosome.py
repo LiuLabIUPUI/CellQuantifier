@@ -35,8 +35,8 @@ settings = {
     'Det r_to_sigraw': 1,
 
   #IO
-  'IO input_path': '/home/linhua/Desktop/temp/',
-  'IO output_path': '/home/linhua/Desktop/temp/',
+  'IO input_path': '/home/linhua/Desktop/phys/',
+  'IO output_path': '/home/linhua/Desktop/phys/',
 
   #HEADER INFO
   'Processed By:': 'Hua Lin',
@@ -122,8 +122,8 @@ settings = {
 }
 
 """Part III: Run CellQuantifier"""
-# from cellquantifier.util.pipeline_nucleosome import *
-# pipeline_batch(settings, control)
+from cellquantifier.util.pipeline_nucleosome import *
+pipeline_batch(settings, control)
 
 # from cellquantifier.publish import *
 # import pandas as pd
@@ -206,8 +206,11 @@ settings = {
 # print(len(dfp_blm))
 # print(len(dfp_liv))
 
-import pandas as pd
-from cellquantifier.publish._fig_quick_merge5 import *
-df = pd.read_csv('/home/linhua/Desktop/temp/200925_NcUV0.5-physDataMerged.csv',
-                index_col=False)
-fig_quick_merge(df)
+# import pandas as pd
+# from cellquantifier.publish._fig_quick_merge5 import *
+# df = pd.read_csv('/home/linhua/Desktop/temp/200925_NcUV0.5-physDataMerged.csv',
+#                 index_col=False)
+# fig_quick_merge(df)
+
+from cellquantifier.publish import *
+fig_quick_nc()
