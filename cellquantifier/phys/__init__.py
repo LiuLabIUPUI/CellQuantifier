@@ -16,3 +16,4 @@ from .directional_persistence import *
 from ._classify_antigen import *
 from .stepsize import *
 from .constrain_length import *
+from .spring_constant import *
