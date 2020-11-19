@@ -213,4 +213,5 @@ pipeline_batch(settings, control)
 # fig_quick_merge(df)
 
 from cellquantifier.publish import *
-fig_quick_nc()
+# fig_quick_nc()
+fig_quick_nc2()
