@@ -86,7 +86,8 @@ def add_dist_to_boundary_batch(df, thres_masks):
     return df
 
 
-def add_dist_to_boundary_2(df, dist2boundary_mask):
+def add_dist_to_boundary_2(df, dist2boundary_mask,
+    col_name='dist_to_boundary'):
 
     """
     Label particles in a DataFrame based on dist2boundary_mask
@@ -107,12 +108,13 @@ def add_dist_to_boundary_2(df, dist2boundary_mask):
     for index in df.index:
         r = int(round(df.at[index, 'x']))
         c = int(round(df.at[index, 'y']))
-        df.at[index, 'dist_to_boundary'] = dist2boundary_mask[r, c]
+        df.at[index, col_name] = dist2boundary_mask[r, c]
 
     return df
 
 
-def add_dist_to_boundary_batch_2(df, dist2boundary_masks):
+def add_dist_to_boundary_batch_2(df, dist2boundary_masks,
+    col_name='dist_to_boundary'):
 
     """
     Label particles in a DataFrame based on dist2boundary_masks
@@ -137,6 +139,6 @@ def add_dist_to_boundary_batch_2(df, dist2boundary_masks):
         for index in curr_df.index:
             r = int(round(df.at[index, 'x']))
             c = int(round(df.at[index, 'y']))
-            df.at[index, 'dist_to_boundary'] = curr_dist2boundary_mask[r, c]
+            df.at[index, col_name] = curr_dist2boundary_mask[r, c]
 
     return df
