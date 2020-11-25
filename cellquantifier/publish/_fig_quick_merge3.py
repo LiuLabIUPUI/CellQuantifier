@@ -187,20 +187,36 @@ def fig_quick_merge(
         # ~~~~Filters applied to df~~~~
         # """
 
+        # # traj_length filter
+        # if 'traj_length' in df:
+        #     df = df[ df['traj_length']>=40 ]
+        #
+        # # """
+        # # ~~~~Divide df into sub_dfs~~~~
+        # # """
+        # dfp = df.drop_duplicates('particle')
+        # dfp_b = dfp[ dfp['exp_label']=='50NcLivingB' ]
+        # dfp_m = dfp[ dfp['exp_label']=='50NcLivingM' ]
+        # dfp_t = dfp[ dfp['exp_label']=='50NcLivingT' ]
+        #
+        # dfp_bm = dfp[ dfp['exp_label']!='50NcLivingT' ]
+        # dfp_mt = dfp[ dfp['exp_label']!='50NcLivingB' ]
+
+
         # traj_length filter
         if 'traj_length' in df:
-            df = df[ df['traj_length']>=40 ]
+            df = df[ df['traj_length']>=80 ]
 
         # """
         # ~~~~Divide df into sub_dfs~~~~
         # """
         dfp = df.drop_duplicates('particle')
-        dfp_b = dfp[ dfp['exp_label']=='50NcLivingB' ]
-        dfp_m = dfp[ dfp['exp_label']=='50NcLivingM' ]
-        dfp_t = dfp[ dfp['exp_label']=='50NcLivingT' ]
+        dfp_b = dfp[ dfp['exp_label']=='50NcFixed' ]
+        dfp_m = dfp[ dfp['exp_label']=='50NcFixed2' ]
+        dfp_t = dfp[ dfp['exp_label']=='FixedStackReg' ]
 
-        dfp_bm = dfp[ dfp['exp_label']!='50NcLivingT' ]
-        dfp_mt = dfp[ dfp['exp_label']!='50NcLivingB' ]
+        dfp_bm = dfp[ dfp['exp_label']!='FixedStackReg' ]
+        dfp_mt = dfp[ dfp['exp_label']!='50NcFixed' ]
 
 
     # """
@@ -220,7 +236,9 @@ def fig_quick_merge(
         'exp_label',
         ]
     orders = [
-        ['50NcLivingB', '50NcLivingM', '50NcLivingT',],
+        # ['50NcLivingB', '50NcLivingM', '50NcLivingT',],
+        ['50NcFixed2', '50NcFixed', 'FixedStackReg',],
+
         ]
 
     for i, (fig, data, palette, cat_col, order, ) \
@@ -382,9 +400,12 @@ def fig_quick_merge(
             axs_s1[3], axs_s1[4], axs_s1[5],
             ]
     xscales = [
-            [-0.05, 1.05],
-            [0, 15000], [0,15000], [0, 15000],
-            [0, 1], [0, 1], [0, 1],
+            # [-0.05, 1.05],
+            # [0, 15000], [0,15000], [0, 15000],
+            # [0, 1], [0, 1], [0, 1],
+            [None, None],
+            [0, 5000], [0,5000], [0, 5000],
+            [0, 0.4], [0, 0.4], [0, 0.4],
             ]
     yscales = [
             [None, None],
