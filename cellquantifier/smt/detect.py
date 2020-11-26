@@ -182,7 +182,7 @@ def detect_blobs(pims_frame,
 	pk_min = blobs_df['peak'].min()
 	# slope_pk = (pk_max - pk_min) / (r_min - r_max)
 	# intersect_pk = pk_max - slope_pk * r_min
-	
+
 	mass_max = blobs_df['mass'].max()
 	mass_min = blobs_df['mass'].min()
 	# slope_mass = (mass_max - mass_min) / (r_min - r_max)
@@ -218,36 +218,103 @@ def detect_blobs(pims_frame,
 
 	plt_array = []
 	if diagnostic:
-		fig, ax = plt.subplots(2, 2, figsize=(12,12))
+		# fig, ax = plt.subplots(2, 2, figsize=(12,12))
+		#
+		# # """
+		# # ~~~~~~~~~~~~~~~~~~~~~~~~~~Annotate the blobs~~~~~~~~~~~~~~~~~~~~~~~~~~
+		# # """
+		# ax[0][0].imshow(frame, cmap="gray", aspect='equal')
+		# anno_blob(ax[0][0], blobs_df_nofilter, marker=blob_marker, markersize=blob_markersize,
+		# 		plot_r=plot_r, color=blob_markercolor)
+		# ax[0][0].text(0.95,
+		# 		0.05,
+		# 		"Foci_num before filter: %d" %(len(blobs_df_nofilter)),
+		# 		horizontalalignment='right',
+		# 		verticalalignment='bottom',
+		# 		fontsize = 12,
+		# 		color = (0.5, 0.5, 0.5, 0.5),
+		# 		transform=ax[0][0].transAxes,
+		# 		weight = 'bold',
+		# 		)
+		#
+		# ax[0][1].imshow(frame, cmap="gray", aspect='equal')
+		# anno_blob(ax[0][1], blobs_df, marker=blob_marker, markersize=blob_markersize,
+		# 		plot_r=plot_r, color=blob_markercolor)
+		# ax[0][1].text(0.95,
+		# 		0.05,
+		# 		"Foci_num after filter: %d" %(len(blobs_df)),
+		# 		horizontalalignment='right',
+		# 		verticalalignment='bottom',
+		# 		fontsize = 12,
+		# 		color = (0.5, 0.5, 0.5, 0.5),
+		# 		transform=ax[0][1].transAxes,
+		# 		weight = 'bold',
+		# 		)
+		#
+		# # """
+		# # ~~~~~~~~~~~~~~~~~~~Annotate ground truth if needed~~~~~~~~~~~~~~~~~~~
+		# # """
+		# if isinstance(truth_df, pd.DataFrame):
+		# 	anno_scatter(ax[0][0], truth_df, marker='o', color=(0,1,0,0.8))
+		#
+		# # """
+		# # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~Add scale bar~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		# # """
+		# font = {'family': 'arial', 'weight': 'bold','size': 16}
+		# scalebar = ScaleBar(pixel_size, 'um', location = 'upper right',
+		# 	font_properties=font, box_color = 'black', color='white')
+		# scalebar.length_fraction = .3
+		# scalebar.height_fraction = .025
+		# ax[0][0].add_artist(scalebar)
+		#
+		# # """
+		# # ~~~~Plot foci in parameter space~~~~
+		# # """
+		# x2, y2 = blobs_df_nofilter['r'], blobs_df_nofilter['peak']
+		# ax[1][0].scatter(x2, y2, marker='^', c=[(0,0,1)])
+		#
+		# x3, y3 = blobs_df_nofilter['r'], blobs_df_nofilter['mass']
+		# ax[1][1].scatter(x3, y3, marker='^', c=[(0,0,1)])
+		#
+		# delta_sig = (max_sig-min_sig) * 0.1
+		# x2_thres = np.linspace(min_sig-delta_sig, max_sig+delta_sig, 50) * r_to_sigraw
+		# # y2_thres = (slope_pk * x2_thres + intersect_pk) * peak_r_rel
+		# y2_peak = x2_thres / x2_thres * peak_thres_abs
+		# # ax[1][0].plot(x2_thres, y2_thres, '--', c=(0,0,0,0.8), linewidth=3)
+		# ax[1][0].plot(x2_thres, y2_peak, '--', c=(0,0,0,0.8), linewidth=3)
+		# ax[1][0].set_xlabel('r')
+		# ax[1][0].set_ylabel('peak')
+		# delta_pk = (pk_max-pk_min)*0.1
+		# ax[1][0].set_ylim(0, pk_max+delta_pk)
+		#
+		# x3_thres = np.linspace(min_sig-delta_sig, max_sig+delta_sig, 50) * r_to_sigraw
+		# # y3_thres = (slope_mass * x3_thres + intersect_mass) * mass_r_rel
+		# y3_peak = x3_thres / x3_thres * mass_thres_abs
+		# # ax[1][1].plot(x3_thres, y3_thres, '--', c=(0,0,0,0.8), linewidth=3)
+		# ax[1][1].plot(x3_thres, y3_peak, '--', c=(0,0,0,0.8), linewidth=3)
+		# ax[1][1].set_xlabel('r')
+		# ax[1][1].set_ylabel('mass')
+		# delta_mass = (mass_max-mass_min)*0.1
+		# ax[1][1].set_ylim(0, mass_max+delta_mass)
+		#
+		# plt_array = plot_end(fig, pltshow)
+
+		fig, ax = plt.subplots(figsize=(6,6))
 
 		# """
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~Annotate the blobs~~~~~~~~~~~~~~~~~~~~~~~~~~
 		# """
-		ax[0][0].imshow(frame, cmap="gray", aspect='equal')
-		anno_blob(ax[0][0], blobs_df_nofilter, marker=blob_marker, markersize=blob_markersize,
+		ax.imshow(frame, cmap="gray", aspect='equal')
+		anno_blob(ax, blobs_df_nofilter, marker=blob_marker, markersize=blob_markersize,
 				plot_r=plot_r, color=blob_markercolor)
-		ax[0][0].text(0.95,
+		ax.text(0.95,
 				0.05,
-				"Foci_num before filter: %d" %(len(blobs_df_nofilter)),
+				"Foci_num: %d" %(len(blobs_df_nofilter)),
 				horizontalalignment='right',
 				verticalalignment='bottom',
 				fontsize = 12,
 				color = (0.5, 0.5, 0.5, 0.5),
-				transform=ax[0][0].transAxes,
-				weight = 'bold',
-				)
-
-		ax[0][1].imshow(frame, cmap="gray", aspect='equal')
-		anno_blob(ax[0][1], blobs_df, marker=blob_marker, markersize=blob_markersize,
-				plot_r=plot_r, color=blob_markercolor)
-		ax[0][1].text(0.95,
-				0.05,
-				"Foci_num after filter: %d" %(len(blobs_df)),
-				horizontalalignment='right',
-				verticalalignment='bottom',
-				fontsize = 12,
-				color = (0.5, 0.5, 0.5, 0.5),
-				transform=ax[0][1].transAxes,
+				transform=ax.transAxes,
 				weight = 'bold',
 				)
 
@@ -255,7 +322,7 @@ def detect_blobs(pims_frame,
 		# ~~~~~~~~~~~~~~~~~~~Annotate ground truth if needed~~~~~~~~~~~~~~~~~~~
 		# """
 		if isinstance(truth_df, pd.DataFrame):
-			anno_scatter(ax[0][0], truth_df, marker='o', color=(0,1,0,0.8))
+			anno_scatter(ax, truth_df, marker='o', color=(0,1,0,0.8))
 
 		# """
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~Add scale bar~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -265,37 +332,7 @@ def detect_blobs(pims_frame,
 			font_properties=font, box_color = 'black', color='white')
 		scalebar.length_fraction = .3
 		scalebar.height_fraction = .025
-		ax[0][0].add_artist(scalebar)
-
-		# """
-		# ~~~~Plot foci in parameter space~~~~
-		# """
-		x2, y2 = blobs_df_nofilter['r'], blobs_df_nofilter['peak']
-		ax[1][0].scatter(x2, y2, marker='^', c=[(0,0,1)])
-
-		x3, y3 = blobs_df_nofilter['r'], blobs_df_nofilter['mass']
-		ax[1][1].scatter(x3, y3, marker='^', c=[(0,0,1)])
-
-		delta_sig = (max_sig-min_sig) * 0.1
-		x2_thres = np.linspace(min_sig-delta_sig, max_sig+delta_sig, 50) * r_to_sigraw
-		# y2_thres = (slope_pk * x2_thres + intersect_pk) * peak_r_rel
-		y2_peak = x2_thres / x2_thres * peak_thres_abs
-		# ax[1][0].plot(x2_thres, y2_thres, '--', c=(0,0,0,0.8), linewidth=3)
-		ax[1][0].plot(x2_thres, y2_peak, '--', c=(0,0,0,0.8), linewidth=3)
-		ax[1][0].set_xlabel('r')
-		ax[1][0].set_ylabel('peak')
-		delta_pk = (pk_max-pk_min)*0.1
-		ax[1][0].set_ylim(0, pk_max+delta_pk)
-
-		x3_thres = np.linspace(min_sig-delta_sig, max_sig+delta_sig, 50) * r_to_sigraw
-		# y3_thres = (slope_mass * x3_thres + intersect_mass) * mass_r_rel
-		y3_peak = x3_thres / x3_thres * mass_thres_abs
-		# ax[1][1].plot(x3_thres, y3_thres, '--', c=(0,0,0,0.8), linewidth=3)
-		ax[1][1].plot(x3_thres, y3_peak, '--', c=(0,0,0,0.8), linewidth=3)
-		ax[1][1].set_xlabel('r')
-		ax[1][1].set_ylabel('mass')
-		delta_mass = (mass_max-mass_min)*0.1
-		ax[1][1].set_ylim(0, mass_max+delta_mass)
+		ax.add_artist(scalebar)
 
 		plt_array = plot_end(fig, pltshow)
 
