@@ -26,6 +26,7 @@ from ..plot import plot_phys_1 as plot_merged
 from ..phys.physutil import relabel_particles, merge_physdfs
 
 from ..publish._fig_quick_antigen_6 import *
+from ..publish._fig_quick_lifetimes import *
 
 class Config():
 
@@ -115,6 +116,7 @@ def nonempty_exists_then_copy(input_path, output_path, filename):
 
 	if not_empty and exists_in_input:
 		frames = imread(input_path + filename)
+		frames = frames / frames.max()
 		frames = img_as_ubyte(frames)
 		imsave(output_path + filename, frames)
 
@@ -141,6 +143,7 @@ class Pipeline3():
 		else:
 			frames = imread(self.config.INPUT_PATH + self.config.ROOT_NAME + '-raw.tif')
 
+		frames = frames / frames.max()
 		frames = img_as_ubyte(frames)
 		imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-raw.tif', frames)
 
@@ -253,7 +256,7 @@ class Pipeline3():
 									truth_df=None)
 
 		blobs_df = blobs_df.apply(pd.to_numeric)
-		blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+		blobs_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-detData.csv', index=False)
 
 
@@ -290,7 +293,7 @@ class Pipeline3():
 
 		psf_df = psf_df.apply(pd.to_numeric)
 		psf_df['slope'] = psf_df['A'] / (9 * np.pi * psf_df['sig_x'] * psf_df['sig_y'])
-		psf_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+		psf_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-fittData.csv', index=False)
 
 		# foci_prop_hist_fig = plot_foci_prop_hist(psf_df)
@@ -430,7 +433,7 @@ class Pipeline3():
 		else:
 			blobs_df = self.track_blobs_twice()
 			self.print_filt_traj_num(blobs_df)
-			blobs_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+			blobs_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 										'-physData.csv', index=False)
 
 		self.config.save_config()
@@ -488,14 +491,14 @@ class Pipeline3():
 			cb_min, cb_max, cb_major_ticker, cb_minor_ticker = None, None, None, None
 
 
-		# # """
-		# # ~~~~~~~~Prepare the boundary_masks~~~~~~~~
-		# # """
-		# if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif'):
-		# 	boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
-		# 	boundary_masks = boundary_masks // 255
-		# else:
-		# 	boundary_masks = self.get_boundary_mask()
+		# """
+		# ~~~~~~~~Prepare the boundary_masks~~~~~~~~
+		# """
+		if osp.exists(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif'):
+			boundary_masks = imread(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-boundaryMask.tif')
+			boundary_masks = boundary_masks // 255
+		else:
+			boundary_masks = self.get_boundary_mask()
 
 
 		fig, ax = plt.subplots()
@@ -517,9 +520,9 @@ class Pipeline3():
 
 					show_particle_label=False,
 
-					# show_boundary=True,
-					# boundary_mask=boundary_masks[0],
-					# boundary_list=self.config.DICT['Sort dist_to_boundary'],
+					show_boundary=True,
+					boundary_mask=boundary_masks[0],
+					boundary_list=self.config.DICT['Sort dist_to_boundary'],
 					)
 		fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-all-trajs.pdf', dpi=300)
 		plt.clf(); plt.close()
@@ -639,7 +642,7 @@ class Pipeline3():
 			dist2boundary_masks = get_dist2boundary_mask_batch(boundary_masks)
 
 		phys_df = add_dist_to_boundary_batch_2(phys_df, dist2boundary_masks)
-		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+		phys_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
 	def phys_antigen_data(self):
@@ -655,7 +658,7 @@ class Pipeline3():
 
 		phys_df = add_antigen_data(phys_df, sorters=self.config.SORTERS)
 
-		phys_df.round(6).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+		phys_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
 						'-physData.csv', index=False)
 
 	def phys_antigen_data2(self):
@@ -1059,6 +1062,83 @@ class Pipeline3():
 		#
 		# sys.exit()
 
+	def plot_lifetime(self):
+		phys_df = pd.read_csv(self.config.OUTPUT_PATH + \
+					self.config.ROOT_NAME + '-physData.csv')
+
+		lifetime_fig = plot_lifetime(phys_df, self.config.FILTERS['TRAJ_LEN_THRES'])
+		lifetime_fig.savefig(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
+					'-lifetime.pdf', dpi=300)
+
+
+	def merge_physdata(self):
+
+		today = str(date.today().strftime("%y%m%d"))
+
+		print("######################################")
+		print("Merge and PlotMSD")
+		print("######################################")
+
+		merged_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
+		print(merged_files)
+
+		if len(merged_files) > 1:
+			print("######################################")
+			print("Found multiple physDataMerged file!!!")
+			print("######################################")
+			return
+
+		if len(merged_files) == 1:
+			phys_df = pd.read_csv(merged_files[0])
+
+		else:
+			phys_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physData.csv')))
+			print("######################################")
+			print("Total number of physData to be merged: %d" % len(phys_files))
+			print("######################################")
+			print(phys_files)
+
+			if len(phys_files) > 1:
+				ind = 1
+				tot = len(phys_files)
+				phys_df = merge_physdfs(phys_files, mode='general')
+			else:
+				phys_df = pd.read_csv(phys_files[0])
+
+			print("######################################")
+			print("Rename particles...")
+			print("######################################")
+			phys_df['particle'] = phys_df['raw_data'] + phys_df['particle'].apply(str)
+			phys_df.round(3).to_csv(self.config.OUTPUT_PATH + today + \
+							'-physDataMerged.csv', index=False)
+
+		sys.exit()
+
+	def publish_lifetimes(self):
+
+		today = str(date.today().strftime("%y%m%d"))
+
+		merged_files = np.array(sorted(glob(self.config.OUTPUT_PATH + '/*physDataMerged.csv')))
+		print(merged_files)
+
+		if len(merged_files) > 1:
+			print("######################################")
+			print("Found multiple physDataMerged file!!!")
+			print("######################################")
+			return
+
+		if len(merged_files) == 1:
+			phys_df = pd.read_csv(merged_files[0])
+
+		else:
+			print("######################################")
+			print("No physDataMerged file!!!")
+			print("######################################")
+			sys.exit()
+
+		fig_quick_lifetimes(phys_df, self.config.FILTERS['TRAJ_LEN_THRES'])
+
+		sys.exit()
 
 def get_root_name_list(settings_dict):
 	# Make a copy of settings_dict
