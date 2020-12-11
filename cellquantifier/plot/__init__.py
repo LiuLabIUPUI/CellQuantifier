@@ -11,3 +11,4 @@ from .plot_stiffness import *
 from .plot_stiffness_ctr import *
 from .plot_stiffness_kinetics import *
 from .plot_stub_prop_hist import *
+from .plot_lifetime import *
