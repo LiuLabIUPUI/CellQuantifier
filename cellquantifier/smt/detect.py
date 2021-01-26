@@ -29,6 +29,8 @@ def detect_blobs(pims_frame,
 				mass_r_rel=0,
 
 				r_to_sigraw=3,
+
+				show_scalebar=True,
 				pixel_size =0.1084,
 
 				diagnostic=True,
@@ -327,12 +329,13 @@ def detect_blobs(pims_frame,
 		# """
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~Add scale bar~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		# """
-		font = {'family': 'arial', 'weight': 'bold','size': 16}
-		scalebar = ScaleBar(pixel_size, 'um', location = 'upper right',
-			font_properties=font, box_color = 'black', color='white')
-		scalebar.length_fraction = .3
-		scalebar.height_fraction = .025
-		ax.add_artist(scalebar)
+		if show_scalebar:
+			font = {'family': 'arial', 'weight': 'bold','size': 16}
+			scalebar = ScaleBar(pixel_size, 'um', location = 'upper right',
+				font_properties=font, box_color = 'black', color='white')
+			scalebar.length_fraction = .3
+			scalebar.height_fraction = .025
+			ax.add_artist(scalebar)
 
 		plt_array = plot_end(fig, pltshow)
 
@@ -352,6 +355,7 @@ def detect_blobs_batch(pims_frames,
 			peak_r_rel=0,
 			mass_r_rel=0,
 			r_to_sigraw=3,
+			show_scalebar=True,
 			pixel_size = 108.4,
 			diagnostic=False,
 			pltshow=False,
@@ -417,6 +421,7 @@ def detect_blobs_batch(pims_frames,
 					   peak_r_rel=peak_r_rel,
 					   mass_r_rel=mass_r_rel,
 					   r_to_sigraw=r_to_sigraw,
+					   show_scalebar=show_scalebar,
 					   pixel_size=pixel_size,
 					   diagnostic=diagnostic,
 					   pltshow=pltshow,
