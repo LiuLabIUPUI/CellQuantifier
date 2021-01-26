@@ -307,11 +307,11 @@ def detect_blobs(pims_frame,
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~Annotate the blobs~~~~~~~~~~~~~~~~~~~~~~~~~~
 		# """
 		ax.imshow(frame, cmap="gray", aspect='equal')
-		anno_blob(ax, blobs_df_nofilter, marker=blob_marker, markersize=blob_markersize,
+		anno_blob(ax, blobs_df, marker=blob_marker, markersize=blob_markersize,
 				plot_r=plot_r, color=blob_markercolor)
 		ax.text(0.95,
 				0.05,
-				"Foci_num: %d" %(len(blobs_df_nofilter)),
+				"Foci_num: %d" %(len(blobs_df)),
 				horizontalalignment='right',
 				verticalalignment='bottom',
 				fontsize = 12,
