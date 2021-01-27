@@ -1,5 +1,5 @@
 import pims; import pandas as pd; import numpy as np
-import os
+import os; import os.path as osp; import ast
 from datetime import date, datetime
 from skimage.io import imread, imsave
 from skimage.util import img_as_ubyte, img_as_int
@@ -54,7 +54,7 @@ class Pipe():
 				show_scalebar=False,
 				pixel_size=10**9,
 				diagnostic=True,
-				pltshow=True,
+				pltshow=False,
 				plot_r=True,
 				truth_df=None)
 
@@ -71,6 +71,9 @@ class Pipe():
 				pltshow=False,
 				plot_r=False,
 				truth_df=None)
+
+		blobs_df.round(3).to_csv(self.settings['Output path'] + self.root_name + \
+						'-detData.csv', index=False)
 
 		masks_blob = blobs_df_to_mask(frames, blobs_df)
 
@@ -115,8 +118,18 @@ def get_root_name_list(settings_dict):
 
 	return np.array(sorted(root_name_list))
 
+def analMeta_to_dict(analMeta_path):
+	df = pd.read_csv(analMeta_path, header=None, index_col=0, na_filter=False)
+	df = df.rename(columns={1:'value'})
+	srs = df['value']
 
-def pipe_batch(settings_dict, control_list):
+	dict = {}
+	for key in srs.index:
+		try: dict[key] = ast.literal_eval(srs[key])
+		except: dict[key] = srs[key]
+	return dict
+
+def pipe_batch(settings_dict, control_list, load_configFile=False):
 
 	root_name_list = get_root_name_list(settings_dict)
 
@@ -131,6 +144,15 @@ def pipe_batch(settings_dict, control_list):
 		ind = ind + 1
 		print("\n")
 		print("Processing (%d/%d): %s" % (ind, tot, root_name))
+
+		# If load_config==True, then load existing config file
+		if Load_configFile:
+			existing_settings = analMeta_to_dict(settings_dict['Input path'] + \
+							root_name + '-config-blobMask.csv')
+			existing_settings['Input path']= settings_dict['Input path']
+			existing_settings['Output path'] = settings_dict['Output path']
+			settings_dict = existing_settings
+			print(settings_dict)
 
 		pipe = Pipe(settings_dict, control_list, root_name)
 		for func in control_list:

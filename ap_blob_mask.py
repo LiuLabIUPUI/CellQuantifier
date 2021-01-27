@@ -9,13 +9,13 @@ control = [
 settings = {
 
   #GENERAL INFO
-  'Input path': '/home/linhua/Desktop/input/',
-  'Output path': '/home/linhua/Desktop/output/',
+  'Input path': '/home/linhua/Desktop/XXXX/',
+  'Output path': '/home/linhua/Desktop/XXXX/',
   'Processed by:': 'Hua Lin',
   'Str in filename': '.tif',
   'Strs not in filename': ['Mask','temp'],
 
-  #MASK_BOUNDARY SETTINGS
+  #BLOB MASK SETTINGS
   'Mask blob_thres_rel': 0.1,
   'Mask blob_min_sigma': 3,
   'Mask blob_max_sigma': 5,
@@ -26,4 +26,4 @@ settings = {
 
 """Part III: Run CellQuantifier"""
 from cellquantifier.util.pipe_blob_mask import *
-pipe_batch(settings, control)
+pipe_batch(settings, control, load_configFile=False)
