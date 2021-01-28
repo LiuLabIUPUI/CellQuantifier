@@ -117,3 +117,73 @@ def add_spring_constant(df, pixel_size,
                 plt.show()
 
     return df
+
+
+def add_xy_spring_constant(df, pixel_size):
+    """
+    Add column to df: 'spring_constant'
+    The unit is Kb*T/(nm2)
+    reference: https://doi.org/10.1016/j.tig.2019.06.007
+
+    Parameters
+    ----------
+    df : DataFrame
+        DataFrame containing 'x', 'y', 'frame', 'particle'
+
+    Returns
+    -------
+    df: DataFrame
+        DataFrame with added 'x_spring_constant', 'y_spring_constant' column
+    """
+
+    # """
+	# ~~~~Initialize df~~~~
+	# """
+    df = df.sort_values(['particle', 'frame'])
+    for col in ['spring_constant', 'spring_intercept']:
+        if col in df:
+            df = df.drop(col, axis=1)
+
+    print(len(df))
+
+    # """
+	# ~~~~calculate x_spring_constant~~~~
+	# """
+    x_mean = (df.groupby('particle')['x'].transform(pd.Series.mean))
+    df['X_t'] = (df['x'] - x_mean) * pixel_size
+    print(len(df['X_t']))
+
+    delta_x = (df.groupby('particle')['x'].apply(pd.Series.diff))
+    delta_frame = (df.groupby('particle')['frame'].apply(pd.Series.diff))
+    df['adjacent_frame'] = delta_frame==1
+    Y_t = delta_x * pixel_size
+    df['Y_t'] = Y_t[ df['adjacent_frame'] ]
+    print(len(df['Y_t']))
+
+    coef = df.groupby('particle').apply(model1)
+    intercept = df.groupby('particle').apply(model2)
+    df['x_spring_constant'] = coef.to_numpy()
+    # df['x_spring_intercept'] = intercept.to_numpy()
+    print(len(df['x_spring_constant']))
+
+    # """
+	# ~~~~calculate y_spring_constant~~~~
+	# """
+    y_mean = (df.groupby('particle')['y'].transform(pd.Series.mean))
+    df['X_t'] = (df['y'] - y_mean) * pixel_size
+    print(len(df['X_t']))
+
+    delta_y = (df.groupby('particle')['y'].apply(pd.Series.diff))
+    delta_frame = (df.groupby('particle')['frame'].apply(pd.Series.diff))
+    df['adjacent_frame'] = delta_frame==1
+    Y_t = delta_y * pixel_size
+    df['Y_t'] = Y_t[ df['adjacent_frame'] ]
+    print(len(df['Y_t']))
+
+    coef = df.groupby('particle').apply(model1)
+    intercept = df.groupby('particle').apply(model2)
+    df['y_spring_constant'] = coef.to_numpy()
+    # df['y_spring_intercept'] = intercept.to_numpy()
+    print(len(df['y_spring_constant']))
+
+    return df.drop(['X_t', 'Y_t', 'adjacent_frame'], axis=1)
