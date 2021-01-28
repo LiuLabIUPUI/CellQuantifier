@@ -40,4 +40,4 @@ def add_constrain_length(df, pixel_size):
     print(len(constrain_length))
     df['constrain_length'] = constrain_length
 
-    return df
+    return df.drop(['dx2', 'dy2'], axis=1)

@@ -16,12 +16,34 @@ df_bmt = df_bmt[ df_bmt['traj_length']>=40 ]
 df_uv1 = df_uv1[ df_uv1['traj_length']>=80 ]
 df_uv2 = df_uv2[ df_uv2['traj_length']>=80 ]
 
+# Filter alpha<0 trajectories
+df_all = df_all[ df_all['alpha']>=0 ]
+df_bm = df_bm[ df_bm['alpha']>=0 ]
+df_bmt = df_bmt[ df_bmt['alpha']>=0 ]
+df_uv1 = df_uv1[ df_uv1['alpha']>=0 ]
+df_uv2 = df_uv2[ df_uv2['alpha']>=0 ]
+
 # Drop duplicate value of same particle
 dfp_all = df_all.drop_duplicates('particle')
 dfp_bm = df_bm.drop_duplicates('particle')
 dfp_bmt = df_bmt.drop_duplicates('particle')
 dfp_uv1 = df_uv1.drop_duplicates('particle')
 dfp_uv2 = df_uv2.drop_duplicates('particle')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

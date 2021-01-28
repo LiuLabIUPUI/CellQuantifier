@@ -27,4 +27,4 @@ def add_stepsize(df, pixel_size):
     df['adjacent_frame'] = delta_frame==1
     df['stepsize'] = stepsize[ df['adjacent_frame'] ]
 
-    return df
+    return df.drop(['dx', 'dy', 'adjacent_frame'], axis=1)
