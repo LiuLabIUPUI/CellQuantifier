@@ -25,7 +25,7 @@ class Pipe():
 		settings_df = pd.DataFrame.from_dict(data=self.settings, orient='index')
 		settings_df = settings_df.drop(['Input path', 'Output path'])
 		settings_df.to_csv(self.settings['Output path'] + self.root_name + \
-				'-config-blobMask.csv', header=False)
+				'-config-colocal.csv', header=False)
 
 	def dilate_Ch1_mask(self):
 		if self.settings['Ch1 label'] in self.root_name:
