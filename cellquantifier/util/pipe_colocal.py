@@ -61,7 +61,6 @@ class Pipe():
 					'-blobMask-dilate.tif')
 
 			Ch2_label = self.root_name
-			Ch2_label = Ch2_label
 			Ch2_label = Ch2_label[:-len(self.settings['Ch1 label'])]
 			Ch2_label = Ch2_label + self.settings['Ch2 label']
 			Ch2_mask = imread(self.settings['Input path'] + Ch2_label + \
@@ -73,6 +72,8 @@ class Pipe():
 			colocalmap[:, :, 0] = Ch2_mask / Ch2_mask.max()
 			colocalmap[:, :, 1] = Ch1_dilate / Ch1_dilate.max()
 
+			Ch1_blob_df = pd.read_csv(self.settings['Input path'] + \
+				self.root_name + '-detData.csv')
 			Ch2_blob_df = pd.read_csv(self.settings['Input path'] + \
 				Ch2_label + '-detData.csv')
 
@@ -84,12 +85,14 @@ class Pipe():
 					Ch2_overlap_num = Ch2_overlap_num + 1
 
 			Ch2_overlap_ratio = Ch2_overlap_num / len(Ch2_blob_df)
+			Ch1_overlap_ratio = Ch2_overlap_num / len(Ch1_blob_df)
 
 			fig, ax = plt.subplots(figsize=(6,6))
 			ax.imshow(colocalmap)
 			ax.text(0.95,
 					0.05,
-					"OVA overlap ratio: %.2f" %(Ch2_overlap_ratio),
+					"OVA overlap ratio: %.2f\nMHC1 overlap ratio: %.2f" \
+					%(Ch2_overlap_ratio, Ch1_overlap_ratio),
 					horizontalalignment='right',
 					verticalalignment='bottom',
 					fontsize = 12,
@@ -97,7 +100,7 @@ class Pipe():
 					transform=ax.transAxes,
 					weight = 'bold',
 					)
-			# plt.show()
+
 			fig.savefig(self.settings['Output path'] + self.root_name + \
 				'-colocalmap.pdf')
 			plt.clf(); plt.close()
