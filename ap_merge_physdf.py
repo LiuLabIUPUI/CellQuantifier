@@ -15,7 +15,7 @@ settings = {
   'Str in filename': 'physData.csv',
   'Strs not in filename': ['physDataMerged.csv'],
 
-  #MERGE_PHYSDF SETTINGS
+  #SETTINGS
   'Merge mode': 'general',
 
 }

@@ -15,7 +15,7 @@ settings = {
   'Str in filename': '.tif',
   'Strs not in filename': ['Mask','temp'],
 
-  #BLOB MASK SETTINGS
+  #SETTINGS
   'Mask blob_thres_rel': 0.1,
   'Mask blob_min_sigma': 3,
   'Mask blob_max_sigma': 5,

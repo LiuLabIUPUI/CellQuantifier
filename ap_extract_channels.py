@@ -15,7 +15,7 @@ settings = {
   'Str in filename': '.tif',
   'Strs not in filename': ['-mhc1', '-ova'],
 
-  #COLOCAL SETTINGS
+  #SETTINGS
   'Period (frames)': 4,
   'Ch1 index': 3,
   'Ch1 label': '-mhc1',

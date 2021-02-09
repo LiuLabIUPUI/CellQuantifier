@@ -15,7 +15,7 @@ settings = {
   'Str in filename': '.tif',
   'Strs not in filename': ['blobMask', 'mask'],
 
-  #COLOCAL SETTINGS
+  #SETTINGS
   'Mask postfix': '-blobMask.tif',
 
 }

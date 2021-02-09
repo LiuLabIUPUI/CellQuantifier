@@ -16,7 +16,7 @@ settings = {
   'Str in filename': '.tif',
   'Strs not in filename': ['Mask','temp', 'colocalmap', 'mask'],
 
-  #COLOCAL SETTINGS
+  #SETTINGS
   'Ch1 label': '-mhc1',
   'Ch2 label': '-ova',
   'Ch1 mask dilation pixel': 1,
