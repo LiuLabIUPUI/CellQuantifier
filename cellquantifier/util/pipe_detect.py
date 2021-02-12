@@ -20,35 +20,36 @@ class Pipe():
 		settings_df = pd.DataFrame.from_dict(data=self.settings, orient='index')
 		settings_df = settings_df.drop(['Input path', 'Output path'])
 		settings_df.to_csv(self.settings['Output path'] + self.root_name + \
-				'-config-detect.csv', header=False)
+				'-config-detect-frame' + str(self.settings['Frame number'])+ '.csv',
+				header=False)
 
-	def check_detect(self):
-
-		print("######################################")
-		print("Check detection")
-		print("######################################")
-
-		check_frame_ind = [0, 50, 100, 150, 200]
-
-		frames = pims.open(self.settings['Input path'] + self.root_name + \
-									'.tif')
-
-		for ind in check_frame_ind:
-			blobs_df, det_plt_array = detect_blobs(frames[ind],
-										min_sig=self.settings['Blob_min_sigma'],
-										max_sig=self.settings['Blob_max_sigma'],
-										num_sig=self.settings['Blob_num_sigma'],
-										blob_thres_rel=self.settings['Blob_thres_rel'],
-										overlap=0,
-
-										peak_thres_rel=self.settings['Blob_pk_thresh_rel'],
-										r_to_sigraw=1,
-										pixel_size=self.settings['Pixel size'],
-
-										diagnostic=True,
-										pltshow=True,
-										plot_r=True,
-										truth_df=None)
+	# def check_detect(self):
+	#
+	# 	print("######################################")
+	# 	print("Check detection")
+	# 	print("######################################")
+	#
+	# 	check_frame_ind = [0, 50, 100, 150, 200]
+	#
+	# 	frames = pims.open(self.settings['Input path'] + self.root_name + \
+	# 								'.tif')
+	#
+	# 	for ind in check_frame_ind:
+	# 		blobs_df, det_plt_array = detect_blobs(frames[ind],
+	# 									min_sig=self.settings['Blob_min_sigma'],
+	# 									max_sig=self.settings['Blob_max_sigma'],
+	# 									num_sig=self.settings['Blob_num_sigma'],
+	# 									blob_thres_rel=self.settings['Blob_thres_rel'],
+	# 									overlap=0,
+	#
+	# 									peak_thres_rel=self.settings['Blob_pk_thresh_rel'],
+	# 									r_to_sigraw=1,
+	# 									pixel_size=self.settings['Pixel size'],
+	#
+	# 									diagnostic=True,
+	# 									pltshow=True,
+	# 									plot_r=True,
+	# 									truth_df=None)
 
 	def detect(self):
 
@@ -56,47 +57,40 @@ class Pipe():
 		print("Detect")
 		print("######################################")
 
-		frames = pims.open(self.config.OUTPUT_PATH + \
-				self.config.ROOT_NAME + '-raw.tif')
+		frames = pims.open(self.settings['Output path'] + self.root_name + \
+				'.tif')
 
-		blobs_df, det_plt_array = detect_blobs_batch(frames,
-									min_sig=self.config.MIN_SIGMA,
-									max_sig=self.config.MAX_SIGMA,
-									num_sig=self.config.NUM_SIGMA,
-									blob_thres_rel=self.config.THRESHOLD,
-									overlap=0,
+		ind = self.settings['Frame number']
 
-									peak_thres_rel=self.config.PEAK_THRESH_REL,
+		blobs_df, det_plt_array = detect_blobs(frames[ind],
+									min_sig=self.settings['Blob_min_sigma'],
+									max_sig=self.settings['Blob_max_sigma'],
+									num_sig=self.settings['Blob_num_sigma'],
+									blob_thres_rel=self.settings['Blob_thres_rel'],
+									overlap=0.5,
+
+									peak_thres_rel=self.settings['Blob_pk_thresh_rel'],
 									r_to_sigraw=1,
-									pixel_size=self.config.PIXEL_SIZE,
+									pixel_size=self.settings['Pixel size'],
 
-									diagnostic=False,
-									pltshow=False,
+									diagnostic=True,
+									pltshow=True,
 									plot_r=False,
 									truth_df=None)
 
 		blobs_df = blobs_df.apply(pd.to_numeric)
-		blobs_df.round(3).to_csv(self.config.OUTPUT_PATH + self.config.ROOT_NAME + \
-						'-detData.csv', index=False)
+		blobs_df.round(3).to_csv(self.settings['Output path'] + self.root_name + \
+				'-detData-frame' + str(self.settings['Frame number']) + '.csv',
+				index=False)
 
-
-		det_plt_array = anim_blob(blobs_df, frames,
-									pixel_size=self.config.PIXEL_SIZE,
-									blob_markersize=5,
-									)
-		try:
-			imsave(self.config.OUTPUT_PATH + self.config.ROOT_NAME + '-detVideo.tif', det_plt_array)
-		except:
-			pass
-
-		self.config.save_config()
+		self.save_config()
 
 
 
 def get_root_name_list(settings_dict):
 	settings = settings_dict.copy()
 	root_name_list = []
-	path_list = glob(settings['Input path'] + '*' + \
+	path_list = glob.glob(settings['Input path'] + '*' + \
 		settings['Str in filename'])
 	for path in path_list:
 		filename = path.split('/')[-1]
