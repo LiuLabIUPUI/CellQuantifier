@@ -20,7 +20,7 @@ class Pipe():
 		settings_df = pd.DataFrame.from_dict(data=self.settings, orient='index')
 		settings_df = settings_df.drop(['Input path', 'Output path'])
 		settings_df.to_csv(self.settings['Output path'] + self.root_name + \
-				'-config-colocal.csv', header=False)
+				'-config-extractCh.csv', header=False)
 
 	def extract_channels(self):
 		period = self.settings['Period (frames)']

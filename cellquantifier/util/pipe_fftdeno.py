@@ -24,7 +24,7 @@ class Pipe():
 		settings_df = pd.DataFrame.from_dict(data=self.settings, orient='index')
 		settings_df = settings_df.drop(['Input path', 'Output path'])
 		settings_df.to_csv(self.settings['Output path'] + self.root_name + \
-				'-config-colocal.csv', header=False)
+				'-config-fftdeno.csv', header=False)
 
 	def fft_denoise(self):
 		frames = imread(self.settings['Input path'] + self.root_name + \
