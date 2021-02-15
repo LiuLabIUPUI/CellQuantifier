@@ -122,6 +122,8 @@ def fit_psf(pims_frame,
                             (y0_refined - y0)**2) ** 0.5
             df.at[i, 'sigx_to_sigraw'] = sig_x / sig_raw
             df.at[i, 'sigy_to_sigraw'] = sig_y / sig_raw
+            mean = df.at[i, 'mean']
+            df.at[i, 'slope'] = (A - mean)/ (9 * np.pi * sig_x * sig_y)
 
             # """
             # ~~~~~~~~Count the good fitting number with virtual filters~~~~~~~~
@@ -141,7 +143,7 @@ def fit_psf(pims_frame,
             good_fitting_num/len(blobs_df)))
     except:
         pass
-        
+
     psf_df = df
 
     # """
