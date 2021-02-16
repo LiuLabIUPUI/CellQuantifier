@@ -14,7 +14,8 @@ def fit_psf(pims_frame,
             diagnostic=True,
             pltshow=True,
             diag_max_dist_err=1,
-            diag_max_sig_to_sigraw = 3,
+            diag_max_sig_to_sigraw=3,
+            diag_min_slope=0,
             truth_df=None,
             segm_df=None):
     """
@@ -77,7 +78,7 @@ def fit_psf(pims_frame,
     df = pd.DataFrame([], columns=['frame', 'x_raw', 'y_raw', 'r', 'sig_raw',
             'peak', 'mass', 'mean', 'std',
             'A', 'x', 'y', 'sig_x', 'sig_y', 'phi',
-            'area', 'dist_err', 'sigx_to_sigraw', 'sigy_to_sigraw'])
+            'area', 'dist_err', 'sigx_to_sigraw', 'sigy_to_sigraw', 'slope'])
 
     df['frame'] = blobs_df['frame'].to_numpy()
     df['x_raw'] = blobs_df['x'].to_numpy()
@@ -110,6 +111,8 @@ def fit_psf(pims_frame,
             sig_y = p[4]
             phi = p[5]
             sig_raw = df.at[i, 'sig_raw']
+            min = df.at[i, 'mean']
+            slope = (A - mean)/ (9 * np.pi * sig_x * sig_y)
             df.at[i, 'A'] = A
             df.at[i, 'x'] = x0_refined
             df.at[i, 'y'] = y0_refined
@@ -122,8 +125,7 @@ def fit_psf(pims_frame,
                             (y0_refined - y0)**2) ** 0.5
             df.at[i, 'sigx_to_sigraw'] = sig_x / sig_raw
             df.at[i, 'sigy_to_sigraw'] = sig_y / sig_raw
-            mean = df.at[i, 'mean']
-            df.at[i, 'slope'] = (A - mean)/ (9 * np.pi * sig_x * sig_y)
+            df.at[i, 'slope'] = slope
 
             # """
             # ~~~~~~~~Count the good fitting number with virtual filters~~~~~~~~
@@ -132,7 +134,8 @@ def fit_psf(pims_frame,
             if (x0_refined - x0)**2 + (y0_refined - y0)**2 \
                     < (diag_max_dist_err)**2 \
             and sig_x < sig_raw * diag_max_sig_to_sigraw \
-            and sig_y < sig_raw * diag_max_sig_to_sigraw :
+            and sig_y < sig_raw * diag_max_sig_to_sigraw \
+            and slope > diag_min_slope:
                 good_fitting_num = good_fitting_num + 1
         except:
             pass
@@ -168,6 +171,7 @@ def fit_psf(pims_frame,
         df_filt.loc['sigx_to_sigraw'] = len(f1)
         f1 = f1[ f1['sigy_to_sigraw']<diag_max_sig_to_sigraw ]
         df_filt.loc['sigy_to_sigraw'] = len(f1)
+        f1 = f1[ f1['slope']>diag_min_slope ]
 
         # """
 	    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Show the img~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -229,6 +233,7 @@ def fit_psf_batch(pims_frames,
             pltshow=False,
             diag_max_dist_err=1,
             diag_max_sig_to_sigraw = 3,
+            diag_min_slope=0,
             truth_df=None,
             segm_df=None):
     """
@@ -264,7 +269,7 @@ def fit_psf_batch(pims_frames,
     df = pd.DataFrame([], columns=['frame', 'x_raw', 'y_raw', 'r', 'sig_raw',
             'peak', 'mass', 'mean', 'std',
             'A', 'x', 'y', 'sig_x', 'sig_y', 'phi',
-            'area', 'dist_err', 'sigx_to_sigraw', 'sigy_to_sigraw'])
+            'area', 'dist_err', 'sigx_to_sigraw', 'sigy_to_sigraw', 'slope'])
     plt_array = []
 
     # """
@@ -290,6 +295,7 @@ def fit_psf_batch(pims_frames,
                        blobs_df=current_blobs_df,
                        diag_max_dist_err=diag_max_dist_err,
                        diag_max_sig_to_sigraw = diag_max_sig_to_sigraw,
+                       diag_min_slope=diag_min_slope,
                        diagnostic=diagnostic,
                        pltshow=pltshow,
                        truth_df=curr_truth_df,
