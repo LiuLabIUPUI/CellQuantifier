@@ -339,56 +339,56 @@ df_y_spring_constant.round(3).to_csv('/home/linhua/Desktop/y_spring_constant.csv
 # """
 # ~~~~~~~~
 # """
-stepsize_200NcBLM = pd.DataFrame(dfp_200Nc.loc[ dfp_200Nc['exp_label']=='200NcBLM', 'stepsize'].to_numpy(), columns=['200NcBLM'])
-stepsize_200NcLiving = pd.DataFrame(dfp_200Nc.loc[ dfp_200Nc['exp_label']=='200NcLiving', 'stepsize'].to_numpy(), columns=['200NcLiving'])
+stepsize_200NcBLM = pd.DataFrame(df_200Nc.loc[ df_200Nc['exp_label']=='200NcBLM', 'stepsize'].to_numpy(), columns=['200NcBLM'])
+stepsize_200NcLiving = pd.DataFrame(df_200Nc.loc[ df_200Nc['exp_label']=='200NcLiving', 'stepsize'].to_numpy(), columns=['200NcLiving'])
 
-stepsize_50NcBLM_53bp1 = pd.DataFrame(dfp_all.loc[ (dfp_all['exp_label']=='50NcBLM') &
-            (dfp_all['sort_flag_53bp1']==True) ,
+stepsize_50NcBLM_53bp1 = pd.DataFrame(df_all.loc[ (df_all['exp_label']=='50NcBLM') &
+            (df_all['sort_flag_53bp1']==True) ,
             'stepsize'].to_numpy(), columns=['50NcBLM_53bp1'])
-stepsize_50NcBLM_non53bp1 = pd.DataFrame(dfp_all.loc[ (dfp_all['exp_label']=='50NcBLM') &
-            (dfp_all['sort_flag_53bp1']==False) ,
+stepsize_50NcBLM_non53bp1 = pd.DataFrame(df_all.loc[ (df_all['exp_label']=='50NcBLM') &
+            (df_all['sort_flag_53bp1']==False) ,
             'stepsize'].to_numpy(), columns=['50NcBLM_non53bp1'])
-stepsize_50NcBLM_boundary = pd.DataFrame(dfp_all.loc[ (dfp_all['exp_label']=='50NcBLM') &
-            (dfp_all['sort_flag_boundary']==True) ,
+stepsize_50NcBLM_boundary = pd.DataFrame(df_all.loc[ (df_all['exp_label']=='50NcBLM') &
+            (df_all['sort_flag_boundary']==True) ,
             'stepsize'].to_numpy(), columns=['50NcBLM_boundary'])
-stepsize_50NcBLM_nonboundary = pd.DataFrame(dfp_all.loc[ (dfp_all['exp_label']=='50NcBLM') &
-            (dfp_all['sort_flag_boundary']==False) ,
+stepsize_50NcBLM_nonboundary = pd.DataFrame(df_all.loc[ (df_all['exp_label']=='50NcBLM') &
+            (df_all['sort_flag_boundary']==False) ,
             'stepsize'].to_numpy(), columns=['50NcBLM_nonboundary'])
-stepsize_50NcLiving_53bp1 = pd.DataFrame(dfp_all.loc[ (dfp_all['exp_label']=='50NcLiving') &
-            (dfp_all['sort_flag_53bp1']==True) ,
+stepsize_50NcLiving_53bp1 = pd.DataFrame(df_all.loc[ (df_all['exp_label']=='50NcLiving') &
+            (df_all['sort_flag_53bp1']==True) ,
             'stepsize'].to_numpy(), columns=['50NcLiving_53bp1'])
-stepsize_50NcLiving_non53bp1 = pd.DataFrame(dfp_all.loc[ (dfp_all['exp_label']=='50NcLiving') &
-            (dfp_all['sort_flag_53bp1']==False) ,
+stepsize_50NcLiving_non53bp1 = pd.DataFrame(df_all.loc[ (df_all['exp_label']=='50NcLiving') &
+            (df_all['sort_flag_53bp1']==False) ,
             'stepsize'].to_numpy(), columns=['50NcLiving_non53bp1'])
-stepsize_50NcLiving_boundary = pd.DataFrame(dfp_all.loc[ (dfp_all['exp_label']=='50NcLiving') &
-            (dfp_all['sort_flag_boundary']==True) ,
+stepsize_50NcLiving_boundary = pd.DataFrame(df_all.loc[ (df_all['exp_label']=='50NcLiving') &
+            (df_all['sort_flag_boundary']==True) ,
             'stepsize'].to_numpy(), columns=['50NcLiving_boundary'])
-stepsize_50NcLiving_nonboundary = pd.DataFrame(dfp_all.loc[ (dfp_all['exp_label']=='50NcLiving') &
-            (dfp_all['sort_flag_boundary']==False) ,
+stepsize_50NcLiving_nonboundary = pd.DataFrame(df_all.loc[ (df_all['exp_label']=='50NcLiving') &
+            (df_all['sort_flag_boundary']==False) ,
             'stepsize'].to_numpy(), columns=['50NcLiving_nonboundary'])
 
-stepsize_50NcBLM = pd.DataFrame(dfp_all.loc[ dfp_all['exp_label']=='50NcBLM', 'stepsize'].to_numpy(), columns=['50NcBLM'])
-stepsize_50NcLiving = pd.DataFrame(dfp_all.loc[ dfp_all['exp_label']=='50NcLiving', 'stepsize'].to_numpy(), columns=['50NcLiving'])
-stepsize_50NcMOCK = pd.DataFrame(dfp_all.loc[ dfp_all['exp_label']=='50NcMOCK', 'stepsize'].to_numpy(), columns=['50NcMOCK'])
-stepsize_50NcATP = pd.DataFrame(dfp_all.loc[ dfp_all['exp_label']=='50NcATP', 'stepsize'].to_numpy(), columns=['50NcATP'])
-stepsize_50NcFixed = pd.DataFrame(dfp_all.loc[ dfp_all['exp_label']=='50NcFixed', 'stepsize'].to_numpy(), columns=['50NcFixed'])
-stepsize_50NcLivingB200708 = pd.DataFrame(dfp_bm.loc[ dfp_bm['exp_label']=='B', 'stepsize'].to_numpy(), columns=['50NcLivingB200708'])
-stepsize_50NcLivingM200708 = pd.DataFrame(dfp_bm.loc[ dfp_bm['exp_label']=='M', 'stepsize'].to_numpy(), columns=['50NcLivingM200708'])
-stepsize_50NcLivingB200810 = pd.DataFrame(dfp_bmt.loc[ dfp_bmt['exp_label']=='50NcLivingB', 'stepsize'].to_numpy(), columns=['50NcLivingB200810'])
-stepsize_50NcLivingM200810 = pd.DataFrame(dfp_bmt.loc[ dfp_bmt['exp_label']=='50NcLivingM', 'stepsize'].to_numpy(), columns=['50NcLivingM200810'])
-stepsize_50NcLivingT200810 = pd.DataFrame(dfp_bmt.loc[ dfp_bmt['exp_label']=='50NcLivingT', 'stepsize'].to_numpy(), columns=['50NcLivingT200810'])
-stepsize_NcUV1s200813 = pd.DataFrame(dfp_uv1.loc[ dfp_uv1['exp_label']=='NcUV1s', 'stepsize'].to_numpy(), columns=['NcUV1s200813'])
-stepsize_NcUV10s200813 = pd.DataFrame(dfp_uv1.loc[ dfp_uv1['exp_label']=='NcUV10s', 'stepsize'].to_numpy(), columns=['NcUV10s200813'])
-stepsize_NcUV20s200813 = pd.DataFrame(dfp_uv1.loc[ dfp_uv1['exp_label']=='NcUV20s', 'stepsize'].to_numpy(), columns=['NcUV20s200813'])
-stepsize_NcUV30s200813 = pd.DataFrame(dfp_uv1.loc[ dfp_uv1['exp_label']=='NcUV30s', 'stepsize'].to_numpy(), columns=['NcUV30s200813'])
-stepsize_NcUV40s200813 = pd.DataFrame(dfp_uv1.loc[ dfp_uv1['exp_label']=='NcUV40s', 'stepsize'].to_numpy(), columns=['NcUV40s200813'])
-stepsize_NcUVCTL200925 = pd.DataFrame(dfp_uv2.loc[ dfp_uv2['exp_label']=='NcUVCTL', 'stepsize'].to_numpy(), columns=['NcUVCTL200925'])
-stepsize_NcUVhalfs200925 = pd.DataFrame(dfp_uv2.loc[ dfp_uv2['exp_label']=='NcUV0.5', 'stepsize'].to_numpy(), columns=['NcUV0.5s200925'])
-stepsize_NcUV1s200925 = pd.DataFrame(dfp_uv2.loc[ dfp_uv2['exp_label']=='NcUV1s', 'stepsize'].to_numpy(), columns=['NcUV1s200925'])
-stepsize_NcUV2s200925 = pd.DataFrame(dfp_uv2.loc[ dfp_uv2['exp_label']=='NcUV2s', 'stepsize'].to_numpy(), columns=['NcUV2s200925'])
-stepsize_NcUV3s200925 = pd.DataFrame(dfp_uv2.loc[ dfp_uv2['exp_label']=='NcUV3s', 'stepsize'].to_numpy(), columns=['NcUV3s200925'])
-stepsize_NcUV5s200925 = pd.DataFrame(dfp_uv2.loc[ dfp_uv2['exp_label']=='NcUV5s', 'stepsize'].to_numpy(), columns=['NcUV5s200925'])
-stepsize_NcUV7s200925 = pd.DataFrame(dfp_uv2.loc[ dfp_uv2['exp_label']=='NcUV7s', 'stepsize'].to_numpy(), columns=['NcUV7s200925'])
+stepsize_50NcBLM = pd.DataFrame(df_all.loc[ df_all['exp_label']=='50NcBLM', 'stepsize'].to_numpy(), columns=['50NcBLM'])
+stepsize_50NcLiving = pd.DataFrame(df_all.loc[ df_all['exp_label']=='50NcLiving', 'stepsize'].to_numpy(), columns=['50NcLiving'])
+stepsize_50NcMOCK = pd.DataFrame(df_all.loc[ df_all['exp_label']=='50NcMOCK', 'stepsize'].to_numpy(), columns=['50NcMOCK'])
+stepsize_50NcATP = pd.DataFrame(df_all.loc[ df_all['exp_label']=='50NcATP', 'stepsize'].to_numpy(), columns=['50NcATP'])
+stepsize_50NcFixed = pd.DataFrame(df_all.loc[ df_all['exp_label']=='50NcFixed', 'stepsize'].to_numpy(), columns=['50NcFixed'])
+stepsize_50NcLivingB200708 = pd.DataFrame(df_bm.loc[ df_bm['exp_label']=='B', 'stepsize'].to_numpy(), columns=['50NcLivingB200708'])
+stepsize_50NcLivingM200708 = pd.DataFrame(df_bm.loc[ df_bm['exp_label']=='M', 'stepsize'].to_numpy(), columns=['50NcLivingM200708'])
+stepsize_50NcLivingB200810 = pd.DataFrame(df_bmt.loc[ df_bmt['exp_label']=='50NcLivingB', 'stepsize'].to_numpy(), columns=['50NcLivingB200810'])
+stepsize_50NcLivingM200810 = pd.DataFrame(df_bmt.loc[ df_bmt['exp_label']=='50NcLivingM', 'stepsize'].to_numpy(), columns=['50NcLivingM200810'])
+stepsize_50NcLivingT200810 = pd.DataFrame(df_bmt.loc[ df_bmt['exp_label']=='50NcLivingT', 'stepsize'].to_numpy(), columns=['50NcLivingT200810'])
+stepsize_NcUV1s200813 = pd.DataFrame(df_uv1.loc[ df_uv1['exp_label']=='NcUV1s', 'stepsize'].to_numpy(), columns=['NcUV1s200813'])
+stepsize_NcUV10s200813 = pd.DataFrame(df_uv1.loc[ df_uv1['exp_label']=='NcUV10s', 'stepsize'].to_numpy(), columns=['NcUV10s200813'])
+stepsize_NcUV20s200813 = pd.DataFrame(df_uv1.loc[ df_uv1['exp_label']=='NcUV20s', 'stepsize'].to_numpy(), columns=['NcUV20s200813'])
+stepsize_NcUV30s200813 = pd.DataFrame(df_uv1.loc[ df_uv1['exp_label']=='NcUV30s', 'stepsize'].to_numpy(), columns=['NcUV30s200813'])
+stepsize_NcUV40s200813 = pd.DataFrame(df_uv1.loc[ df_uv1['exp_label']=='NcUV40s', 'stepsize'].to_numpy(), columns=['NcUV40s200813'])
+stepsize_NcUVCTL200925 = pd.DataFrame(df_uv2.loc[ df_uv2['exp_label']=='NcUVCTL', 'stepsize'].to_numpy(), columns=['NcUVCTL200925'])
+stepsize_NcUVhalfs200925 = pd.DataFrame(df_uv2.loc[ df_uv2['exp_label']=='NcUV0.5', 'stepsize'].to_numpy(), columns=['NcUV0.5s200925'])
+stepsize_NcUV1s200925 = pd.DataFrame(df_uv2.loc[ df_uv2['exp_label']=='NcUV1s', 'stepsize'].to_numpy(), columns=['NcUV1s200925'])
+stepsize_NcUV2s200925 = pd.DataFrame(df_uv2.loc[ df_uv2['exp_label']=='NcUV2s', 'stepsize'].to_numpy(), columns=['NcUV2s200925'])
+stepsize_NcUV3s200925 = pd.DataFrame(df_uv2.loc[ df_uv2['exp_label']=='NcUV3s', 'stepsize'].to_numpy(), columns=['NcUV3s200925'])
+stepsize_NcUV5s200925 = pd.DataFrame(df_uv2.loc[ df_uv2['exp_label']=='NcUV5s', 'stepsize'].to_numpy(), columns=['NcUV5s200925'])
+stepsize_NcUV7s200925 = pd.DataFrame(df_uv2.loc[ df_uv2['exp_label']=='NcUV7s', 'stepsize'].to_numpy(), columns=['NcUV7s200925'])
 
 df_stepsize = pd.concat([
     stepsize_200NcBLM, stepsize_200NcLiving,
