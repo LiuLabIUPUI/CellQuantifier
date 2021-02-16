@@ -6,6 +6,7 @@ import glob
 import sys
 
 from ..smt.detect import detect_blobs, detect_blobs_batch
+from ..smt.fit_psf import fit_psf, fit_psf_batch
 
 class Pipe():
 
@@ -75,8 +76,18 @@ class Pipe():
 
 									diagnostic=True,
 									pltshow=True,
-									plot_r=False,
+									plot_r=True,
 									truth_df=None)
+
+		blobs_df, fit_plt_array = fit_psf(frames[ind],
+		            blobs_df,
+		            diagnostic=True,
+		            pltshow=True,
+		            diag_max_dist_err=1,
+		            diag_max_sig_to_sigraw=3,
+					diag_min_slope=0.2,
+		            truth_df=None,
+		            segm_df=blobs_df)
 
 		blobs_df = blobs_df.apply(pd.to_numeric)
 		blobs_df.round(3).to_csv(self.settings['Output path'] + self.root_name + \
