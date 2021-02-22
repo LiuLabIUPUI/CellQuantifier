@@ -16,6 +16,7 @@ def fit_psf(pims_frame,
             diag_max_dist_err=1,
             diag_max_sig_to_sigraw=3,
             diag_min_slope=0,
+            diag_min_mass=0,
             truth_df=None,
             segm_df=None):
     """
@@ -111,8 +112,9 @@ def fit_psf(pims_frame,
             sig_y = p[4]
             phi = p[5]
             sig_raw = df.at[i, 'sig_raw']
-            min = df.at[i, 'mean']
-            slope = (A - mean)/ (9 * np.pi * sig_x * sig_y)
+            mean = df.at[i, 'mean']
+            mass = df.at[i, 'mass']
+            slope = (A - mean) / (9 * np.pi * sig_x * sig_y)
             df.at[i, 'A'] = A
             df.at[i, 'x'] = x0_refined
             df.at[i, 'y'] = y0_refined
@@ -135,7 +137,8 @@ def fit_psf(pims_frame,
                     < (diag_max_dist_err)**2 \
             and sig_x < sig_raw * diag_max_sig_to_sigraw \
             and sig_y < sig_raw * diag_max_sig_to_sigraw \
-            and slope > diag_min_slope:
+            and slope > diag_min_slope \
+            and mass > diag_min_mass:
                 good_fitting_num = good_fitting_num + 1
         except:
             pass
@@ -234,6 +237,7 @@ def fit_psf_batch(pims_frames,
             diag_max_dist_err=1,
             diag_max_sig_to_sigraw = 3,
             diag_min_slope=0,
+            diag_min_mass=0,
             truth_df=None,
             segm_df=None):
     """
@@ -296,6 +300,7 @@ def fit_psf_batch(pims_frames,
                        diag_max_dist_err=diag_max_dist_err,
                        diag_max_sig_to_sigraw = diag_max_sig_to_sigraw,
                        diag_min_slope=diag_min_slope,
+                       diag_min_mass=diag_min_mass,
                        diagnostic=diagnostic,
                        pltshow=pltshow,
                        truth_df=curr_truth_df,
