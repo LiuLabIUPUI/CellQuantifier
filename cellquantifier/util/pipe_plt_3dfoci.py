@@ -30,17 +30,33 @@ class Pipe():
 		Ch2_df = pd.read_csv(self.settings['Input path'] + self.root_name + \
 				self.settings['Ch2 detData label'])
 
+		min_f = self.settings['Min frame number']
+		Ch1_df = Ch1_df[ Ch1_df['frame']>=self.settings['Min frame number'] ]
+		Ch2_df = Ch2_df[ Ch2_df['frame']>=self.settings['Min frame number'] ]
+
+		if self.settings['If plot even layer only']:
+			select_frames = Ch1_df.drop_duplicates('frame')['frame'].sort_values().to_numpy()
+			print(select_frames[::2])
+			Ch1_df = Ch1_df[ Ch1_df['frame'].isin(select_frames[::2])]
+			Ch2_df = Ch2_df[ Ch2_df['frame'].isin(select_frames[::2])]
+
 		fig = plt.figure()
 		ax = fig.add_subplot(111, projection='3d')
-		ax.scatter(Ch1_df['x'], Ch1_df['y'], Ch1_df['frame'], marker='o',
-				s=Ch1_df['r']**2, c=[[0,1,0]], alpha=1)
-		ax.scatter(Ch2_df['x'], Ch2_df['y'], Ch2_df['frame'], marker='o',
-				s=Ch2_df['r']**2, c=[[1,0,0]], alpha=1)
+		ax.scatter(Ch1_df['x']*self.settings['Pixel size'],
+				Ch1_df['y']*self.settings['Pixel size'],
+				Ch1_df['frame']*self.settings['Z stack size'],
+				marker='o',
+				s=Ch1_df['r']**2, c=[[0,0,0]], alpha=0.5)
+		ax.scatter(Ch2_df['x']*self.settings['Pixel size'],
+				Ch2_df['y']*self.settings['Pixel size'],
+				Ch2_df['frame']*self.settings['Z stack size'],
+				marker='o',
+				s=Ch2_df['r']**2, c=[[1,0,0]], alpha=0.5)
 		# ax.axis("off")
-		ax.grid(False)
-		ax.set_xticks([])
-		ax.set_yticks([])
-		ax.set_zticks([])
+		ax.grid(True)
+		# ax.set_xticks([])
+		# ax.set_yticks([])
+		# ax.set_zticks([])
 		plt.show()
 
 		# # """
