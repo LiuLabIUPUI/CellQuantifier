@@ -146,7 +146,7 @@ def pipe_batch(settings_dict, control_list, load_configFile=False):
 		print("Processing (%d/%d): %s" % (ind, tot, root_name))
 
 		# If load_config==True, then load existing config file
-		if Load_configFile:
+		if load_configFile:
 			existing_settings = analMeta_to_dict(settings_dict['Input path'] + \
 							root_name + '-config-blobMask.csv')
 			existing_settings['Input path']= settings_dict['Input path']
