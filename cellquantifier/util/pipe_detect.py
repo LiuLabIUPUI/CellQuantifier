@@ -4,9 +4,13 @@ import os
 from datetime import date, datetime
 import glob
 import sys
+import matplotlib.pyplot as plt
 
 from ..smt.detect import detect_blobs, detect_blobs_batch
 from ..smt.fit_psf import fit_psf, fit_psf_batch
+from ..plot.plotutil import anno_blob
+from ..deno import filter, filter_batch
+from ..video import anim_blob
 
 class Pipe():
 
@@ -60,38 +64,118 @@ class Pipe():
 
 		frames = pims.open(self.settings['Output path'] + self.root_name + \
 				'.tif')
-
 		ind = self.settings['Frame number']
 
-		blobs_df, det_plt_array = detect_blobs(frames[ind],
-									min_sig=self.settings['Blob_min_sigma'],
-									max_sig=self.settings['Blob_max_sigma'],
-									num_sig=self.settings['Blob_num_sigma'],
-									blob_thres_rel=self.settings['Blob_thres_rel'],
-									overlap=0.5,
+		# for ind in self.settings['Frame number']:
+		frame = frames[ind]
+		blobs_df, det_plt_array = detect_blobs(frame,
+					min_sig=self.settings['Blob_min_sigma'],
+					max_sig=self.settings['Blob_max_sigma'],
+					num_sig=self.settings['Blob_num_sigma'],
+					blob_thres_rel=self.settings['Blob_thres_rel'],
+					overlap=0.5,
 
-									peak_thres_rel=self.settings['Blob_pk_thresh_rel'],
-									r_to_sigraw=1,
-									pixel_size=self.settings['Pixel size'],
+					peak_thres_rel=self.settings['Blob_pk_thresh_rel'],
+					r_to_sigraw=1,
+					pixel_size=self.settings['Pixel size'],
 
-									diagnostic=True,
-									pltshow=True,
-									plot_r=True,
-									truth_df=None)
+					diagnostic=False,
+					pltshow=True,
+					plot_r=True,
+					truth_df=None)
 
-		blobs_df, fit_plt_array = fit_psf(frames[ind],
+		if self.settings['If_fit']:
+			blobs_df, fit_plt_array = fit_psf(frame,
 		            blobs_df,
-		            diagnostic=True,
+		            diagnostic=False,
 		            pltshow=True,
-		            diag_max_dist_err=1,
-		            diag_max_sig_to_sigraw=3,
-					diag_min_slope=0.2,
+		            diag_max_dist_err=self.settings['max_dist_err'],
+		            diag_max_sig_to_sigraw=self.settings['max_sig_to_sigraw'],
+					diag_min_slope=self.settings['min_slope'],
+					diag_min_mass=self.settings['min_mass'],
 		            truth_df=None,
 		            segm_df=blobs_df)
 
+			blobs_df = blobs_df[ blobs_df['dist_err']<self.settings['max_dist_err'] ]
+			blobs_df = blobs_df[ blobs_df['sigx_to_sigraw']<self.settings['max_sig_to_sigraw'] ]
+			blobs_df = blobs_df[ blobs_df['sigy_to_sigraw']<self.settings['max_sig_to_sigraw'] ]
+			blobs_df = blobs_df[ blobs_df['slope']>self.settings['min_slope'] ]
+			blobs_df = blobs_df[ blobs_df['mass']>self.settings['min_mass'] ]
+			blobs_df = blobs_df[ blobs_df['r']<=self.settings['Blob_max_sigma'] ]
+			blobs_df['r'] = (blobs_df['sig_x'] + blobs_df['sig_y']) / 2
+
+		fig, ax = plt.subplots(figsize=(6,6))
+		ax.imshow(frame, cmap="gray", aspect='equal')
+		anno_blob(ax, blobs_df, marker='^', markersize=10,
+				plot_r=True, color=(0,0,1,0.8))
+		plt.show()
+
 		blobs_df = blobs_df.apply(pd.to_numeric)
 		blobs_df.round(3).to_csv(self.settings['Output path'] + self.root_name + \
-				'-detData-frame' + str(self.settings['Frame number']) + '.csv',
+				'-detData-frame' + str(ind) + '.csv',
+				index=False)
+
+		self.save_config()
+
+
+	def detect_batch(self):
+
+		print("######################################")
+		print("Detect")
+		print("######################################")
+
+		frames = pims.open(self.settings['Output path'] + self.root_name + \
+				'.tif')
+		ind = self.settings['Frame number']
+
+		blobs_df, det_plt_array = detect_blobs_batch(frames,
+					min_sig=self.settings['Blob_min_sigma'],
+					max_sig=self.settings['Blob_max_sigma'],
+					num_sig=self.settings['Blob_num_sigma'],
+					blob_thres_rel=self.settings['Blob_thres_rel'],
+					overlap=0.5,
+
+					peak_thres_rel=self.settings['Blob_pk_thresh_rel'],
+					r_to_sigraw=1,
+					pixel_size=self.settings['Pixel size'],
+
+					diagnostic=False,
+					pltshow=True,
+					plot_r=True,
+					truth_df=None)
+
+		if self.settings['If_fit']:
+			blobs_df, fit_plt_array = fit_psf_batch(frames,
+		            blobs_df,
+		            diagnostic=False,
+		            pltshow=False,
+		            diag_max_dist_err=self.settings['max_dist_err'],
+		            diag_max_sig_to_sigraw=self.settings['max_sig_to_sigraw'],
+					diag_min_slope=self.settings['min_slope'],
+					diag_min_mass=self.settings['min_mass'],
+		            truth_df=None,
+		            segm_df=blobs_df)
+
+			blobs_df = blobs_df[ blobs_df['dist_err']<self.settings['max_dist_err'] ]
+			blobs_df = blobs_df[ blobs_df['sigx_to_sigraw']<self.settings['max_sig_to_sigraw'] ]
+			blobs_df = blobs_df[ blobs_df['sigy_to_sigraw']<self.settings['max_sig_to_sigraw'] ]
+			blobs_df = blobs_df[ blobs_df['slope']>self.settings['min_slope'] ]
+			blobs_df = blobs_df[ blobs_df['mass']>self.settings['min_mass'] ]
+			blobs_df = blobs_df[ blobs_df['r']<=self.settings['Blob_max_sigma'] ]
+			blobs_df['r'] = (blobs_df['sig_x'] + blobs_df['sig_y']) / 2
+
+		det_plt_array = anim_blob(blobs_df, frames,
+									pixel_size=self.settings['Pixel size'],
+									blob_markersize=10,
+									)
+		try:
+			imsave(self.settings['Output path'] + self.root_name + '-detVideo.tif', det_plt_array)
+		except:
+			pass
+
+		blobs_df = blobs_df.apply(pd.to_numeric)
+		blobs_df.round(3).to_csv(self.settings['Output path'] + self.root_name + \
+				'-detData' + '.csv',
 				index=False)
 
 		self.save_config()
@@ -114,6 +198,16 @@ def get_root_name_list(settings_dict):
 
 	return np.array(sorted(root_name_list))
 
+def analMeta_to_dict(analMeta_path):
+	df = pd.read_csv(analMeta_path, header=None, index_col=0, na_filter=False)
+	df = df.rename(columns={1:'value'})
+	srs = df['value']
+
+	dict = {}
+	for key in srs.index:
+		try: dict[key] = ast.literal_eval(srs[key])
+		except: dict[key] = srs[key]
+	return dict
 
 def pipe_batch(settings_dict, control_list):
 
