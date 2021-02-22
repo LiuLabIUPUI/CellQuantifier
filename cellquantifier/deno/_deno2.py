@@ -23,11 +23,11 @@ def filter(image, method, arg):
 	"""
 
 	if method == 'gaussian':
-		denoised[i] = gaussian(image, arg)
+		denoised = gaussian(image, arg)
 	elif method == 'gain':
-		denoised[i] = gain(image, arg)
+		denoised = gain(image, arg)
 	elif method == 'boxcar':
-		denoised[i] = boxcar(image, arg)
+		denoised = boxcar(image, arg)
 
 	return denoised
 
