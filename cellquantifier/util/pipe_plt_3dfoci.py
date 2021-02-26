@@ -8,6 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 import seaborn as sns
 from ..plot.plotutil import *
+from ..segm import *
 
 class Pipe():
 
@@ -31,17 +32,24 @@ class Pipe():
 				self.settings['Ch2 detData label'])
 
 		min_f = self.settings['Min frame number']
-		Ch1_df = Ch1_df[ Ch1_df['frame']>=self.settings['Min frame number'] ]
-		Ch2_df = Ch2_df[ Ch2_df['frame']>=self.settings['Min frame number'] ]
+		Ch1_df = Ch1_df[ Ch1_df['frame']>=min_f ]
+		Ch2_df = Ch2_df[ Ch2_df['frame']>=min_f ]
+		df_both = pd.concat([Ch1_df, Ch2_df])
+		select_frames = df_both.drop_duplicates('frame')['frame'].to_numpy()
 
 		if self.settings['If plot even layer only']:
-			select_frames = Ch1_df.drop_duplicates('frame')['frame'].sort_values().to_numpy()
-			print(select_frames[::2])
-			Ch1_df = Ch1_df[ Ch1_df['frame'].isin(select_frames[::2])]
-			Ch2_df = Ch2_df[ Ch2_df['frame'].isin(select_frames[::2])]
+			select_frames = df_both.drop_duplicates('frame')['frame'].sort_values().to_numpy()
+			select_frames = select_frames[::2]
+			Ch1_df = Ch1_df[ Ch1_df['frame'].isin(select_frames)]
+			Ch2_df = Ch2_df[ Ch2_df['frame'].isin(select_frames)]
 
+		print(select_frames)
 		fig = plt.figure()
 		ax = fig.add_subplot(111, projection='3d')
+
+		# """
+		# ~~~~Add foci plot~~~~
+		# """
 		ax.scatter(Ch1_df['x']*self.settings['Pixel size'],
 				Ch1_df['y']*self.settings['Pixel size'],
 				Ch1_df['frame']*self.settings['Z stack size'],
@@ -52,6 +60,33 @@ class Pipe():
 				Ch2_df['frame']*self.settings['Z stack size'],
 				marker='o',
 				s=Ch2_df['r']**2, c=[[1,0,0]], alpha=0.5)
+
+		# """
+		# ~~~~Add boundary plot~~~~
+		# """
+		bdr_list = np.array(sorted(glob(self.settings['Input path'] + '*' + \
+			self.settings['Boundary label'])))
+
+		for bdr in bdr_list:
+			m = bdr.find('frame')
+			n = bdr.find(self.settings['Boundary label'])
+			frame_no = int(bdr[m+5:n])
+
+			if frame_no >= min_f and frame_no in select_frames:
+				mask = imread(bdr)
+				if mask.ndim == 3:
+					mask = mask[0]
+
+				X, Y, Z = mask_to_3d_coord(mask)
+				X = X * self.settings['Pixel size']
+				Y = Y * self.settings['Pixel size']
+				Z = Z * self.settings['Z stack size'] * frame_no
+				ax.scatter(X, Y, Z, c=[[0.12,0.56,1]], s=0.1, alpha=0.5)
+
+
+		# """
+		# ~~~~Format and save~~~~
+		# """
 		# ax.axis("off")
 		ax.grid(True)
 		# ax.set_xticks([])
@@ -59,12 +94,11 @@ class Pipe():
 		# ax.set_zticks([])
 		plt.show()
 
-		# # """
-		# # ~~~~Save the figure into pdf file, preview the figure in webbrowser~~~~
-		# # """
-		# all_figures.savefig('/home/linhua/Desktop/Figure_1.pdf', dpi=600)
+		# fig.savefig('/home/linhua/Desktop/Figure_1.pdf', dpi=600)
 		# plt.clf(); plt.close()
 		# sys.exit()
+
+		self.save_config()
 
 
 

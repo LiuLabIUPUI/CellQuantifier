@@ -9,19 +9,23 @@ control = [
 settings = {
 
   #GENERAL INFO
-  'Input path': '/home/linhua/Desktop/temp_in/',
-  'Output path': '/home/linhua/Desktop/temp_in/',
+  'Input path': '/home/linhua/Desktop/xx/',
+  'Output path': '/home/linhua/Desktop/xx/',
   'Processed by:': 'Hua Lin',
   'Str in filename': '.tif',
-  'Strs not in filename': ['mask'],
+  'Strs not in filename': ['Mask'],
 
   #SETTINGS
   'Ch1 detData label': '-mhc1-detData.csv',
   'Ch2 detData label': '-ova-detData.csv',
   'Pixel size': 0.108,
   'Z stack size': 0.5,
-  'Min frame number': 1,
-  'If plot even layer only': False,
+  'Min frame number': 0,
+  'If plot even layer only': True,
+
+  'If_plot_boundary': False,
+  'Boundary label': '-thresMask.tif',
+
 
 }
 
