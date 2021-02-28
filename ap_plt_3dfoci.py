@@ -20,10 +20,10 @@ settings = {
   'Ch2 detData label': '-ova-detData.csv',
   'Pixel size': 0.108,
   'Z stack size': 0.5,
-  'Min frame number': 0,
+  'Min frame number': 2,
   'If plot even layer only': True,
 
-  'If_plot_boundary': False,
+  'If_plot_boundary': True,
   'Boundary label': '-thresMask.tif',
 
 

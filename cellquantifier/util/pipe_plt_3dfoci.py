@@ -35,7 +35,7 @@ class Pipe():
 		Ch1_df = Ch1_df[ Ch1_df['frame']>=min_f ]
 		Ch2_df = Ch2_df[ Ch2_df['frame']>=min_f ]
 		df_both = pd.concat([Ch1_df, Ch2_df])
-		select_frames = df_both.drop_duplicates('frame')['frame'].to_numpy()
+		select_frames = df_both.drop_duplicates('frame')['frame'].sort_values().to_numpy()
 
 		if self.settings['If plot even layer only']:
 			select_frames = df_both.drop_duplicates('frame')['frame'].sort_values().to_numpy()
@@ -64,24 +64,25 @@ class Pipe():
 		# """
 		# ~~~~Add boundary plot~~~~
 		# """
-		bdr_list = np.array(sorted(glob(self.settings['Input path'] + '*' + \
-			self.settings['Boundary label'])))
+		if self.settings['If_plot_boundary']:
+			bdr_list = np.array(sorted(glob(self.settings['Input path'] + '*' + \
+				self.root_name + '*' + self.settings['Boundary label'])))
 
-		for bdr in bdr_list:
-			m = bdr.find('frame')
-			n = bdr.find(self.settings['Boundary label'])
-			frame_no = int(bdr[m+5:n])
+			for bdr in bdr_list:
+				m = bdr.find('frame')
+				n = bdr.find(self.settings['Boundary label'])
+				frame_no = int(bdr[m+5:n])
 
-			if frame_no >= min_f and frame_no in select_frames:
-				mask = imread(bdr)
-				if mask.ndim == 3:
-					mask = mask[0]
+				if frame_no >= min_f and frame_no in select_frames:
+					mask = imread(bdr)
+					if mask.ndim == 3:
+						mask = mask[0]
 
-				X, Y, Z = mask_to_3d_coord(mask)
-				X = X * self.settings['Pixel size']
-				Y = Y * self.settings['Pixel size']
-				Z = Z * self.settings['Z stack size'] * frame_no
-				ax.scatter(X, Y, Z, c=[[0.12,0.56,1]], s=0.1, alpha=0.5)
+					X, Y, Z = mask_to_3d_coord(mask)
+					X = X * self.settings['Pixel size']
+					Y = Y * self.settings['Pixel size']
+					Z = Z * self.settings['Z stack size'] * frame_no
+					ax.scatter(X, Y, Z, c=[[0.12,0.56,1]], s=0.1, alpha=0.5)
 
 
 		# """
