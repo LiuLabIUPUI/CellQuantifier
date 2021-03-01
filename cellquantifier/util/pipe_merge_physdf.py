@@ -25,7 +25,7 @@ class Pipe():
 				if exclude_str in phys_file:
 					phys_files.remove(phys_file)
 
-		phys_files = np.array(phys_files)
+		phys_files = np.array(sorted(phys_files))
 		print("######################################")
 		print("Total number of physData to be merged: %d" % len(phys_files))
 		print("######################################")
@@ -38,10 +38,11 @@ class Pipe():
 		else:
 			phys_df = pd.read_csv(phys_files[0])
 
-		print("######################################")
-		print("Rename particles...")
-		print("######################################")
-		phys_df['particle'] = phys_df['raw_data'] + phys_df['particle'].apply(str)
+		if 'particle' in phys_df:
+			print("######################################")
+			print("Rename particles...")
+			print("######################################")
+			phys_df['particle'] = phys_df['raw_data'] + phys_df['particle'].apply(str)
 		phys_df.round(3).to_csv(self.settings['Output path'] + today + \
 						'-physDataMerged.csv', index=False)
 
