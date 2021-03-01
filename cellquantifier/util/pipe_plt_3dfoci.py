@@ -162,9 +162,17 @@ class Pipe():
 		plt_data_df['ova_bdr_num'] = bdr_focinum_df['ova_bdr_num']
 		plt_data_df['ova_itl_num'] = bdr_focinum_df['ova_itl_num']
 
+		plt_data_df['mhc1_bdr_ratio'] = plt_data_df['mhc1_bdr_num'] / \
+			(plt_data_df['mhc1_bdr_num'] + plt_data_df['mhc1_itl_num'])
+		plt_data_df['mhc1_itl_ratio'] = plt_data_df['mhc1_itl_num'] / \
+			(plt_data_df['mhc1_bdr_num'] + plt_data_df['mhc1_itl_num'])
+		plt_data_df['ova_bdr_ratio'] = plt_data_df['ova_bdr_num'] / \
+			(plt_data_df['ova_bdr_num'] + plt_data_df['ova_itl_num'])
+		plt_data_df['ova_itl_ratio'] = plt_data_df['ova_itl_num'] / \
+			(plt_data_df['ova_bdr_num'] + plt_data_df['ova_itl_num'])
+
 		plt_data_df.round(3).to_csv(self.settings['Output path'] \
 			+ self.root_name + '-ratio-pltData.csv', index=False)
-
 
 		# """
 		# ~~~~Format and save~~~~
