@@ -3,7 +3,8 @@ from skimage.morphology import binary_dilation, binary_erosion, disk
 
 def count_boundary_foci_num(
     Boundary_mask,
-    Boundary_thickness,
+    Boundary_outer_thickness,
+    Boundary_inner_thickness,
     Ch1_df,
     Ch2_df,
     Ch1_label='Ch1',
@@ -46,13 +47,14 @@ def count_boundary_foci_num(
     df = pd.DataFrame([], columns=cols)
     df['frame'] = np.arange(0, len(Boundary_mask))
 
-    selem = disk(Boundary_thickness)
+    selem_outer = disk(Boundary_outer_thickness)
+    selem_inner = disk(Boundary_inner_thickness)
     dilated_mask = np.zeros(Boundary_mask.shape, dtype=Boundary_mask.dtype)
     Internal_mask = np.zeros(Boundary_mask.shape, dtype=Boundary_mask.dtype)
     bdr_mask = np.zeros(Boundary_mask.shape, dtype=Boundary_mask.dtype)
     for i in range(len(dilated_mask)):
-        dilated_mask[i] = binary_dilation(Boundary_mask[i], selem=selem)
-        Internal_mask[i] = binary_erosion(Boundary_mask[i], selem=selem)
+        dilated_mask[i] = binary_dilation(Boundary_mask[i], selem=selem_outer)
+        Internal_mask[i] = binary_erosion(Boundary_mask[i], selem=selem_inner)
         bdr_mask[i] = dilated_mask[i] ^ Internal_mask[i]
 
     for i in range(len(Boundary_mask)):

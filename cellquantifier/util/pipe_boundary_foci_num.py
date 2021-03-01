@@ -28,7 +28,8 @@ class Pipe():
 
 		bdr_focinum_df, bdr_mask = count_boundary_foci_num(
 				Boundary_mask=Boundary_mask,
-				Boundary_thickness=self.settings['Boundary thickness'],
+				Boundary_outer_thickness=self.settings['Boundary outer thickness'],
+				Boundary_inner_thickness=self.settings['Boundary inner thickness'],
 				Ch1_df=Ch1_df,
 				Ch2_df=Ch2_df,
 				Ch1_label=self.settings['Ch1 foci label'],

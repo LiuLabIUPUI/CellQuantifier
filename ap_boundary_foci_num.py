@@ -20,7 +20,8 @@ settings = {
   'Ch1 detData label': '-mhc1-detData.csv',
   'Ch2 detData label': '-ova-detData.csv',
   'Boundary mask label': '-thresMask.tif',
-  'Boundary thickness': 5,
+  'Boundary outer thickness': 15,
+  'Boundary inner thickness': 5,
   'Ch1 foci label': 'mhc1',
   'Ch2 foci label': 'ova',
 
