@@ -53,7 +53,7 @@ def calculate_colocal_ratio(Ch1_df, Ch2_df, Ch1_mask,
         except:
             pass
 
-        df[Ch1_name] = df[Ch1_name].astype(float)
-        df[Ch2_name] = df[Ch2_name].astype(float)
+    df[Ch1_name] = df[Ch1_name].astype(float)
+    df[Ch2_name] = df[Ch2_name].astype(float)
 
     return df

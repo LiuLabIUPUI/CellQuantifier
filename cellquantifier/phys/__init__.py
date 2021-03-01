@@ -19,3 +19,4 @@ from .constrain_length import *
 from .spring_constant import *
 from .add_D_alpha import *
 from .colocal_ratio import *
+from .boundary_foci_num import *
