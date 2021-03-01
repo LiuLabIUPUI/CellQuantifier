@@ -26,6 +26,9 @@ settings = {
   'If_plot_boundary': True,
   'Boundary label': '-thresMask.tif',
 
+  'Colocal df label': '-colocal-ratio.csv',
+  'Boudary focinum df label': '-bdr-foci-num.csv',
+
 
 }
 

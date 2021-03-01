@@ -64,17 +64,35 @@ class Pipe():
 		# """
 		# ~~~~Add boundary plot~~~~
 		# """
-		if self.settings['If_plot_boundary']:
-			bdr_list = np.array(sorted(glob(self.settings['Input path'] + '*' + \
-				self.root_name + '*' + self.settings['Boundary label'])))
+		# if self.settings['If_plot_boundary']:
+		# 	bdr_list = np.array(sorted(glob(self.settings['Input path'] + '*' + \
+		# 		self.root_name + '*' + self.settings['Boundary label'])))
+		#
+		# 	for bdr in bdr_list:
+		# 		m = bdr.find('frame')
+		# 		n = bdr.find(self.settings['Boundary label'])
+		# 		frame_no = int(bdr[m+5:n])
+		#
+		# 		if frame_no >= min_f and frame_no in select_frames:
+		# 			mask = imread(bdr)
+		# 			if mask.ndim == 3:
+		# 				mask = mask[0]
+		#
+		# 			X, Y, Z = mask_to_3d_coord(mask)
+		# 			X = X * self.settings['Pixel size']
+		# 			Y = Y * self.settings['Pixel size']
+		# 			Z = Z * self.settings['Z stack size'] * frame_no
+		# 			ax.scatter(X, Y, Z, c=[[0.12,0.56,1]], s=0.1, alpha=0.5)
 
-			for bdr in bdr_list:
-				m = bdr.find('frame')
-				n = bdr.find(self.settings['Boundary label'])
-				frame_no = int(bdr[m+5:n])
+		if self.settings['If_plot_boundary']:
+			bdr_mask = imread(self.settings['Input path'] + \
+				self.root_name + self.settings['Boundary label'])
+
+			for i in range(len(bdr_mask)):
+				frame_no = i
 
 				if frame_no >= min_f and frame_no in select_frames:
-					mask = imread(bdr)
+					mask = bdr_mask[i]
 					if mask.ndim == 3:
 						mask = mask[0]
 
@@ -83,6 +101,37 @@ class Pipe():
 					Y = Y * self.settings['Pixel size']
 					Z = Z * self.settings['Z stack size'] * frame_no
 					ax.scatter(X, Y, Z, c=[[0.12,0.56,1]], s=0.1, alpha=0.5)
+
+		# """
+		# ~~~~Add text~~~~
+		# """
+		colocal_df = pd.read_csv(self.settings['Input path']+self.root_name + \
+		 		self.settings['Colocal df label'])
+		bdr_focinum_df = pd.read_csv(self.settings['Input path'] + \
+				self.root_name + self.settings['Boudary focinum df label'])
+
+		colocal_df = colocal_df[ colocal_df['frame'].isin(select_frames)]
+		bdr_focinum_df = bdr_focinum_df[ bdr_focinum_df['frame'].isin(select_frames)]
+
+
+		ova_overlap_ratio = colocal_df['ova overlap ratio'].median()
+		mhc1_overlap_ratio = colocal_df['mhc1 overlap ratio'].median()
+		ova_bdr_ratio = bdr_focinum_df['ova_bdr_num'].sum() / \
+		(bdr_focinum_df['ova_bdr_num'].sum() + bdr_focinum_df['ova_itl_num'].sum())
+		mhc1_bdr_ratio = bdr_focinum_df['mhc1_bdr_num'].sum() / \
+		(bdr_focinum_df['mhc1_bdr_num'].sum() + bdr_focinum_df['mhc1_itl_num'].sum())
+
+		ax.text2D(1,
+				0.9,
+				"OVA overlap ratio: %.2f\nMHC1 overlap ratio: %.2f\nOVA bdr ratio: %.2f\nMHC1 bdr ratio: %.2f\n" \
+				%(ova_overlap_ratio, mhc1_overlap_ratio, ova_bdr_ratio, mhc1_bdr_ratio),
+				horizontalalignment='right',
+				verticalalignment='bottom',
+				fontsize = 12,
+				color = (0,0,0, 0.8),
+				transform=ax.transAxes,
+				weight = 'bold',
+				)
 
 
 		# """
@@ -99,6 +148,16 @@ class Pipe():
 		# plt.clf(); plt.close()
 		# sys.exit()
 
+		plt_data_df = pd.DataFrame({
+			'ova_overlap_ratio': ova_overlap_ratio,
+			'mhc1_overlap_ratio': mhc1_overlap_ratio,
+			'mhc1_bdr_ratio': mhc1_bdr_ratio,
+			'ova_bdr_ratio': ova_bdr_ratio,
+			}, index=[0], dtype=float)
+
+		plt_data_df.round(3).to_csv(self.settings['Output path'] \
+			+ self.root_name + '-ratio-pltData.csv', index=False)
+
 		self.save_config()
 
 
@@ -110,8 +169,9 @@ def get_root_name_list(settings_dict):
 		settings['Str in filename'])
 	for path in path_list:
 		filename = path.split('/')[-1]
-		root_name = filename[:filename.find('.')]
-		root_name_list.append(root_name)
+		root_name = filename[:filename.find('-')]
+		if root_name not in root_name_list:
+			root_name_list.append(root_name)
 
 		for exclude_str in settings['Strs not in filename']:
 			if exclude_str in root_name:
