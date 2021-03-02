@@ -102,46 +102,8 @@ class Pipe():
 					ax.scatter(X, Y, Z, c=[[0.12,0.56,1]], s=0.1, alpha=0.5)
 
 		# """
-		# ~~~~Add text~~~~
+		# ~~~~By cell, add text~~~~
 		# """
-		# colocal_df = pd.read_csv(self.settings['Input path']+self.root_name + \
-		#  		self.settings['Colocal df label'])
-		# bdr_focinum_df = pd.read_csv(self.settings['Input path'] + \
-		# 		self.root_name + self.settings['Boudary focinum df label'])
-		#
-		# colocal_df = colocal_df[ colocal_df['frame'].isin(select_frames)]
-		# bdr_focinum_df = bdr_focinum_df[ bdr_focinum_df['frame'].isin(select_frames)]
-		#
-		#
-		# ova_overlap_ratio = colocal_df['ova overlap ratio'].median()
-		# mhc1_overlap_ratio = colocal_df['mhc1 overlap ratio'].median()
-		# ova_bdr_ratio = bdr_focinum_df['ova_bdr_num'].sum() / \
-		# (bdr_focinum_df['ova_bdr_num'].sum() + bdr_focinum_df['ova_itl_num'].sum())
-		# mhc1_bdr_ratio = bdr_focinum_df['mhc1_bdr_num'].sum() / \
-		# (bdr_focinum_df['mhc1_bdr_num'].sum() + bdr_focinum_df['mhc1_itl_num'].sum())
-		#
-		# ax.text2D(1,
-		# 		0.9,
-		# 		"OVA overlap ratio: %.2f\nMHC1 overlap ratio: %.2f\nOVA bdr ratio: %.2f\nMHC1 bdr ratio: %.2f\n" \
-		# 		%(ova_overlap_ratio, mhc1_overlap_ratio, ova_bdr_ratio, mhc1_bdr_ratio),
-		# 		horizontalalignment='right',
-		# 		verticalalignment='bottom',
-		# 		fontsize = 12,
-		# 		color = (0,0,0, 0.8),
-		# 		transform=ax.transAxes,
-		# 		weight = 'bold',
-		# 		)
-
-		# plt_data_df = pd.DataFrame({
-		# 	'ova_overlap_ratio': ova_overlap_ratio,
-		# 	'mhc1_overlap_ratio': mhc1_overlap_ratio,
-		# 	'mhc1_bdr_ratio': mhc1_bdr_ratio,
-		# 	'ova_bdr_ratio': ova_bdr_ratio,
-		# 	}, index=[0], dtype=float)
-		# plt_data_df.round(3).to_csv(self.settings['Output path'] \
-		# 	+ self.root_name + '-ratio-pltData.csv', index=False)
-
-
 		colocal_df = pd.read_csv(self.settings['Input path']+self.root_name + \
 		 		self.settings['Colocal df label'])
 		bdr_focinum_df = pd.read_csv(self.settings['Input path'] + \
@@ -150,29 +112,69 @@ class Pipe():
 		colocal_df = colocal_df[ colocal_df['frame'].isin(select_frames)]
 		bdr_focinum_df = bdr_focinum_df[ bdr_focinum_df['frame'].isin(select_frames)]
 
-		colocal_df = colocal_df[ colocal_df['frame']!=len(bdr_mask)-1]
-		bdr_focinum_df = bdr_focinum_df[ bdr_focinum_df['frame']!=len(bdr_mask)-1]
+		ova_overlap_ratio = colocal_df['ova overlap ratio'].median()
+		mhc1_overlap_ratio = colocal_df['mhc1 overlap ratio'].median()
+		ova_bdr_ratio = bdr_focinum_df['ova_bdr_num'].sum() / \
+		(bdr_focinum_df['ova_bdr_num'].sum() + bdr_focinum_df['ova_itl_num'].sum())
+		mhc1_bdr_ratio = bdr_focinum_df['mhc1_bdr_num'].sum() / \
+		(bdr_focinum_df['mhc1_bdr_num'].sum() + bdr_focinum_df['mhc1_itl_num'].sum())
 
-		plt_data_df = pd.DataFrame([])
-		plt_data_df['frame'] = colocal_df['frame']
-		plt_data_df['mhc1 overlap ratio'] = colocal_df['mhc1 overlap ratio']
-		plt_data_df['ova overlap ratio'] = colocal_df['ova overlap ratio']
-		plt_data_df['mhc1_bdr_num'] = bdr_focinum_df['mhc1_bdr_num']
-		plt_data_df['mhc1_itl_num'] = bdr_focinum_df['mhc1_itl_num']
-		plt_data_df['ova_bdr_num'] = bdr_focinum_df['ova_bdr_num']
-		plt_data_df['ova_itl_num'] = bdr_focinum_df['ova_itl_num']
+		ax.text2D(1,
+				0.9,
+				"OVA overlap ratio: %.2f\nMHC1 overlap ratio: %.2f\nOVA bdr ratio: %.2f\nMHC1 bdr ratio: %.2f\n" \
+				%(ova_overlap_ratio, mhc1_overlap_ratio, ova_bdr_ratio, mhc1_bdr_ratio),
+				horizontalalignment='right',
+				verticalalignment='bottom',
+				fontsize = 12,
+				color = (0,0,0, 0.8),
+				transform=ax.transAxes,
+				weight = 'bold',
+				)
 
-		plt_data_df['mhc1_bdr_ratio'] = plt_data_df['mhc1_bdr_num'] / \
-			(plt_data_df['mhc1_bdr_num'] + plt_data_df['mhc1_itl_num'])
-		plt_data_df['mhc1_itl_ratio'] = plt_data_df['mhc1_itl_num'] / \
-			(plt_data_df['mhc1_bdr_num'] + plt_data_df['mhc1_itl_num'])
-		plt_data_df['ova_bdr_ratio'] = plt_data_df['ova_bdr_num'] / \
-			(plt_data_df['ova_bdr_num'] + plt_data_df['ova_itl_num'])
-		plt_data_df['ova_itl_ratio'] = plt_data_df['ova_itl_num'] / \
-			(plt_data_df['ova_bdr_num'] + plt_data_df['ova_itl_num'])
-
+		plt_data_df = pd.DataFrame({
+			'ova overlap ratio': ova_overlap_ratio,
+			'mhc1 overlap ratio': mhc1_overlap_ratio,
+			'mhc1_bdr_ratio': mhc1_bdr_ratio,
+			'ova_bdr_ratio': ova_bdr_ratio,
+			}, index=[0], dtype=float)
 		plt_data_df.round(3).to_csv(self.settings['Output path'] \
 			+ self.root_name + '-ratio-pltData.csv', index=False)
+
+
+		# # """
+		# # ~~~~By layer, no text added~~~~
+		# # """
+		# colocal_df = pd.read_csv(self.settings['Input path']+self.root_name + \
+		#  		self.settings['Colocal df label'])
+		# bdr_focinum_df = pd.read_csv(self.settings['Input path'] + \
+		# 		self.root_name + self.settings['Boudary focinum df label'])
+		#
+		# colocal_df = colocal_df[ colocal_df['frame'].isin(select_frames)]
+		# bdr_focinum_df = bdr_focinum_df[ bdr_focinum_df['frame'].isin(select_frames)]
+		#
+		# colocal_df = colocal_df[ colocal_df['frame']!=len(bdr_mask)-1]
+		# bdr_focinum_df = bdr_focinum_df[ bdr_focinum_df['frame']!=len(bdr_mask)-1]
+		#
+		# plt_data_df = pd.DataFrame([])
+		# plt_data_df['frame'] = colocal_df['frame']
+		# plt_data_df['mhc1 overlap ratio'] = colocal_df['mhc1 overlap ratio']
+		# plt_data_df['ova overlap ratio'] = colocal_df['ova overlap ratio']
+		# plt_data_df['mhc1_bdr_num'] = bdr_focinum_df['mhc1_bdr_num']
+		# plt_data_df['mhc1_itl_num'] = bdr_focinum_df['mhc1_itl_num']
+		# plt_data_df['ova_bdr_num'] = bdr_focinum_df['ova_bdr_num']
+		# plt_data_df['ova_itl_num'] = bdr_focinum_df['ova_itl_num']
+		#
+		# plt_data_df['mhc1_bdr_ratio'] = plt_data_df['mhc1_bdr_num'] / \
+		# 	(plt_data_df['mhc1_bdr_num'] + plt_data_df['mhc1_itl_num'])
+		# plt_data_df['mhc1_itl_ratio'] = plt_data_df['mhc1_itl_num'] / \
+		# 	(plt_data_df['mhc1_bdr_num'] + plt_data_df['mhc1_itl_num'])
+		# plt_data_df['ova_bdr_ratio'] = plt_data_df['ova_bdr_num'] / \
+		# 	(plt_data_df['ova_bdr_num'] + plt_data_df['ova_itl_num'])
+		# plt_data_df['ova_itl_ratio'] = plt_data_df['ova_itl_num'] / \
+		# 	(plt_data_df['ova_bdr_num'] + plt_data_df['ova_itl_num'])
+		#
+		# plt_data_df.round(3).to_csv(self.settings['Output path'] \
+		# 	+ self.root_name + '-ratio-pltData.csv', index=False)
 
 		# """
 		# ~~~~Format and save~~~~
