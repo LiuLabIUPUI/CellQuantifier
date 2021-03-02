@@ -216,7 +216,7 @@ def fig_quick_boxplot(
             df, df,
             ]
     data_cols = [
-            'ova_overlap_ratio', 'mhc1_overlap_ratio',
+            'ova overlap ratio', 'mhc1 overlap ratio',
             'ova_bdr_ratio', 'mhc1_bdr_ratio',
             ]
     palettes = [
@@ -232,7 +232,7 @@ def fig_quick_boxplot(
             '', '',
             ]
     ylabels = [
-            'ova_overlap_ratio', 'mhc1_overlap_ratio',
+            'ova overlap ratio', 'mhc1 overlap ratio',
             'ova_bdr_ratio', 'mhc1_bdr_ratio',
             ]
     for i, (fig, data, data_col, palette, order, xlabel, ylabel,) \
@@ -277,7 +277,7 @@ def fig_quick_boxplot(
             df, df, df, df,
             ]
     data_cols = [
-            'ova_overlap_ratio', 'mhc1_overlap_ratio',
+            'ova overlap ratio', 'mhc1 overlap ratio',
             'ova_bdr_ratio', 'mhc1_bdr_ratio',
             ]
     cat_cols = [

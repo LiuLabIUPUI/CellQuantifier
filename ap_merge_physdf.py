@@ -9,10 +9,10 @@ control = [
 settings = {
 
   #GENERAL INFO
-  'Input path': '/home/linhua/Desktop/temp/',
-  'Output path': '/home/linhua/Desktop/temp/',
+  'Input path': '/home/linhua/Desktop/xx/',
+  'Output path': '/home/linhua/Desktop/xx/',
   'Processed by:': 'Hua Lin',
-  'Str in filename': 'physData.csv',
+  'Str in filename': 'pltData.csv',
   'Strs not in filename': ['physDataMerged.csv'],
 
   #SETTINGS
