@@ -21,13 +21,19 @@ df_bmt = df_bmt[ df_bmt['traj_length']>=40 ]
 df_uv1 = df_uv1[ df_uv1['traj_length']>=80 ]
 df_uv2 = df_uv2[ df_uv2['traj_length']>=80 ]
 
-# # Add physic parameters
-# df_200Nc = add_D_alpha(df_200Nc, pixel_size=0.163, frame_rate=5, divide_num=5)
-# df_all = add_D_alpha(df_all, pixel_size=0.163, frame_rate=20, divide_num=5)
-# df_bm = add_D_alpha(df_bm, pixel_size=0.163, frame_rate=20, divide_num=5)
-# df_bmt = add_D_alpha(df_bmt, pixel_size=0.163, frame_rate=20, divide_num=5)
-# df_uv1 = add_D_alpha(df_uv1, pixel_size=0.163, frame_rate=20, divide_num=5)
-# df_uv2 = add_D_alpha(df_uv2, pixel_size=0.163, frame_rate=20, divide_num=5)
+# Add physic parameters
+df_200Nc = add_D_alpha(df_200Nc, pixel_size=0.163, frame_rate=5, divide_num=5,
+        fit_method='fit_msd2')
+df_all = add_D_alpha(df_all, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
+df_bm = add_D_alpha(df_bm, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
+df_bmt = add_D_alpha(df_bmt, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
+df_uv1 = add_D_alpha(df_uv1, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
+df_uv2 = add_D_alpha(df_uv2, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
 
 # Filter alpha<0 trajectories
 df_200Nc = df_200Nc[ df_200Nc['alpha']>=0 ]

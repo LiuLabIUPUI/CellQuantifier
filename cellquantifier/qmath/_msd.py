@@ -27,7 +27,11 @@ def fit_msd1_log(x, y):
 	return popt
 
 def fit_msd2(x, y):
-	popt, pcov = opt.curve_fit(msd2, x, y,
-				  bounds=(0, [np.inf, np.inf, np.inf]),
-				  )
+	popt = [-9999, -9999, -9999]
+	try:
+		popt, pcov = opt.curve_fit(msd2, x, y,
+					  bounds=(0, [np.inf, np.inf, np.inf]),
+					  )
+	except:
+		pass
 	return popt

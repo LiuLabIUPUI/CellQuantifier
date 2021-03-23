@@ -21,32 +21,38 @@ df_uv1 = df_uv1[ df_uv1['traj_length']>=80 ]
 df_uv2 = df_uv2[ df_uv2['traj_length']>=80 ]
 
 # Add physic parameters
-df_200Nc = add_D_alpha(df_200Nc, pixel_size=0.163, frame_rate=5, divide_num=5)
+df_200Nc = add_D_alpha(df_200Nc, pixel_size=0.163, frame_rate=5, divide_num=5,
+        fit_method='fit_msd2')
 df_200Nc = add_xy_spring_constant(df_200Nc, pixel_size=0.163)
 df_200Nc = add_stepsize(df_200Nc, pixel_size=0.163)
 df_200Nc = add_constrain_length(df_200Nc, pixel_size=0.163)
 
-df_all = add_D_alpha(df_all, pixel_size=0.163, frame_rate=20, divide_num=5)
+df_all = add_D_alpha(df_all, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
 df_all = add_xy_spring_constant(df_all, pixel_size=0.163)
 df_all = add_stepsize(df_all, pixel_size=0.163)
 df_all = add_constrain_length(df_all, pixel_size=0.163)
 
-df_bm = add_D_alpha(df_bm, pixel_size=0.163, frame_rate=20, divide_num=5)
+df_bm = add_D_alpha(df_bm, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
 df_bm = add_xy_spring_constant(df_bm, pixel_size=0.163)
 df_bm = add_stepsize(df_bm, pixel_size=0.163)
 df_bm = add_constrain_length(df_bm, pixel_size=0.163)
 
-df_bmt = add_D_alpha(df_bmt, pixel_size=0.163, frame_rate=20, divide_num=5)
+df_bmt = add_D_alpha(df_bmt, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
 df_bmt = add_xy_spring_constant(df_bmt, pixel_size=0.163)
 df_bmt = add_stepsize(df_bmt, pixel_size=0.163)
 df_bmt = add_constrain_length(df_bmt, pixel_size=0.163)
 
-df_uv1 = add_D_alpha(df_uv1, pixel_size=0.163, frame_rate=20, divide_num=5)
+df_uv1 = add_D_alpha(df_uv1, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
 df_uv1 = add_xy_spring_constant(df_uv1, pixel_size=0.163)
 df_uv1 = add_stepsize(df_uv1, pixel_size=0.163)
 df_uv1 = add_constrain_length(df_uv1, pixel_size=0.163)
 
-df_uv2 = add_D_alpha(df_uv2, pixel_size=0.163, frame_rate=20, divide_num=5)
+df_uv2 = add_D_alpha(df_uv2, pixel_size=0.163, frame_rate=20, divide_num=5,
+        fit_method='fit_msd2')
 df_uv2 = add_xy_spring_constant(df_uv2, pixel_size=0.163)
 df_uv2 = add_stepsize(df_uv2, pixel_size=0.163)
 df_uv2 = add_constrain_length(df_uv2, pixel_size=0.163)
