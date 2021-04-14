@@ -55,6 +55,7 @@ class Pipe():
 	            segm_df=blobs_df)
 
 		blobs_df = blobs_df.apply(pd.to_numeric)
+		psf_df['slope'] = psf_df['A'] / (9 * np.pi * psf_df['sig_x'] * psf_df['sig_y'])
 		blobs_df.round(3).to_csv(self.settings['Output path'] + self.root_name + \
 				'-fitData' + '.csv', index=False)
 
@@ -81,7 +82,7 @@ class Pipe():
 									pixel_size=self.settings['Pixel size'],
 									blob_markersize=10,
 									)
-		imsave(self.settings['Output path'] + self.root_name + '-fitVideo.tif', fit_plt_array)
+		imsave(self.settings['Output path'] + self.root_name + '-fittVideo.tif', fit_plt_array)
 
 
 def get_root_name_list(settings_dict):
