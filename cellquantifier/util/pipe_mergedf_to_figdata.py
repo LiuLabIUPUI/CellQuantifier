@@ -21,6 +21,15 @@ class Pipe():
 		exp_labels = df['exp_label'].drop_duplicates().sort_values()
 		figdata_dfs = []
 
+		if 'alpha' in df:
+			df = df[ df['alpha']>0 ]
+
+		if self.settings['drop_duplicates']:
+			df = df.drop_duplicates('particle')
+
+		if 'traj_length' in df:
+			df = df[ df['traj_length']>self.settings['traj_length_thres'] ]
+
 		for exp_label in exp_labels:
 			tmp_figdata = df.loc[ df['exp_label']==exp_label, \
 					self.settings['figData col name'] ].to_numpy()

@@ -16,7 +16,10 @@ settings = {
   'Strs not in filename': ['-mhc1', '-ova'],
 
   #SETTINGS
-  'figData col name': 'pixel_intensity',
+  'figData col name': 'D',
+  'drop_duplicates': True,
+  'traj_length_thres': 40,
+
 
 }
 
