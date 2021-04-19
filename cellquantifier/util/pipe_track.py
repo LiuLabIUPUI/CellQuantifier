@@ -147,6 +147,36 @@ class Pipe():
 			sr_opt_fig.savefig(self.OUTPUT_PATH + \
 							self.root_name + '-opt-search-range.pdf')
 
+		check_memory = isinstance(self.MEMORY, list)
+		if check_memory:
+			param_list = self.MEMORY
+			particle_num_list = []
+			phys_dfs = []
+			mean_D_list = []
+			mean_alpha_list = []
+			for memory in param_list:
+				self.MEMORY = memory
+				phys_df = self.track_blobs_twice()
+				self.print_filt_traj_num(phys_df)
+				phys_df = self.filt_phys_df(phys_df)
+				phys_df = phys_df.drop_duplicates('particle')
+				phys_df['memory'] = memory
+				phys_dfs.append(phys_df)
+				particle_num_list.append(len(phys_df))
+				mean_D_list.append(phys_df['D'].mean())
+				mean_alpha_list.append(phys_df['alpha'].mean())
+			phys_df_all = pd.concat(phys_dfs)
+			sr_opt_fig = plot_track_param_opt(
+							track_param_name='memory',
+							track_param_unit='pixel',
+							track_param_list=param_list,
+							particle_num_list=particle_num_list,
+							df=phys_df_all,
+							mean_D_list=mean_D_list,
+							mean_alpha_list=mean_alpha_list,
+							)
+			sr_opt_fig.savefig(self.OUTPUT_PATH + \
+							self.root_name + '-opt-memory.pdf')
 
 		check_traj_len_thres = isinstance(self.FILTERS['TRAJ_LEN_THRES'], list)
 		if check_traj_len_thres:

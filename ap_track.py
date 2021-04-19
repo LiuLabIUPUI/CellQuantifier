@@ -2,7 +2,7 @@
 
 control = [
 'filt_track',
-'plot_traj',
+# 'plot_traj',
 # 'anim_traj',
 ]
 
@@ -11,8 +11,8 @@ control = [
 settings = {
 
   #GENERAL INFO
-  'Input path': '/home/linhua/Desktop/glass/',
-  'Output path': '/home/linhua/Desktop/glass/',
+  'Input path': '/home/linhua/Desktop/temp/',
+  'Output path': '/home/linhua/Desktop/temp/',
   'Processed by:': 'Hua Lin',
   'Str in filename': '.tif',
   'Strs not in filename': ['Video','deno'],
