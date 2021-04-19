@@ -19,6 +19,11 @@ settings = {
   'figData col name': 'D',
   'drop_duplicates': True,
   'traj_length_thres': 40,
+  'add_stepsize': False,
+  'add_constrain_length': False,
+  'fit_D_alpha_with_C': False,
+  'pixel_size': 0.108,
+  'frame_rate': 33.3,
 
 
 }

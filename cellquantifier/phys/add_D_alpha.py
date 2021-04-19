@@ -18,7 +18,11 @@ def add_D_alpha(df, pixel_size, frame_rate, divide_num,
 
 	#get diffusion coefficient of each particle
 	particles = im.columns
+	ind = 1
+	tot = len(particles)
 	for particle in particles:
+		print("(%d/%d)" % (ind, tot))
+		ind = ind + 1
 
 		# Remove NaN, Remove non-positive value before calculate log()
 		msd = im[particle].dropna()

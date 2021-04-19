@@ -6,6 +6,8 @@ from skimage.util import img_as_ubyte, img_as_int
 import glob
 import sys
 
+from cellquantifier.phys import *
+
 
 class Pipe():
 
@@ -21,14 +23,35 @@ class Pipe():
 		exp_labels = df['exp_label'].drop_duplicates().sort_values()
 		figdata_dfs = []
 
+		if 'traj_length' in df:
+			df = df[ df['traj_length']>self.settings['traj_length_thres'] ]
+
+		if self.settings['add_stepsize']:
+			print("######################################")
+			print("add_stepsize...")
+			print("######################################")
+			df = add_stepsize(df, pixel_size=self.settings['pixel_size'])
+
+		if self.settings['add_constrain_length']:
+			print("######################################")
+			print("add_constrain_length...")
+			print("######################################")
+			df = add_constrain_length(df, pixel_size=self.settings['pixel_size'])
+
+		if self.settings['fit_D_alpha_with_C']:
+			print("######################################")
+			print("fit_D_alpha_with_C...")
+			print("######################################")
+			df = add_D_alpha(df, pixel_size=self.settings['pixel_size'],
+				frame_rate=self.settings['frame_rate'],
+				divide_num=5,
+				fit_method='fit_msd2')
+
 		if 'alpha' in df:
 			df = df[ df['alpha']>0 ]
 
 		if self.settings['drop_duplicates']:
 			df = df.drop_duplicates('particle')
-
-		if 'traj_length' in df:
-			df = df[ df['traj_length']>self.settings['traj_length_thres'] ]
 
 		for exp_label in exp_labels:
 			tmp_figdata = df.loc[ df['exp_label']==exp_label, \
