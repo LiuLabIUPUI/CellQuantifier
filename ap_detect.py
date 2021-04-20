@@ -15,10 +15,10 @@ settings = {
   'Str in filename': '.tif',
   'Strs not in filename': ['Mask','temp'],
   'Pixel size': 0.108,
-  'Frame number': 16,
+  'Frame number': 23,
 
   #SETTINGS
-  'Blob_thres_rel': 0.6,
+  'Blob_thres_rel': 0.8,
   'Blob_min_sigma': 2,
   'Blob_max_sigma': 5,
   'Blob_num_sigma': 5,

@@ -9,7 +9,7 @@ control = [
 settings = {
 
   #GENERAL INFO
-  'Input path': '/home/linhua/Desktop/temp_in/',
+  'Input path': '/home/linhua/Desktop/temp/',
   'Output path': '/home/linhua/Desktop/temp/',
   'Cols to merge': ['x', 'y', 'frame', 'r'],
 

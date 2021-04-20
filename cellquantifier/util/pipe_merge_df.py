@@ -15,7 +15,7 @@ class Pipe():
 		self.control = control_list
 		self.root_name = root_name
 
-	def merge_physdf(self):
+	def merge_df(self):
 		pass
 		# today = str(date.today().strftime("%y%m%d"))
 		#
@@ -77,7 +77,7 @@ def pipe_batch(settings_dict, control_list):
 		print(phys_df)
 
 	phys_df.round(3).to_csv(settings_dict['Output path'] + \
-					'210203_WT_A-mhc1-detData.csv', index=False)
+					'xxxxxx_xx_xxxx-detData.csv', index=False)
 
 
 

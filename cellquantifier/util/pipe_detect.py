@@ -115,7 +115,7 @@ class Pipe():
 				'-detData-frame' + str(ind) + '.csv',
 				index=False)
 
-		self.save_config()
+		# self.save_config()
 
 
 	def detect_batch(self):
