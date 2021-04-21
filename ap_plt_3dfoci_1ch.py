@@ -16,16 +16,15 @@ settings = {
   'Strs not in filename': ['Mask'],
 
   #SETTINGS
-  'Ch1 detData label': '-detData.csv',
+  'Ch1 detData label': '-ova-detData.csv',
   'Pixel size': 0.108,
   'Z stack size': 0.5,
   'Min frame number': 0,
   'If plot even layer only': False,
 
-  'If_plot_boundary': False,
-  'Boundary label': '-thresMask.tif',
+  'If_plot_boundary': True,
+  'Boundary label': '-bdr-thresMask.tif',
 
-  'Colocal df label': '-colocal-ratio.csv',
   'Boudary focinum df label': '-bdr-foci-num.csv',
 
 
