@@ -29,23 +29,15 @@ class Pipe():
 
 		for img in images_list:
 			m = img.find('frame')
-			n = img.find(self.settings['Postfix label'])
+			n = img.find('.')
 			frame_no = int(img[m+5:n])
+			print(frame_no)
 
 			curr_img = imread(img)
 			stack[frame_no] = curr_img
 
 		imsave(self.settings['Output path'] + self.root_name + \
-			self.settings['Postfix label'] + '.tif', stack)
-
-
-
-		# frames = imread(self.settings['Input path'] + self.root_name + \
-		# 		'.tif')
-		# if frames.ndim == 3:
-		# 	for i in range(len(frames)):
-		# 		imsave(self.settings['Output path'] + self.root_name + \
-		# 			'-frame' + str(i) + '.tif', frames[i])
+			'.tif', stack)
 
 
 def get_root_name_list(settings_dict):
@@ -55,7 +47,7 @@ def get_root_name_list(settings_dict):
 		settings['Str in filename'])
 	for path in path_list:
 		filename = path.split('/')[-1]
-		root_name = filename[:filename.find('-')]
+		root_name = filename[:filename.find('-frame')]
 		if root_name not in root_name_list:
 			root_name_list.append(root_name)
 

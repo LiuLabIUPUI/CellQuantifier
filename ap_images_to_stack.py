@@ -15,8 +15,6 @@ settings = {
   'Str in filename': '*frame*.tif',
   'Strs not in filename': ['-ova'],
 
-  'Postfix label': '-thresMask',
-
 }
 
 """Part III: Run CellQuantifier"""
