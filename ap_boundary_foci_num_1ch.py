@@ -1,6 +1,7 @@
 """Part I: CellQuantifier Sequence Control"""
 
 control = [
+'add_dist_to_boundary',
 'get_boundary_focinum_df',
 'generate_boundary_foci_map',
 ]
@@ -20,6 +21,7 @@ settings = {
   'Ch1 detData label': '-ova-detData.csv',
   'Ch2 detData label': '-ova-detData.csv',
   'Boundary mask label': '-bdr-thresMask.tif',
+  'Dist2boundary mask label': '-bdr-dist2thresMask.tif',
   'Boundary outer thickness': 15,
   'Boundary inner thickness': 5,
   'Ch1 foci label': 'ova',

@@ -5,7 +5,7 @@ import glob
 import sys
 from skimage.io import imread, imsave
 
-from ..phys import count_boundary_foci_num
+from ..phys import count_boundary_foci_num, add_dist_to_boundary_batch_2
 from ..segm import blobs_df_to_mask
 
 class Pipe():
@@ -16,6 +16,15 @@ class Pipe():
 		self.settings = settings_dict
 		self.control = control_list
 		self.root_name = root_name
+
+	def add_dist_to_boundary(self):
+		Dist2boundary_mask = imread(self.settings['Input path'] + self.root_name + \
+				self.settings['Dist2boundary mask label'])
+		Ch1_df = pd.read_csv(self.settings['Input path'] + self.root_name + \
+				self.settings['Ch1 detData label'])
+		Ch1_df = add_dist_to_boundary_batch_2(Ch1_df, Dist2boundary_mask)
+		Ch1_df.round(3).to_csv(self.settings['Input path'] + self.root_name + \
+				self.settings['Ch1 detData label'], index=False)
 
 	def get_boundary_focinum_df(self):
 		Ch1_df = pd.read_csv(self.settings['Input path'] + self.root_name + \
