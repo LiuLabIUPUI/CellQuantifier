@@ -10,7 +10,7 @@ settings = {
 
   #GENERAL INFO
   'Input path': '/home/linhua/Desktop/temp/',
-  'Output path': '/home/linhua/Desktop/temp/',
+  'Output path': '/home/linhua/Desktop/output/',
   'Cols to merge': ['x', 'y', 'frame', 'r'],
 
 }
