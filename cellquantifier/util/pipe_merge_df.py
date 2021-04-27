@@ -24,6 +24,8 @@ class Pipe():
 			dfs = []
 			for file in df_list:
 				tmp_df = pd.read_csv(file, index_col=False)
+				# tmp_df = tmp_df[ tmp_df['dist_to_boundary']<=15 ]
+				# tmp_df['dist_to_boundary'] = tmp_df['dist_to_boundary'] * 0.108
 				tmp_df = tmp_df[self.settings['Cols to merge']]
 				dfs.append(tmp_df)
 			phys_df = pd.concat(dfs, ignore_index=True)
