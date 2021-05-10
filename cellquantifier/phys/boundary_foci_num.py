@@ -71,10 +71,10 @@ def count_boundary_foci_num(
             if Internal_mask[i, r, c]>0:
                 Ch1_itl_num = Ch1_itl_num + 1
 
-            # Special handling for the top surface
-            if i==len(Boundary_mask)-1:
-                Ch1_bdr_num = len(curr_Ch1_df)
-                Ch1_itl_num = 0
+            # # Special handling for the top surface
+            # if i==len(Boundary_mask)-1:
+            #     Ch1_bdr_num = len(curr_Ch1_df)
+            #     Ch1_itl_num = 0
 
         Ch2_bdr_num = 0
         Ch2_itl_num = 0
@@ -86,10 +86,10 @@ def count_boundary_foci_num(
             if Internal_mask[i, r, c]>0:
                 Ch2_itl_num = Ch2_itl_num + 1
 
-            # Special handling for the top surface
-            if i==len(Boundary_mask)-1:
-                Ch2_bdr_num = len(curr_Ch2_df)
-                Ch2_itl_num = 0
+            # # Special handling for the top surface
+            # if i==len(Boundary_mask)-1:
+            #     Ch2_bdr_num = len(curr_Ch2_df)
+            #     Ch2_itl_num = 0
 
         df.loc[i, :] = np.array([i, Ch1_bdr_num, Ch1_itl_num,
                                 Ch2_bdr_num, Ch2_itl_num])
