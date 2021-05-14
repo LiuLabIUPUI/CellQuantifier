@@ -22,10 +22,12 @@ class Pipe():
 		frames = imread(self.settings['Input path'] + self.root_name + \
 				'.tif')
 		frames = img_as_ubyte(frames)
-		filtered = filter_batch(frames, method='boxcar',
-				arg=self.settings['Boxcar_radius'])
-		filtered = filter_batch(filtered, method='gaussian',
-				arg=self.settings['Gaus_blur_sig'])
+		if self.settings['Boxcar_radius']:
+			frames = filter_batch(frames, method='boxcar',
+					arg=self.settings['Boxcar_radius'])
+		if self.settings['Gaus_blur_sig']:
+			frames = filter_batch(frames, method='gaussian',
+					arg=self.settings['Gaus_blur_sig'])
 
 		imsave(self.settings['Output path'] + self.root_name + '-deno.tif', frames)
 
