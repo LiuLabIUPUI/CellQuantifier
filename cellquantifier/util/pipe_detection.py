@@ -36,10 +36,10 @@ class Pipe():
 		print("Check detection")
 		print("######################################")
 
-		check_frame_ind = [0, 50, 100, 150, 199]
-
 		frames = pims.open(self.settings['Input path'] + self.root_name + \
 									'.tif')
+
+		check_frame_ind = [0, len(frames)-1]
 
 		for ind in check_frame_ind:
 			blobs_df, det_plt_array = detect_blobs(frames[ind],
@@ -50,12 +50,14 @@ class Pipe():
 										overlap=0,
 
 										peak_thres_rel=self.settings['Blob_pk_thresh_rel'],
-										r_to_sigraw=1,
+										r_to_sigraw=1.4,
+
+										show_scalebar=False,
 										pixel_size=self.settings['Pixel size'],
 
 										diagnostic=True,
 										pltshow=True,
-										plot_r=False,
+										plot_r=True,
 										truth_df=None)
 
 	def detect(self):
@@ -78,7 +80,7 @@ class Pipe():
 					overlap=0.5,
 
 					peak_thres_rel=self.settings['Blob_pk_thresh_rel'],
-					r_to_sigraw=1,
+					r_to_sigraw=1.4,
 					pixel_size=self.settings['Pixel size'],
 
 					diagnostic=False,

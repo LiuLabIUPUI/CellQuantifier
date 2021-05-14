@@ -13,15 +13,15 @@ settings = {
   'Input path': '/home/linhua/Desktop/input/',
   'Output path': '/home/linhua/Desktop/input/',
   'Processed by:': 'Hua Lin',
-  'Str in filename': '.tif',
-  'Strs not in filename': ['detVideo','temp'],
-  'Pixel size': 0.108,
+  'Str in filename': '-deno.tif',
+  'Strs not in filename': ['xx', 'xxx'],
+  'Pixel size': 1,
 
   #SETTINGS
-  'Blob_thres_rel': 0.65,
-  'Blob_min_sigma': 2,
-  'Blob_max_sigma': 5,
-  'Blob_num_sigma': 5,
+  'Blob_thres_rel': 0.2,
+  'Blob_min_sigma': 5,
+  'Blob_max_sigma': 50,
+  'Blob_num_sigma': 10,
   'Blob_pk_thresh_rel': 0,
 
   'If_fit': False,
