@@ -29,57 +29,62 @@ class Pipe():
 		frames = frames / frames.max()
 		frames = img_as_ubyte(frames)
 
-		# If only 1 frame available, duplicate it to total_frames_num
-		total_frames_num = 1
-		if frames.ndim==2:
-			dup_frames = np.zeros((total_frames_num, \
-				frames.shape[0], frames.shape[1]), dtype=frames.dtype)
-			for i in range(total_frames_num):
-				dup_frames[i] = frames
-			frames = dup_frames
+		if self.settings['detData csv exists']:
+			blobs_df = pd.read_csv(self.settings['Input path'] + \
+				self.root_name + '-detData.csv')
 
-		# Get mask file and save it using 255 and 0
-		imsave(self.settings['Output path'] + self.root_name + '-tempFile.tif',
-				frames)
-		pims_frames = pims.open(self.settings['Output path'] + self.root_name +
-								'-tempFile.tif')
+		else:
+			# If only 1 frame available, duplicate it to total_frames_num
+			total_frames_num = 1
+			if frames.ndim==2:
+				dup_frames = np.zeros((total_frames_num, \
+					frames.shape[0], frames.shape[1]), dtype=frames.dtype)
+				for i in range(total_frames_num):
+					dup_frames[i] = frames
+				frames = dup_frames
 
-		blobs_df, det_plt_array = detect_blobs(pims_frames[0],
-				min_sig=self.settings['Mask blob_min_sigma'],
-				max_sig=self.settings['Mask blob_max_sigma'],
-				num_sig=self.settings['Mask blob_num_sigma'],
-				blob_thres_rel=self.settings['Mask blob_thres_rel'],
-				peak_thres_rel=self.settings['Mask blob_pk_thresh_rel'],
-				r_to_sigraw=1.4,
-				show_scalebar=False,
-				pixel_size=10**9,
-				diagnostic=True,
-				pltshow=False,
-				plot_r=True,
-				truth_df=None)
+			# Get mask file and save it using 255 and 0
+			imsave(self.settings['Output path'] + self.root_name + '-tempFile.tif',
+					frames)
+			pims_frames = pims.open(self.settings['Output path'] + self.root_name +
+									'-tempFile.tif')
 
-		blobs_df, det_plt_array = detect_blobs_batch(pims_frames,
-				min_sig=self.settings['Mask blob_min_sigma'],
-				max_sig=self.settings['Mask blob_max_sigma'],
-				num_sig=self.settings['Mask blob_num_sigma'],
-				blob_thres_rel=self.settings['Mask blob_thres_rel'],
-				peak_thres_rel=self.settings['Mask blob_pk_thresh_rel'],
-				r_to_sigraw=1.4,
-				show_scalebar=False,
-				pixel_size=10**9,
-				diagnostic=False,
-				pltshow=False,
-				plot_r=False,
-				truth_df=None)
+			blobs_df, det_plt_array = detect_blobs(pims_frames[0],
+					min_sig=self.settings['Mask blob_min_sigma'],
+					max_sig=self.settings['Mask blob_max_sigma'],
+					num_sig=self.settings['Mask blob_num_sigma'],
+					blob_thres_rel=self.settings['Mask blob_thres_rel'],
+					peak_thres_rel=self.settings['Mask blob_pk_thresh_rel'],
+					r_to_sigraw=1.4,
+					show_scalebar=False,
+					pixel_size=10**9,
+					diagnostic=True,
+					pltshow=False,
+					plot_r=True,
+					truth_df=None)
 
-		blobs_df.round(3).to_csv(self.settings['Output path'] + self.root_name + \
-						'-detData.csv', index=False)
+			blobs_df, det_plt_array = detect_blobs_batch(pims_frames,
+					min_sig=self.settings['Mask blob_min_sigma'],
+					max_sig=self.settings['Mask blob_max_sigma'],
+					num_sig=self.settings['Mask blob_num_sigma'],
+					blob_thres_rel=self.settings['Mask blob_thres_rel'],
+					peak_thres_rel=self.settings['Mask blob_pk_thresh_rel'],
+					r_to_sigraw=1.4,
+					show_scalebar=False,
+					pixel_size=10**9,
+					diagnostic=False,
+					pltshow=False,
+					plot_r=False,
+					truth_df=None)
+
+			blobs_df.round(3).to_csv(self.settings['Output path'] + self.root_name + \
+							'-detData.csv', index=False)
+
+			os.remove(self.settings['Output path'] + \
+				self.root_name + '-tempFile.tif')
+			self.save_config()
 
 		masks_blob = blobs_df_to_mask(frames, blobs_df)
-
-		os.remove(self.settings['Output path'] + \
-			self.root_name + '-tempFile.tif')
-		self.save_config()
 
 		return masks_blob
 
@@ -94,12 +99,13 @@ class Pipe():
 		imsave(self.settings['Output path'] + self.root_name + '-blobMask.tif',
 				masks_blob_255)
 
-		print("######################################")
-		print("Generate dist2blob_mask")
-		print("######################################")
-		dist2blob_masks = img_as_int(get_dist2boundary_mask_batch(masks_blob))
-		imsave(self.settings['Output path'] + self.root_name + \
-			'-dist2blobMask.tif', dist2blob_masks)
+		if self.settings['Generate dist2blobMask']:
+			print("######################################")
+			print("Generate dist2blob_mask")
+			print("######################################")
+			dist2blob_masks = img_as_int(get_dist2boundary_mask_batch(masks_blob))
+			imsave(self.settings['Output path'] + self.root_name + \
+				'-dist2blobMask.tif', dist2blob_masks)
 
 
 def get_root_name_list(settings_dict):

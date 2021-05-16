@@ -9,13 +9,16 @@ control = [
 settings = {
 
   #GENERAL INFO
-  'Input path': '/home/linhua/Desktop/XXXX/',
-  'Output path': '/home/linhua/Desktop/XXXX/',
+  'Input path': '/home/linhua/Desktop/input/',
+  'Output path': '/home/linhua/Desktop/input/',
   'Processed by:': 'Hua Lin',
-  'Str in filename': '.tif',
+  'Str in filename': 'deno.tif',
   'Strs not in filename': ['Mask','temp'],
 
-  #SETTINGS
+  'detData csv exists': True,
+  'Generate dist2blobMask': False,
+
+  #If do detection, detection SETTINGS
   'Mask blob_thres_rel': 0.1,
   'Mask blob_min_sigma': 3,
   'Mask blob_max_sigma': 5,
