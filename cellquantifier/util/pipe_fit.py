@@ -38,8 +38,13 @@ class Pipe():
 
 		frames = pims.open(self.settings['Output path'] + self.root_name + \
 				'.tif')
-		frames_deno = pims.open(self.settings['Output path'] + self.root_name + \
-				'-deno.tif')
+
+		try:
+			frames_deno = pims.open(self.settings['Output path'] + self.root_name + \
+					'-deno.tif')
+		except:
+			frames_deno = frames
+
 		blobs_df = pd.read_csv(self.settings['Output path'] + self.root_name + \
 				'-detData.csv')
 
@@ -55,7 +60,7 @@ class Pipe():
 	            segm_df=blobs_df)
 
 		blobs_df = blobs_df.apply(pd.to_numeric)
-		psf_df['slope'] = psf_df['A'] / (9 * np.pi * psf_df['sig_x'] * psf_df['sig_y'])
+		blobs_df['slope'] = blobs_df['A'] / (9 * np.pi * blobs_df['sig_x'] * blobs_df['sig_y'])
 		blobs_df.round(3).to_csv(self.settings['Output path'] + self.root_name + \
 				'-fitData' + '.csv', index=False)
 
