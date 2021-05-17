@@ -2,7 +2,7 @@
 
 control = [
 'filt_track',
-# 'plot_traj',
+'plot_traj',
 # 'anim_traj',
 ]
 
@@ -11,23 +11,23 @@ control = [
 settings = {
 
   #GENERAL INFO
-  'Input path': '/home/linhua/Desktop/temp/',
-  'Output path': '/home/linhua/Desktop/temp/',
+  'Input path': '/home/linhua/Desktop/input/',
+  'Output path': '/home/linhua/Desktop/input/',
   'Processed by:': 'Hua Lin',
-  'Str in filename': '.tif',
-  'Strs not in filename': ['Video','deno'],
+  'Str in filename': 'green-deno.tif',
+  'Strs not in filename': ['xxx','xxx'],
   'Pixel size': 0.108,
 
   #FOCI FILTERING SETTINGS
   'Foci filt max_dist_err': 10,
   'Foci filt max_sig_to_sigraw': 20,
   'Foci filt max_delta_area': 8,
-  'Foci filt traj_length_thres': 40,
+  'Foci filt traj_length_thres': 20,
 
   #FOCI TRACKING SETTINGS
-  'Frame rate': 33.3,
-  'Trak search_range': 2,
-  'Trak memory': 3,
+  'Frame rate': 1,
+  'Trak search_range': 20,
+  'Trak memory': 5,
   'Trak divide_num': 5,
 
 }

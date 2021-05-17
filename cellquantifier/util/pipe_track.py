@@ -61,7 +61,7 @@ class Pipe():
 		frames = imread(self.settings['Input path'] + self.root_name + \
 				'.tif')
 		psf_df = pd.read_csv(self.settings['Input path'] + self.root_name + \
-				'-fittData.csv')
+				'-fitData.csv')
 
 		blobs_df, im = track_blobs(psf_df,
 			    search_range=self.SEARCH_RANGE,
